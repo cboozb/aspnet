@@ -45,7 +45,7 @@ namespace AsyncRequestReaderSample.Controllers
 
         public async Task<HttpResponseMessage> PutContent()
         {
-            // Determine whether this is first time accesing the file so that we can return 201 Created.
+            // Determine whether this is first time accessing the file so that we can return 201 Created.
             bool first = !File.Exists(_store);
 
             // Open file and write request to it. If write fails then return 503 Service Not Available

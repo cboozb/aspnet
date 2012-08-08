@@ -7,7 +7,8 @@ using System.Web.Http.SelfHost;
 namespace CustomAssemblyResolver
 {
     /// <summary>
-    /// Sample illustrating loading ApiControllers from dynamically loaded assemblies
+    /// Sample illustrating loading ApiControllers from a dynamically loaded controller library
+    /// assembly.
     /// </summary>
     class Program
     {

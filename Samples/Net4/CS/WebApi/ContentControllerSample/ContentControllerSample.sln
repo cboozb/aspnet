@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2010
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ContentController", "ContentController\ContentController.csproj", "{2D40C8EB-357B-46CC-8AE2-8F5665C9835B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client", "Client\Client.csproj", "{CE3657BB-F78E-41AF-A863-ED9157FCF82E}"
@@ -10,6 +10,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{236B49
 		.nuget\NuGet.Config = .nuget\NuGet.Config
 		.nuget\nuget.exe = .nuget\nuget.exe
 		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B61D61D2-89D4-486D-9D8C-9E33753D9F39}"
+	ProjectSection(SolutionItems) = preProject
+		ReadMe.txt = ReadMe.txt
 	EndProjectSection
 EndProject
 Global

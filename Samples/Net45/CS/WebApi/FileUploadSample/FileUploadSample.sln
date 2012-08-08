@@ -6,8 +6,13 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{18BDE819-EDD0-47DB-A76B-13743BEFA4CB}"
 	ProjectSection(SolutionItems) = preProject
 		.nuget\NuGet.Config = .nuget\NuGet.Config
-		.nuget\NuGet.targets = .nuget\NuGet.targets
 		.nuget\nuget.exe = .nuget\nuget.exe
+		.nuget\NuGet.targets = .nuget\NuGet.targets
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{071D3B36-1AF1-49F0-87FB-1E18AB847496}"
+	ProjectSection(SolutionItems) = preProject
+		ReadMe.txt = ReadMe.txt
 	EndProjectSection
 EndProject
 Global

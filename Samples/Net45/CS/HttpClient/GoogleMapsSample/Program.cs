@@ -6,7 +6,7 @@ using System.Net.Http;
 namespace GoogleMapsSample
 {
     /// <summary>
-    ///  Downloads a Redmond map from Google Map, saves it as a file and opens the default viewer.
+    ///  Downloads a Redmond map from Google Map, saves it as a local file and opens the default viewer.
     /// </summary>
     class Program
     {
