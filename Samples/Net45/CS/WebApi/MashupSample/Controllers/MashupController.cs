@@ -1,13 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using MashupSample.Models;
+using Newtonsoft.Json.Linq;
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading.Tasks;
 using System.Web.Http;
-using MashupSample.Models;
-using Newtonsoft.Json.Linq;
 
 namespace MashupSample.Controllers
 {
+    /// <summary>
+    /// This <see cref="ApiController"/> aggregates information from http://www.digg.com and 
+    /// http://delicious.com and presents the aggregation in response to a GET request.
+    /// The information is retrieved asynchronously from the two sites so that no threads are
+    /// blocked.
+    /// </summary>
     public class MashupController : ApiController
     {
         // Reuse the same HttpClient instance 
@@ -51,7 +59,7 @@ namespace MashupSample.Controllers
             HttpResponseMessage diggResponse = await _client.GetAsync(query);
 
             // Read result using JToken and create response
-            if (diggResponse.IsSuccessStatusCode)
+            if (diggResponse.IsSuccessStatusCode && IsJson(diggResponse.Content))
             {
                 JToken diggResult = await diggResponse.Content.ReadAsAsync<JToken>();
                 foreach (var story in diggResult["stories"] as JArray)
@@ -78,7 +86,7 @@ namespace MashupSample.Controllers
             HttpResponseMessage deliciousResponse = await _client.GetAsync(query);
 
             // Read result using JToken and create response
-            if (deliciousResponse.IsSuccessStatusCode)
+            if (deliciousResponse.IsSuccessStatusCode && IsJson(deliciousResponse.Content))
             {
                 JArray deliciousResult = await deliciousResponse.Content.ReadAsAsync<JArray>();
                 foreach (var story in deliciousResult)
@@ -92,6 +100,19 @@ namespace MashupSample.Controllers
             }
 
             return result;
+        }
+
+        private static bool IsJson(HttpContent content)
+        {
+            if (content == null || content.Headers == null || content.Headers.ContentType == null)
+            {
+                return false;
+            }
+
+            MediaTypeHeaderValue contentType = content.Headers.ContentType;
+            return
+                contentType.MediaType.Equals("application/json", StringComparison.OrdinalIgnoreCase) ||
+                contentType.MediaType.Equals("text/json", StringComparison.OrdinalIgnoreCase);
         }
     }
 }

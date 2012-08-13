@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 namespace HostedBatching.selfhost
 {
     /// <summary>
-    /// A console application demostrating batching scenario from client actions.
+    /// A console application demonstrating batching scenario from client actions.
     /// </summary>
     class Program
     {
@@ -13,6 +13,9 @@ namespace HostedBatching.selfhost
         {
             Task test = RunTest("http://localhost:29135");
             test.Wait();
+
+            Console.WriteLine("Hit ENTER to exit...");
+            Console.ReadLine();
         }
 
         private static async Task RunTest(string baseAddress)
@@ -71,7 +74,7 @@ namespace HostedBatching.selfhost
                 new HttpMessageContent(
                     new HttpRequestMessage(
                         HttpMethod.Get,
-                        baseAddress + "/foo/bar"
+                        baseAddress + "/not/found"
                     )
                 )
             );

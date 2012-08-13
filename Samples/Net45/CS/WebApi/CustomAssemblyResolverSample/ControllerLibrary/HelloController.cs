@@ -6,7 +6,7 @@ namespace ControllerLibrary
     {
         public string Get()
         {
-            return "Hello world!";
+            return "Hello world from a controller library!";
         }
     }
 }
