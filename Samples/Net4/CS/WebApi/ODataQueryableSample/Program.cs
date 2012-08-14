@@ -1,0 +1,158 @@
+﻿using System;
+using System.Net.Http;
+using System.Web.Http;
+using System.Web.Http.SelfHost;
+
+namespace ODataQueryableSample
+{
+    class Program
+    {
+        static readonly Uri _baseAddress = new Uri("http://localhost:50231/");
+
+        static void Main(string[] args)
+        {
+            HttpSelfHostServer server = null;
+            try
+            {
+                // Set up server configuration
+                HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
+
+                config.Routes.MapHttpRoute(
+                    name: "DefaultApi",
+                    routeTemplate: "api/{controller}/{id}",
+                    defaults: new { id = RouteParameter.Optional }
+                );
+
+                // Create server
+                server = new HttpSelfHostServer(config);
+
+                // Start listening
+                server.OpenAsync().Wait();
+                Console.WriteLine("Listening on " + _baseAddress);
+
+                RunCustomerClient();
+                RunOrderClient();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine("Could not start server: {0}", e.GetBaseException().Message);
+            }
+            finally
+            {
+                Console.WriteLine("Hit ENTER to exit...");
+                Console.ReadLine();
+
+                if (server != null)
+                {
+                    // Stop listening
+                    server.CloseAsync().Wait();
+                }
+            }
+        }
+
+        /// <summary>
+        /// This client issues requests against the CustomerController
+        /// </summary>
+        static void RunCustomerClient()
+        {
+            HttpClient client = new HttpClient();
+            client.BaseAddress = _baseAddress;
+
+            // Without any query we get the whole content
+            HttpResponseMessage response = client.GetAsync("/api/customer/").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nOriginal list returned: " + response.Content.ReadAsStringAsync().Result);
+
+            // order by Id
+            response = client.GetAsync("/api/customer/?$orderby=Id").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nOrderBy Id returned: " + response.Content.ReadAsStringAsync().Result);
+
+            // order by Id and then skip by 1 and take the first two
+            response = client.GetAsync("/api/customer/?$orderby=Id&$skip=1&$top=2").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nOrderBy Id, return the second and third one: " + response.Content.ReadAsStringAsync().Result);
+
+            // order by Name
+            response = client.GetAsync("/api/customer/?$orderby=Name").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nOrderBy Name returned: " + response.Content.ReadAsStringAsync().Result);
+
+            // order by Name then skip by 2 and take the first one
+            response = client.GetAsync("/api/customer/?$orderby=Name&$skip=2&$top=1").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nOrderBy Name, return the third one: " + response.Content.ReadAsStringAsync().Result);
+
+            // find customers with at least one order with a quantity greater than or equal to 10
+            response = client.GetAsync("/api/customer/?$filter=Orders/any(order: order/Quantity ge 10)").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nFilter with Any Order/Quantity ge 10: " + response.Content.ReadAsStringAsync().Result);
+
+            // find customers with orders that all have a quantity greater than or equal to 10
+            response = client.GetAsync("/api/customer/?$filter=Orders/all(order: order/Quantity ge 10)").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nFilter with All Order/Quantity ge 10: " + response.Content.ReadAsStringAsync().Result);
+
+            // unsupported operator starts with $- 400
+            response = client.GetAsync("/api/customer/?$orderby=Name&$unknown=12").Result;
+            Console.WriteLine("\nOrderBy Name with another $unknown query returned: " + response);
+
+            // unsupported operator not starting with $- ignored
+            response = client.GetAsync("/api/customer/?$orderby=Name&unknown=12").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nOrderBy Name with another unknown query returned: " + response.Content.ReadAsStringAsync().Result);
+
+            // invalid operator - 400
+            response = client.GetAsync("/api/customer/?$orderby=UnknownPropertyName").Result;
+            Console.WriteLine("\nOrderBy UnknownPropertyName query returned: " + response);
+
+            // filter by Name
+            response = client.GetAsync("/api/customer/?$filter=Name eq 'Lowest'").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nFilter Name query returned: " + response.Content.ReadAsStringAsync().Result);
+
+            // filter by expression
+            response = client.GetAsync("/api/customer/?$filter=Id add 2 eq 4").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nFilter by expression: " + response.Content.ReadAsStringAsync().Result);
+
+            // filter with string length method call
+            response = client.GetAsync("/api/customer/?$filter=length(Name) eq 6").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nFilter with string length call: " + response.Content.ReadAsStringAsync().Result);
+
+            // filter with datetime year method call
+            response = client.GetAsync("/api/customer/?$filter=year(BirthTime) eq 2001").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nFilter with year call: " + response.Content.ReadAsStringAsync().Result);
+        }
+
+        /// <summary>
+        /// This client issues requests against the OrderController
+        /// </summary>
+        static void RunOrderClient()
+        {
+            HttpClient client = new HttpClient();
+            client.BaseAddress = _baseAddress;
+
+            // Without any query we get the whole content
+            HttpResponseMessage response = client.GetAsync("/api/order/").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nOriginal list returned: " + response.Content.ReadAsStringAsync().Result);
+
+            // order by Id
+            response = client.GetAsync("/api/order/?$orderby=Id").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nOrderBy Id returned: " + response.Content.ReadAsStringAsync().Result);
+
+            // order by Id and then skip by 1 and take the first two
+            response = client.GetAsync("/api/order/?$orderby=Id&$skip=1&$top=2").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nOrderBy Id, return the second and third one: " + response.Content.ReadAsStringAsync().Result);
+
+            // order by Id and then take the first two thousand. This will result in an error due to our check in the OrderController.
+            response = client.GetAsync("/api/order/?$orderby=Id&$top=2000").Result;
+            Console.WriteLine("\nOrderBy Id with invalid top value: " + response.Content.ReadAsStringAsync().Result);
+        }
+    }
+}
