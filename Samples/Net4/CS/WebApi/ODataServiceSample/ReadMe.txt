@@ -44,6 +44,9 @@ Furthermore, the ODataService exposes a Service Document (aka. $metadata documen
 lists all the top-level entities so clients can discover them. This enables OData clients
 to discover and consume OData Services exposed through ASP.NET Web APO.
 
+For a detailed description of this sample, please see 
+http://blogs.msdn.com/b/alexj/archive/2012/08/15/odata-support-in-asp-net-web-api.aspx
+
 This sample is provided as part of the ASP.NET Web Stack sample repository at
 http://aspnet.codeplex.com/
 

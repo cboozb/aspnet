@@ -8,8 +8,8 @@ OrderController shows how to use the ODataQueryOptions parameter.
 
 The sample illustrates queries using $orderby, $skip, $top, any(), all(), and $filter
 
-For a detailed description of this sample, please see
-<blog to be inserted>
+For a detailed description of this sample, please see 
+http://blogs.msdn.com/b/alexj/archive/2012/08/15/odata-support-in-asp-net-web-api.aspx
 
 This sample is provided as part of the ASP.NET Web Stack sample repository at
 http://aspnet.codeplex.com/
