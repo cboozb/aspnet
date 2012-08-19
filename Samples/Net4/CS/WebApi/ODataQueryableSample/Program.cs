@@ -30,8 +30,10 @@ namespace ODataQueryableSample
                 server.OpenAsync().Wait();
                 Console.WriteLine("Listening on " + _baseAddress);
 
+                // Run clients against each of the three sample controllers
                 RunCustomerClient();
                 RunOrderClient();
+                RunResponseClient();
             }
             catch (Exception e)
             {
@@ -153,6 +155,46 @@ namespace ODataQueryableSample
             // order by Id and then take the first two thousand. This will result in an error due to our check in the OrderController.
             response = client.GetAsync("/api/order/?$orderby=Id&$top=2000").Result;
             Console.WriteLine("\nOrderBy Id with invalid top value: " + response.Content.ReadAsStringAsync().Result);
+        }
+
+        /// <summary>
+        /// This client issues requests against the ResponseController which returns an HttpResponseMessage
+        /// containing a custom HTTP header field.
+        /// </summary>
+        static void RunResponseClient()
+        {
+            HttpClient client = new HttpClient();
+            client.BaseAddress = _baseAddress;
+
+            // Without any query we get the whole content
+            HttpResponseMessage response = client.GetAsync("/api/response/").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nHTTP response headers:\n{0}", response.Headers);
+            Console.WriteLine("\nOriginal list returned: " + response.Content.ReadAsStringAsync().Result);
+
+            // order by Id
+            response = client.GetAsync("/api/response/?$orderby=Id").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nHTTP response headers:\n{0}", response.Headers);
+            Console.WriteLine("\nOrderBy Id returned: " + response.Content.ReadAsStringAsync().Result);
+
+            // order by Id and then skip by 1 and take the first two
+            response = client.GetAsync("/api/response/?$orderby=Id&$skip=1&$top=2").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nHTTP response headers:\n{0}", response.Headers);
+            Console.WriteLine("\nOrderBy Id, return the second and third one: " + response.Content.ReadAsStringAsync().Result);
+
+            // find customers with at least one order with a quantity greater than or equal to 10
+            response = client.GetAsync("/api/response/?$filter=Orders/any(order: order/Quantity ge 10)").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nHTTP response headers:\n{0}", response.Headers);
+            Console.WriteLine("\nFilter with Any Order/Quantity ge 10: " + response.Content.ReadAsStringAsync().Result);
+
+            // find customers with orders that all have a quantity greater than or equal to 10
+            response = client.GetAsync("/api/response/?$filter=Orders/all(order: order/Quantity ge 10)").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nHTTP response headers:\n{0}", response.Headers);
+            Console.WriteLine("\nFilter with All Order/Quantity ge 10: " + response.Content.ReadAsStringAsync().Result);
         }
     }
 }
