@@ -18,7 +18,7 @@ In this sample, the Home controller has four actions:
 4. PostMultipleParametersFromBody shows how to bind multiple parameters from body for a POST message;
 
 For a detailed description of this sample, please see
-http://blogs.msdn.com/b/jmstall/archive/2012/05/11/webapi-parameter-binding-under-the-hood.aspx
+http://blogs.msdn.com/b/hongmeig1/archive/2012/09/28/how-to-customize-parameter-binding.aspx
 
 This sample is provided as part of the ASP.NET Web Stack sample repository at
 http://aspnet.codeplex.com/
