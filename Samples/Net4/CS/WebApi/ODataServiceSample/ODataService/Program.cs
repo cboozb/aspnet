@@ -1,12 +1,10 @@
-﻿using Microsoft.Data.Edm;
-using ODataService.Models;
-using System;
+﻿using System;
 using System.Web.Http;
-using System.Web.Http.Controllers;
+using System.Web.Http.OData;
 using System.Web.Http.OData.Builder;
-using System.Web.Http.OData.Builder.Conventions;
-using System.Web.Http.OData.Formatter;
 using System.Web.Http.SelfHost;
+using Microsoft.Data.Edm;
+using ODataService.Models;
 
 namespace ODataService
 {
@@ -26,33 +24,9 @@ namespace ODataService
                 // Set up server configuration
                 HttpSelfHostConfiguration configuration = new HttpSelfHostConfiguration(_baseAddress);
 
-                // Register an Action selector that can include template parameters in the name
-                configuration.Services.Replace(typeof(IHttpActionSelector), new ODataActionSelector());
-
-                // Generate a model
-                IEdmModel model = GetEdmModel();
-
-                // Create the OData formatter and give it the model
-                ODataMediaTypeFormatter odataFormatter = new ODataMediaTypeFormatter(model);
-
-                // Clear formatters and register the OData formatter
                 configuration.Formatters.Clear();
-                configuration.Formatters.Insert(0, odataFormatter);
-
-                // Metadata routes to support $metadata and code generation in the WCF Data Service client.
-                configuration.Routes.MapHttpRoute(ODataRouteNames.Metadata, "$metadata", new { Controller = "ODataMetadata", Action = "GetMetadata" });
-                configuration.Routes.MapHttpRoute(ODataRouteNames.ServiceDocument, "", new { Controller = "ODataMetadata", Action = "GetServiceDocument" });
-
-                // Relationship routes (notice the parameters is {type}Id not id, this avoids colliding with GetById(id)).
-                configuration.Routes.MapHttpRoute(ODataRouteNames.PropertyNavigation, "{controller}({parentId})/{navigationProperty}");
-
-                // Route for manipulating links. 
-                configuration.Routes.MapHttpRoute(ODataRouteNames.Link, "{controller}({id})/$links/{navigationProperty}");
-
-                // Routes for urls both producing and handling urls like ~/Product(1), ~/Products() and ~/Products
-                configuration.Routes.MapHttpRoute(ODataRouteNames.GetById, "{controller}({id})");
-                configuration.Routes.MapHttpRoute(ODataRouteNames.DefaultWithParentheses, "{controller}()");
-                configuration.Routes.MapHttpRoute(ODataRouteNames.Default, "{controller}");
+                // Enable OData
+                configuration.EnableOData(GetEdmModel());
 
                 // Create server
                 server = new HttpSelfHostServer(configuration);
@@ -114,6 +88,8 @@ namespace ODataService
             product.Property(p => p.ReleaseDate);
             product.Property(p => p.SupportedUntil);
 
+            modelBuilder.Entity<RatedProduct>().DerivesFrom<Product>().Property(rp => rp.Rating);
+
             var address = modelBuilder.ComplexType<Address>();
             address.Property(a => a.City);
             address.Property(a => a.Country);
@@ -148,6 +124,10 @@ namespace ODataService
                 supplier.NavigationProperties,
                 (entityContext, navigationProperty) => new Uri(entityContext.UrlHelper.Link(ODataRouteNames.PropertyNavigation, new { Controller = "Suppliers", parentId = entityContext.EntityInstance.ID, NavigationProperty = navigationProperty.Name })));
 
+            ActionConfiguration createProduct = product.Action("CreateProduct");
+            createProduct.Parameter<string>("Name");
+            createProduct.Returns<int>();
+
             return modelBuilder.GetEdmModel();
         }
 
@@ -160,8 +140,12 @@ namespace ODataService
         {
             ODataModelBuilder modelBuilder = new ODataConventionModelBuilder();
             modelBuilder.EntitySet<Product>("Products");
+            modelBuilder.Entity<RatedProduct>().DerivesFrom<Product>();
             modelBuilder.EntitySet<ProductFamily>("ProductFamilies");
             modelBuilder.EntitySet<Supplier>("Suppliers");
+            ActionConfiguration createProduct = modelBuilder.Entity<ProductFamily>().Action("CreateProduct");
+            createProduct.Parameter<string>("Name");
+            createProduct.Returns<int>();
             return modelBuilder.GetEdmModel();
         }
     }

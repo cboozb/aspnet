@@ -11,6 +11,9 @@
         <Property Name="SupportedUntil" Type="Edm.DateTime" />
         <NavigationProperty Name="Family" Relationship="ODataService.Models.ODataService_Models_Product_Family_ODataService_Models_ProductFamily_FamilyPartner" ToRole="Family" FromRole="FamilyPartner" />
       </EntityType>
+      <EntityType Name="RatedProduct" BaseType="ODataService.Models.Product">
+        <Property Name="Rating" Type="Edm.Int32" Nullable="false" />
+      </EntityType>
       <EntityType Name="ProductFamily">
         <Key>
           <PropertyRef Name="ID" />
@@ -27,7 +30,7 @@
         </Key>
         <Property Name="ID" Type="Edm.Int32" Nullable="false" />
         <Property Name="Name" Type="Edm.String" />
-        <Property Name="Address" Type="ODataService.Models.Address" Nullable="false" />
+        <Property Name="Address" Type="ODataService.Models.Address" />
         <NavigationProperty Name="ProductFamilies" Relationship="ODataService.Models.ODataService_Models_Supplier_ProductFamilies_ODataService_Models_ProductFamily_ProductFamiliesPartner" ToRole="ProductFamilies" FromRole="ProductFamiliesPartner" />
       </EntityType>
       <ComplexType Name="Address">
@@ -59,6 +62,10 @@
         <EntitySet Name="Products" EntityType="ODataService.Models.Product" />
         <EntitySet Name="ProductFamilies" EntityType="ODataService.Models.ProductFamily" />
         <EntitySet Name="Suppliers" EntityType="ODataService.Models.Supplier" />
+        <FunctionImport Name="CreateProduct" ReturnType="Edm.Int32" IsBindable="true" m:IsAlwaysBindable="true">
+          <Parameter Name="bindingParameter" Type="ODataService.Models.ProductFamily" />
+          <Parameter Name="Name" Type="Edm.String" FixedLength="false" Unicode="false" />
+        </FunctionImport>
         <AssociationSet Name="ODataService_Models_Product_Family_ODataService_Models_ProductFamily_FamilyPartnerSet" Association="ODataService.Models.ODataService_Models_Product_Family_ODataService_Models_ProductFamily_FamilyPartner">
           <End Role="FamilyPartner" EntitySet="Products" />
           <End Role="Family" EntitySet="ProductFamilies" />

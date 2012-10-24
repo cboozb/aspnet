@@ -1,7 +1,7 @@
-﻿using ODataClient.MSProducts.ODataService.Models;
-using System;
+﻿using System;
 using System.Data.Services.Client;
 using System.Linq;
+using ODataClient.MSProducts.ODataService.Models;
 
 namespace ODataClient
 {
@@ -66,8 +66,16 @@ namespace ODataClient
                         Post_ProductFamily_link_Products();
                         break;
 
+                    case "delete productfamily..products":
+                        Delete_ProductFamily_link_Products();
+                        break;
+
                     case "put productfamily..supplier":
                         Put_ProductFamily_link_Supplier();
+                        break;
+
+                    case "invoke action":
+                        Invoke_Action();
                         break;
 
                     case "test":
@@ -99,20 +107,24 @@ namespace ODataClient
             Get_ProductFamily_Supplier();
 
             Get_ProductFamilies();
-            Delete_ProductFamily();
-            Get_ProductFamilies();
             Post_ProductFamily();
             Get_ProductFamilies();
             Patch_ProductFamily();
             Get_ProductFamilies();
             Put_ProductFamily();
             Get_ProductFamilies();
+            Delete_ProductFamily();
+            Get_ProductFamilies();
 
             Put_Product_link_Family();
             Delete_Product_link_Family();
 
             Post_ProductFamily_link_Products();
+            Delete_ProductFamily_link_Products();
+
             Put_ProductFamily_link_Supplier();
+
+            Invoke_Action();
         }
 
         #region Product
@@ -237,14 +249,36 @@ namespace ODataClient
             ctx.SaveChanges();
         }
 
+        private static void Delete_ProductFamily_link_Products()
+        {
+            Container ctx = new Container();
+            Console.WriteLine("\t<< delete productfamily..products >>");
+            var product = ctx.Products.OrderBy(p => p.ID).First(); // OrderBy need to avoid Take throw.
+            var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
+            ctx.DeleteLink(family, "Products", product);
+            ctx.SaveChanges();
+        }
+
         private static void Put_ProductFamily_link_Supplier()
         {
-            Container ctx = new Container(new Uri("http://localhost:8085/"));
-            Console.WriteLine("\t<< patch productfamily..supplier >>");
+            Container ctx = new Container();
+            Console.WriteLine("\t<< put productfamily..supplier >>");
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
             var supplier = ctx.Suppliers.Where(s => s.ID == 1).First();
             ctx.SetLink(family, "Supplier", supplier);
             ctx.SaveChanges();
+        }
+        #endregion
+
+        #region Actions
+        private static void Invoke_Action()
+        {
+            Container ctx = new Container();
+            Console.WriteLine("\t<< invoke action >>");
+            string uri = ctx.BaseUri.AbsoluteUri + "ProductFamilies(1)/CreateProduct";
+            var results = ctx.Execute<int>(new Uri(uri), "POST", true, new BodyOperationParameter("Name", "New Product"));
+            var result = results.Single();
+            Console.WriteLine("\t" + @"action CreateProduct({{ ""Name"": ""New Product"" }}) returned {0}", result);
         }
         #endregion
 
@@ -263,7 +297,9 @@ namespace ODataClient
             Console.WriteLine("\tput product..family            -> Set Product.Family to a ProductFamily.");
             Console.WriteLine("\tdelete product..family         -> Set Product.Family to NULL.");
             Console.WriteLine("\tpost productfamily..products   -> ProductFamily.Products.Add(product).");
+            Console.WriteLine("\tdelete productfamily..products -> ProductFamily.Products.Remove(product).");
             Console.WriteLine("\tput productfamily..supplier    -> ProductFamily.Supplier = supplier.");
+            Console.WriteLine("\tinvoke action                  -> Invoke the CreateProduct action.");
             Console.WriteLine("\ttest                           -> Run all the above commands");
             Console.WriteLine("\t?                              -> Print Available Commands.");
             Console.WriteLine("\tquit                           -> Quit.");

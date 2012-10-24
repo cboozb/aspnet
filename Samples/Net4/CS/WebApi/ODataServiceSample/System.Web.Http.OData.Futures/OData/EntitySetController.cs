@@ -1,13 +1,12 @@
-﻿using Microsoft.Data.OData;
-using System;
+﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
+
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Web.Http;
-using System.Web.Http.OData;
-using System.Web.Http.OData.Builder.Conventions;
+using System.Web.Http.OData.Query;
+using Microsoft.Data.OData;
 
-namespace ODataService.Controllers
+namespace System.Web.Http.OData
 {
     /// <summary>
     /// EntitySetController is a prototype of a convenient starting point for a controller that exposes an 
@@ -94,9 +93,10 @@ namespace ODataService.Controllers
             entity = CreateEntity(entity);
 
             HttpResponseMessage response = null;
-            if (Request.WantsResponseToExcludeCreatedEntity())
+            if (Request.PreferReturnNoContent())
             {
                 response = Request.CreateResponse(HttpStatusCode.NoContent);
+                response.Headers.Add("Preference-Applied", "return-no-content");
             }
             else
             {
@@ -133,9 +133,12 @@ namespace ODataService.Controllers
         public virtual HttpResponseMessage Patch(TKey id, Delta<TEntity> patch)
         {
             TEntity updated = PatchEntity(id, patch);
-            if (Request.WantsResponseToIncludeUpdatedEntity())
+            
+            if (Request.PreferReturnContent())
             {
-                return Request.CreateResponse(HttpStatusCode.Accepted, updated);
+                HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Accepted, updated);
+                response.Headers.Add("Preference-Applied", "return-content");
+                return response;
             }
             else
             {
@@ -155,9 +158,11 @@ namespace ODataService.Controllers
         public virtual HttpResponseMessage Put(TKey id, TEntity update)
         {
             TEntity updated = UpdateEntity(id, update);
-            if (Request.WantsResponseToIncludeUpdatedEntity())
+            if (Request.PreferReturnContent())
             {
-                return Request.CreateResponse(HttpStatusCode.Accepted, updated);
+                HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Accepted, updated);
+                response.Headers.Add("Preference-Applied", "return-content");
+                return response;
             }
             else
             {
@@ -206,6 +211,33 @@ namespace ODataService.Controllers
         public virtual HttpResponseMessage DeleteLink(int id, string navigationProperty, [FromBody] Uri link)
         {
             throw ODataErrors.DeletingLinkNotSupported(Request, navigationProperty);
+        }
+
+        /// <summary>
+        /// The method handles DELETE requests that attempt to break the "navigationProperty" relationship between
+        /// two entities where the relationship cardinality is MANY and both ids are in the url.
+        /// </summary>
+        /// <param name="id">The key of the entity with the navigationProperty</param>
+        /// <param name="relatedId">The key of the entity related via the navigationProperty</param>
+        /// <param name="navigationProperty">The name of the navigationProperty to be modified</param>
+        /// <param name="link">The url of the entity to remove from the navigationProperty. 
+        /// </param>
+        /// <returns>Until overridden this method will respond with 501 Not Implemented</returns>
+        public virtual HttpResponseMessage DeleteLink(int id, int relatedId, string navigationProperty)
+        {
+            throw ODataErrors.DeletingLinkNotSupported(Request, navigationProperty);
+        }
+
+        /// <summary>
+        /// Responds to all unmapped OData requests.
+        /// </summary>
+        /// <remarks>
+        /// ODataPathSegmentKind is there only to avoid action dispatch issues.
+        /// </remarks>
+        [AcceptVerbs("GET", "POST", "PUT", "PATCH", "DELETE")]
+        public virtual HttpResponseMessage HandleUnmappedRequest()
+        {
+            return HandleUnmappedRequest(Request.Properties[ODataRouteVariables.ODataPathSegment] as ODataPathSegment);
         }
 
         /// <summary>
@@ -341,6 +373,24 @@ namespace ODataService.Controllers
                             }
                         )
                     );
+        }
+
+        /// <summary>
+        /// Override to handle all unmapped OData requests.
+        /// </summary>
+        protected virtual HttpResponseMessage HandleUnmappedRequest(ODataPathSegment segment)
+        {
+            throw new HttpResponseException(
+                Request.CreateResponse(
+                    HttpStatusCode.NotImplemented,
+                    new ODataError
+                    {
+                        Message = string.Format("This service doesn't support OData requests in the form '{0}'.", segment.KindPath()),
+                        MessageLanguage = "en-US",
+                        ErrorCode = "Not Implemented."
+                    }
+                )
+            );
         }
 
         //TODO: there has to be a better way!!

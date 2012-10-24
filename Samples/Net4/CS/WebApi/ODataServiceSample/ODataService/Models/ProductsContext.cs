@@ -9,10 +9,10 @@ namespace ODataService.Models
         {
             Database.SetInitializer(new ProductsContextInitializer());
         }
+        
         public ProductsContext()
             : base("Products")
-        {
-            Database.CreateIfNotExists();
+        {       
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)

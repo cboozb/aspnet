@@ -1,10 +1,10 @@
-﻿using ODataService.Models;
-using System;
+﻿using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.OData;
+using ODataService.Models;
 
 namespace ODataService.Controllers
 {
@@ -173,10 +173,15 @@ namespace ODataService.Controllers
         }
 
         /// <summary>
-        /// Support for ProductFamily.Products.Delete(Product) and ProductFamily.Supplier = null
+        /// Support for ProductFamily.Supplier = null
+        /// which uses this Url shape:
+        ///     DELETE ~/ProductFamilies(id)/$links/Supplier
+        ///     headers
+        ///     
+        ///     [link]
         /// </summary>
         /// <remarks>
-        /// TODO: When override EntitySetController.CreateLink(), the [FromBody] attribute is missing.
+        /// TODO: When override EntitySetController.DeleteLink(), the [FromBody] attribute is missing.
         /// it is required otherwise link will always be null.
         /// </remarks>
         public override HttpResponseMessage DeleteLink(int id, string navigationProperty, [FromBody] Uri link)
@@ -189,16 +194,6 @@ namespace ODataService.Controllers
 
             switch (navigationProperty)
             {
-                case "Products":
-                    int productId = Configuration.GetKeyValue<int>(link);
-                    Product product = _db.Products.SingleOrDefault(p => p.ID == productId);
-                    if (product == null)
-                    {
-                        throw ODataErrors.EntityNotFound(Request);
-                    }
-                    product.Family = null;
-                    break;
-
                 case "Supplier":
                     family.Supplier = null;
                     break;
@@ -209,6 +204,66 @@ namespace ODataService.Controllers
             }
             _db.SaveChanges();
             return Request.CreateResponse(HttpStatusCode.NoContent);
+        }
+
+        /// <summary>
+        /// Support for ProductFamily.Products.Delete(Product)
+        /// 
+        /// which uses this URL shape:
+        ///     DELETE ~/ProductFamilies(id)/$links/Products(relatedId)
+        /// </summary>
+        public override HttpResponseMessage DeleteLink(int id, int relatedId, string navigationProperty)
+        {
+            ProductFamily family = _db.ProductFamilies.SingleOrDefault(p => p.ID == id);
+            if (family == null)
+            {
+                throw ODataErrors.EntityNotFound(Request);
+            }
+
+            switch (navigationProperty)
+            {
+                case "Products":
+                    Product product = _db.Products.SingleOrDefault(p => p.ID == relatedId);
+                    if (product == null)
+                    {
+                        throw ODataErrors.EntityNotFound(Request);
+                    }
+                    product.Family = null;
+                    break;
+
+
+                default:
+                    return base.DeleteLink(id, relatedId, navigationProperty);
+
+            }
+            _db.SaveChanges();
+            return Request.CreateResponse(HttpStatusCode.NoContent);
+        }
+
+        [HttpPost]
+        public int CreateProduct(int boundId, ODataActionParameters parameters)
+        {
+            int createdId = -1;
+            try
+            {
+                ProductFamily productFamily = _db.ProductFamilies.SingleOrDefault(p => p.ID == boundId);
+                string productName = parameters["Name"].ToString();
+                
+                Product product = new Product
+                {
+                    Name = productName,
+                    Family = productFamily,
+                    ReleaseDate = DateTime.Now,
+                    SupportedUntil = DateTime.Now.AddYears(10)
+                };
+                _db.Products.Add(product);
+                _db.SaveChanges();
+                createdId = product.ID;
+            }
+            catch 
+            {
+            }
+            return createdId;
         }
 
         /// <summary>

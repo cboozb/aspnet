@@ -1,12 +1,11 @@
-﻿using ODataService.Models;
-using System;
+﻿using System;
 using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.OData;
-using System.Web.Http.OData.Builder.Conventions;
+using ODataService.Models;
 
 namespace ODataService.Controllers
 {
@@ -31,7 +30,7 @@ namespace ODataService.Controllers
         /// </summary>
         /// <returns>An IQueryable with all the products you want it to be possible for clients to reach.</returns>
         [Queryable]
-        public IQueryable<Product> GetProducts()
+        public IQueryable<Product> Get()
         {
             // If you have any security filters you should apply them before returning then from this method.
             return _db.Products;
@@ -44,7 +43,7 @@ namespace ODataService.Controllers
         /// </summary>
         /// <param name="id">The key of the Product required</param>
         /// <returns>The Product</returns>
-        public HttpResponseMessage GetProductById(int id)
+        public HttpResponseMessage GetById(int id)
         {
             Product product = _db.Products.Where(p => p.ID == id).SingleOrDefault();
             if (product == null)
@@ -77,7 +76,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for creating products
         /// </summary>
-        public HttpResponseMessage PostProduct(Product product)
+        public HttpResponseMessage Post(Product product)
         {
             product.Family = null;
 
@@ -91,7 +90,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for partial updates of products
         /// </summary>
-        public HttpResponseMessage PatchProduct(int id, Delta<Product> product)
+        public HttpResponseMessage Patch(int id, Delta<Product> product)
         {
             Product dbProduct = _db.Products.SingleOrDefault(p => p.ID == id);
             if (dbProduct == null)
@@ -108,7 +107,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for deleting products by key.
         /// </summary>
-        public HttpResponseMessage DeleteProduct(int id)
+        public HttpResponseMessage Delete(int id)
         {
             _db.Entry(_db.Products.Find(id)).State = EntityState.Deleted;
             _db.SaveChanges();
@@ -151,7 +150,8 @@ namespace ODataService.Controllers
         /// <param name="id">The key of the Entity in this EntitySet</param>
         /// <param name="navigationProperty">The navigation property of the Entity in this EntitySet that should be modified</param>
         /// <param name="link">The url to the other entity that should be related via the navigationProperty</param>
-        public HttpResponseMessage PutLink(int id, string navigationProperty, [FromBody] Uri link)
+        [AcceptVerbs("POST", "PUT")]
+        public HttpResponseMessage CreateLink(int id, string navigationProperty, [FromBody] Uri link)
         {
             Product product = _db.Products.SingleOrDefault(p => p.ID == id);
 

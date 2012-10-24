@@ -7,7 +7,7 @@ namespace ODataService.Models
     /// <summary>
     /// This class initializes the the ProductsContext database with a good set of initial data.
     /// </summary>
-    public class ProductsContextInitializer : CreateDatabaseIfNotExists<ProductsContext>
+    public class ProductsContextInitializer : DropCreateDatabaseAlways<ProductsContext>
     {
         protected override void Seed(ProductsContext context)
         {
@@ -59,7 +59,7 @@ namespace ODataService.Models
                             new Product { Name = "MS-DOS 7.0 (Win95, 95A)" },
                             new Product { Name = "MS-DOS 7.1 (Win95B, Win98SE)" },          
                             new Product { Name = "MS-DOS 8.0 (WinME)" },
-                            new Product { Name = "MS-DOS 8.0 (WinXP)" }
+                            new RatedProduct { Name = "MS-DOS 8.0 (WinXP)", Rating = 5 }
                         }
                     },
                     new ProductFamily { 

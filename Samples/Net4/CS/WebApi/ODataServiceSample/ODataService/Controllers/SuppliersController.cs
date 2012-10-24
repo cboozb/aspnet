@@ -21,7 +21,7 @@ namespace ODataService.Controllers
         ProductsContext _db = new ProductsContext();
 
         [Queryable]
-        public IQueryable<Supplier> GetSuppliers()
+        public IQueryable<Supplier> Get()
         {
             return _db.Suppliers;
         }
@@ -39,7 +39,7 @@ namespace ODataService.Controllers
             }
         }
 
-        public HttpResponseMessage PostSupplier(Supplier supplier)
+        public HttpResponseMessage Post(Supplier supplier)
         {
             supplier.ProductFamilies = null;
 
