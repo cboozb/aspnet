@@ -133,7 +133,7 @@ namespace System.Web.Http.OData
         public virtual HttpResponseMessage Patch(TKey id, Delta<TEntity> patch)
         {
             TEntity updated = PatchEntity(id, patch);
-            
+
             if (Request.PreferReturnContent())
             {
                 HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Accepted, updated);
@@ -198,7 +198,7 @@ namespace System.Web.Http.OData
 
         /// <summary>
         /// The method handles DELETE requests that attempt to break the "navigationProperty" relationship between
-        /// two entities.
+        /// two entities when the link to the second entity is in the request body.
         /// </summary>
         /// <param name="id">The key of the entity with the navigationProperty</param>
         /// <param name="navigationProperty">The name of the navigationProperty to be modified</param>
@@ -220,8 +220,6 @@ namespace System.Web.Http.OData
         /// <param name="id">The key of the entity with the navigationProperty</param>
         /// <param name="relatedId">The key of the entity related via the navigationProperty</param>
         /// <param name="navigationProperty">The name of the navigationProperty to be modified</param>
-        /// <param name="link">The url of the entity to remove from the navigationProperty. 
-        /// </param>
         /// <returns>Until overridden this method will respond with 501 Not Implemented</returns>
         public virtual HttpResponseMessage DeleteLink(int id, int relatedId, string navigationProperty)
         {

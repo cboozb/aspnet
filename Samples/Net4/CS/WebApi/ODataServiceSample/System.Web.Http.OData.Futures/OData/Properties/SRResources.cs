@@ -15,5 +15,6 @@ namespace System.Web.Http.OData.Properties
         public const string UriIsNotRelative = "'{0}' is not a url based on '{1}'.";
         public const string UnsupportedSegmentKind = "There is no SegmentKind mapping for '{0}'.";
         public const string UnsupportedLinksMethod = "{0} is not a supported method for $links requests.";
+        public const string ActionSelectorRequestControllerSelector = "The ODataActionSelector must be used in conjunction with the ODataControllerSelector";
     }
 }

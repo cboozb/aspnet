@@ -21,12 +21,12 @@ namespace System.Web.Http.OData
             if (controllerContext.RouteData.Route == controllerContext.Configuration.Routes[ODataRouteNames2.PathInfo])
             {
                 Select(controllerContext);
+                controllerContext.RouteData.Values.Remove(ODataRouteVariables.PathInfo);
             }
-            controllerContext.RouteData.Values.Remove(ODataRouteVariables.PathInfo);
             return base.SelectAction(controllerContext);
         }
 
-        private static void Select(HttpControllerContext controllerContext)
+        protected virtual void Select(HttpControllerContext controllerContext)
         {
             if (controllerContext.ControllerDescriptor.ControllerName == ODataControllers.Metadata)
             {
@@ -35,6 +35,12 @@ namespace System.Web.Http.OData
             }
 
             ODataPathSegment segment = controllerContext.Request.Properties[ODataRouteVariables.ODataPathSegment] as ODataPathSegment;
+
+            if (segment == null)
+            {
+                throw Error.InvalidOperation(SRResources.ActionSelectorRequestControllerSelector);
+            }
+
             string template = segment.KindPath();
 
             if (template == "~/entityset")
@@ -67,12 +73,12 @@ namespace System.Web.Http.OData
             }
         }
 
-        private static void SelectEntitySet(HttpControllerContext controllerContext)
+        protected virtual void SelectEntitySet(HttpControllerContext controllerContext)
         {
-            controllerContext.RouteData.Values[ODataRouteVariables.Action] = GetControllerActionPrefix(controllerContext.Request);
+            controllerContext.RouteData.Values[ODataRouteVariables.Action] = controllerContext.Request.GetControllerActionPrefix();
         }
 
-        private static void SelectEntity(HttpControllerContext controllerContext, ODataPathSegment segment)
+        protected virtual void SelectEntity(HttpControllerContext controllerContext, ODataPathSegment segment)
         {
             KeyValue key = segment.EdmElement as KeyValue;
             if (key == null)
@@ -81,7 +87,7 @@ namespace System.Web.Http.OData
                 Contract.Assert(key != null);
             }
             controllerContext.RouteData.Values.Add(ODataRouteVariables.Id, key.Value);
-            string actionName = GetControllerActionPrefix(controllerContext.Request);
+            string actionName = controllerContext.Request.GetControllerActionPrefix();
             if (actionName == ODataActions.Get)
             {
                 actionName = ODataActions.GetById;
@@ -89,14 +95,14 @@ namespace System.Web.Http.OData
             controllerContext.RouteData.Values.Add(ODataRouteVariables.Action, actionName);
         }
 
-        private static void SelectNavigationProperty(HttpControllerContext controllerContext, ODataPathSegment segment)
+        protected virtual void SelectNavigationProperty(HttpControllerContext controllerContext, ODataPathSegment segment)
         {
             IEdmNavigationProperty navProp = segment.EdmElement as IEdmNavigationProperty;
             Contract.Assert(navProp != null);
 
-            string parentId = GetLastKey(segment);
+            string parentId = segment.GetLastKeyValue();
             string navigationProperty = navProp.Name;
-            string actionName = string.Format(CultureInfo.InvariantCulture, "{0}{1}", GetControllerActionPrefix(controllerContext.Request), navigationProperty);
+            string actionName = string.Format(CultureInfo.InvariantCulture, "{0}{1}", controllerContext.Request.GetControllerActionPrefix(), navigationProperty);
             string entityType = null;
 
             IEdmEntityType castType = segment.Previous.EdmElement as IEdmEntityType;
@@ -116,7 +122,7 @@ namespace System.Web.Http.OData
             }
         }
 
-        private static void SelectODataAction(HttpControllerContext controllerContext, ODataPathSegment segment)
+        protected virtual void SelectODataAction(HttpControllerContext controllerContext, ODataPathSegment segment)
         {
             if (controllerContext.Request.Method != HttpMethod.Post)
             {
@@ -126,7 +132,7 @@ namespace System.Web.Http.OData
 
             Contract.Assert(action != null);
 
-            string boundId = GetLastKey(segment);
+            string boundId = segment.GetLastKeyValue();
             string odataAction = action.Name;
             string actionName = null;
             string entityType = null;
@@ -152,7 +158,7 @@ namespace System.Web.Http.OData
             return;
         }
 
-        private static void SelectMetadata(HttpControllerContext controllerContext)
+        protected virtual void SelectMetadata(HttpControllerContext controllerContext)
         {
             string lastSegment = controllerContext.Request.RequestUri.Segments.LastOrDefault();
             if (lastSegment == ODataMetadata.Value)
@@ -165,15 +171,15 @@ namespace System.Web.Http.OData
             }
         }
 
-        private static void SelectWildcard(HttpControllerContext controllerContext, ODataPathSegment segment)
+        protected virtual void SelectWildcard(HttpControllerContext controllerContext, ODataPathSegment segment)
         {
             controllerContext.RouteData.Values.Add(ODataRouteVariables.Action, ODataActions.HandleUnmappedRequest);
         }
 
-        private static void SelectLinks(HttpControllerContext controllerContext, ODataPathSegment segment)
+        protected virtual void SelectLinks(HttpControllerContext controllerContext, ODataPathSegment segment)
         {
             string path = segment.KindPath();
-            string method = GetControllerActionPrefix(controllerContext.Request);
+            string method = controllerContext.Request.GetControllerActionPrefix();
 
             if (path.EndsWith("key"))
             {
@@ -215,36 +221,6 @@ namespace System.Web.Http.OData
             controllerContext.RouteData.Values[ODataRouteVariables.Id] = id;
             controllerContext.RouteData.Values[ODataRouteVariables.NavigationProperty] = navigationProperty;
             controllerContext.RouteData.Values[ODataRouteVariables.Action] = method;
-        }
-
-        private static string GetLastKey(ODataPathSegment segment)
-        {
-            KeyValue key = segment.PreviousSegments
-                .Where(s => s.EdmElement is KeyValue)
-                .Select(s => s.EdmElement as KeyValue)
-                .FirstOrDefault();
-
-            return key == null ? null : key.Value;
-        }
-
-        private static string GetControllerActionPrefix(HttpRequestMessage httpRequestMessage)
-        {
-            switch (httpRequestMessage.Method.Method.ToLower())
-            {
-                case "get":
-                    return ODataActions.Get;
-                case "post":
-                    return ODataActions.Post;
-                case "put":
-                    return ODataActions.Put;
-                case "patch":
-                    return ODataActions.Patch;
-                case "delete":
-                    return ODataActions.Delete;
-
-                default:
-                    return httpRequestMessage.Method.Method;
-            }
         }
     }
 }

@@ -11,7 +11,6 @@ using System.Web.Http.OData.Builder;
 using System.Web.Http.OData.Formatter;
 using System.Web.Http.OData.Properties;
 using System.Web.Http.OData.Query;
-using System.Web.Http.SelfHost;
 using Microsoft.Data.Edm;
 using Microsoft.Data.Edm.Library;
 
@@ -34,7 +33,7 @@ namespace System.Web.Http.OData
         /// 5) Sets up the OData wildcard route for handling all incoming OData requests
         /// 6) Sets up useful OData routes for generating out bound urls that comply with OData conventions
         /// </remarks>
-        public static void EnableOData(this HttpSelfHostConfiguration configuration, IEdmModel model)
+        public static void EnableOData(this HttpConfiguration configuration, IEdmModel model)
         {
             // register the model
             configuration.SetEdmModel(model);
@@ -171,6 +170,36 @@ namespace System.Web.Http.OData
             else
             {
                 return false;
+            }
+        }
+
+        public static string GetLastKeyValue(this ODataPathSegment segment)
+        {
+            KeyValue key = segment.PreviousSegments
+                .Where(s => s.EdmElement is KeyValue)
+                .Select(s => s.EdmElement as KeyValue)
+                .FirstOrDefault();
+
+            return key == null ? null : key.Value;
+        }
+
+        public static string GetControllerActionPrefix(this HttpRequestMessage httpRequestMessage)
+        {
+            switch (httpRequestMessage.Method.Method.ToLower())
+            {
+                case "get":
+                    return ODataActions.Get;
+                case "post":
+                    return ODataActions.Post;
+                case "put":
+                    return ODataActions.Put;
+                case "patch":
+                    return ODataActions.Patch;
+                case "delete":
+                    return ODataActions.Delete;
+
+                default:
+                    return httpRequestMessage.Method.Method;
             }
         }
 
