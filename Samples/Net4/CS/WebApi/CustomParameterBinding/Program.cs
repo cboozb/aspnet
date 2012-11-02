@@ -2,13 +2,12 @@
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Security.Principal;
+using System.ServiceModel;
+using System.Text;
 using System.Web.Http;
 using System.Web.Http.Controllers;
 using System.Web.Http.SelfHost;
-using CustomParameterBindingSample.Controllers;
 using CustomParameterBindingSample.Models;
-using System.Text;
-using System.Collections.Generic;
 
 namespace CustomParameterBindingSample
 {
@@ -23,6 +22,7 @@ namespace CustomParameterBindingSample
         static void Main(string[] args)
         {
             HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
+            config.HostNameComparisonMode = HostNameComparisonMode.Exact;
 
             config.Routes.MapHttpRoute("Default", "{controller}/{action}", new { controller = "Home" });
 

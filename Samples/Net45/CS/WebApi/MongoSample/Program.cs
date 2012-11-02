@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.ServiceModel;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
 using MongoSample.Models;
@@ -22,6 +23,7 @@ namespace MongoSample
             {
                 // Set up server configuration
                 HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
+                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
 
                 config.Routes.MapHttpRoute(
                     name: "DefaultApi",

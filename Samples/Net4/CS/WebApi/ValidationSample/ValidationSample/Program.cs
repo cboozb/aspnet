@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Net.Http.Formatting;
+using System.ServiceModel;
 using System.Text;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
@@ -29,6 +30,7 @@ namespace ValidationSample
             {
                 // Set up server configuration
                 HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
+                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
                 config.Formatters.JsonFormatter.Indent = true;
                 config.Formatters.XmlFormatter.Indent = true;
                 config.Routes.MapHttpRoute(

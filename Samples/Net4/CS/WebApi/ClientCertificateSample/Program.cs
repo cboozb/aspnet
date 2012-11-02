@@ -22,12 +22,8 @@ namespace ClientCertificateSample
     /// STEP 2: Map the SSL cert to the selfhost port, e.g. you need to get the cert hash for your server certificate
     ///     netsh http add sslcert ipport=0.0.0.0:50231 certhash=507146b0b51032d812045fcdf2beacc1eaec620c appid={DAEFA3B4-8827-47B3-9981-004E63F5DA59}
 
-    /// STEP 3:  Set an URL ACL for the listening URI
-    ///    netsh http add urlacl url=https://+:50231/ user=domain\username
-
     /// CLEAN up for SSL
     ///    netsh http delete sslcert ipport=0.0.0.0:50231
-    ///    netsh http delete urlacl url=https://+:50231/
     ///    
     /// Please update the ServerCertSubjectName with the subject name of your server certificate and ClientCertSubjectName for your client certificate.
     /// If you client certificate not located in the CurrentUser/Personal store then you can update the GetClientCertificate() method to return 
@@ -46,6 +42,7 @@ namespace ClientCertificateSample
         static void Main(string[] args)
         {
             HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
+            config.HostNameComparisonMode = HostNameComparisonMode.Exact;
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",

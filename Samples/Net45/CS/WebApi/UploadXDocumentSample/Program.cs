@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
+using System.ServiceModel;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
 using System.Xml.Linq;
@@ -21,6 +22,7 @@ namespace UploadXDocumentSample
             {
                 // Set up server configuration
                 HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
+                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
 
                 config.Routes.MapHttpRoute(
                     name: "DefaultApi",

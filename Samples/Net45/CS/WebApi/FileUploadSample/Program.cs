@@ -26,6 +26,7 @@ namespace FileUploadSample
             {
                 // Set up server configuration
                 HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
+                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
 
                 config.Routes.MapHttpRoute(
                     name: "DefaultApi",

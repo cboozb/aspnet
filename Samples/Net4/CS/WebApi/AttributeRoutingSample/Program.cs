@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Reflection;
+using System.ServiceModel;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
 using System.Web.Http.SelfHost;
@@ -23,6 +24,7 @@ namespace AttributeRoutingSample
             {
                 // Set up server configuration
                 HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
+                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
 
                 // Set up Attribute Routing
                 config.Routes.MapHttpAttributeRoutes(attributeRoutingConfig =>

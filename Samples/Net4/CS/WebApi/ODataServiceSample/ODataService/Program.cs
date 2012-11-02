@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ServiceModel;
 using System.Web.Http;
 using System.Web.Http.OData;
 using System.Web.Http.OData.Builder;
@@ -23,6 +24,7 @@ namespace ODataService
             {
                 // Set up server configuration
                 HttpSelfHostConfiguration configuration = new HttpSelfHostConfiguration(_baseAddress);
+                configuration.HostNameComparisonMode = HostNameComparisonMode.Exact;
 
                 configuration.Formatters.Clear();
                 // Enable OData

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.ServiceModel;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
 
@@ -16,7 +17,7 @@ namespace HttpMessageHandlerPipelineSample
     /// http://blogs.msdn.com/b/henrikn/archive/2012/08/07/httpclient-httpclienthandler-and-httpwebrequesthandler.aspx
     ///
     /// For more information about this and other samples, please see 
-    /// http://blogs.msdn.com/b/henrikn/archive/2012/07/20/asp-net-web-api-sample-on-codeplex.aspx
+    /// http://go.microsoft.com/fwlink/?LinkId=261487
     /// </summary>
     class Program
     {
@@ -30,6 +31,7 @@ namespace HttpMessageHandlerPipelineSample
             {
                 // Set up server configuration
                 HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
+                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
 
                 config.Routes.MapHttpRoute(
                     name: "DefaultApi",

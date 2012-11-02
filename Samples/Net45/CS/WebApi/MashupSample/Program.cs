@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.ServiceModel;
 using System.Web.Http;
 using System.Web.Http.SelfHost;
 using MashupSample.Models;
@@ -24,6 +25,7 @@ namespace MashupSample
             {
                 // Create configuration
                 var config = new HttpSelfHostConfiguration(_baseAddress);
+                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
 
                 // Add a route
                 config.Routes.MapHttpRoute(
