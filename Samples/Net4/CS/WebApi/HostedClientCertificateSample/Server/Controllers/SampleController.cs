@@ -2,28 +2,26 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
-using ClientCertificateSample.Models;
+using HostedClientCertificateSample.Models;
 
-namespace ClientCertificateSample.Controllers
+namespace HostedClientCertificateSample.Controllers
 {
     public class SampleController : ApiController
     {
         private static ConcurrentQueue<SampleItem> sampleItems = new ConcurrentQueue<SampleItem>();
 
         /// <summary>
-        /// Gets all the sample Items
+        /// Gets all the sample Items. It does not require client to send client certificate. 
         /// </summary>
-        [Authorize(Roles = "Administrators")]
         public IEnumerable<SampleItem> GetItems()
         {
             return sampleItems.ToArray();
         }
 
         /// <summary>
-        /// Gets an sample Item with the given id
+        /// Gets an sample Item with the given id. It does not require client to send client certificate. 
         /// </summary>
         /// <param name="id">The id that is part of the route</param>
-        [Authorize(Roles = "Administrators")]
         public SampleItem GetItem(int id)
         {
             return sampleItems.FirstOrDefault((item) => item.Id == id);

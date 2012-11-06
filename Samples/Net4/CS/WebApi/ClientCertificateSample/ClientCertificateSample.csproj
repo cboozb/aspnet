@@ -72,7 +72,6 @@
     <Compile Include="Models\SampleItem.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RequireAdminAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

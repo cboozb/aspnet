@@ -12,38 +12,46 @@ using ClientCertificateSample.Models;
 namespace ClientCertificateSample
 {
     /// <summary>
-    /// This sample shows how to secure a web API server with mutual Certificates. It also shows how to authenticate and authorize based 
-    /// on client's certificate.
+    /// This sample shows how to secure a web API server with mutual Certificates in the self host scenario. It also shows how to authenticate and authorize based 
+    /// on client's certificate. 
     ///
-    /// SETUP for SSL:
+    /// There are some SETUP steps required to run this app successfully.
     /// 
-    /// STEP 1: install the server certificate, and update the server
+    /// STEP 1: Generate your own server test cert using the following makecert cmd. Please note that you must run the following command as administrator.
+    ///      makecert -pe -n "CN=contoso.com" -ss my -sr LocalMachine -a sha1 -sky signature -r
 
-    /// STEP 2: Map the SSL cert to the selfhost port, e.g. you need to get the cert hash for your server certificate
-    ///     netsh http add sslcert ipport=0.0.0.0:50231 certhash=507146b0b51032d812045fcdf2beacc1eaec620c appid={DAEFA3B4-8827-47B3-9981-004E63F5DA59}
+    /// STEP 2: Map the SSL cert to the selfhost port with the cert hash for your server certificate you just generated. e.g. 
+    ///     netsh http add sslcert ipport=0.0.0.0:50231 certhash=F8A657C399C919DC96F0C272D35CE5D51880CEF6 appid={DAEFA3B4-8827-47B3-9981-004E63F5DA59}
+    ///     
 
-    /// CLEAN up for SSL
-    ///    netsh http delete sslcert ipport=0.0.0.0:50231
-    ///    
-    /// Please update the ServerCertSubjectName with the subject name of your server certificate and ClientCertSubjectName for your client certificate.
-    /// If you client certificate not located in the CurrentUser/Personal store then you can update the GetClientCertificate() method to return 
+    /// STEP 3: Generate your own client test cert using the following makecert cmd. 
+    ///      makecert -pe -n "CN=Your Name" -ss my -sr CurrentUser -a sha1 -sky signature -r
+
+    /// STEP 4: Export the client test certificate from the CurrentUser/Personal certificate store, and then import newly exported certificate into the Local Machine store under 
+    /// "Trusted Root Certification Authority" so that the server will trust this client certificate. After you complete the testing, please uninstall the certificate from the  
+    /// "Trusted Root Certification Authority" store.
+
+    /// Please update the ServerCertHash with the hash value of your server certificate and the ClientCertHash with the hash of your client certificate.
+    /// If you need to select a client certificate from a different store other than CurrentUser/Personal, please update the GetClientCertificate() method to return 
     /// the client certificate your app uses.
-    /// 
+    
+    /// CLEAN UP STEPS
+    ///    netsh http delete sslcert ipport=0.0.0.0:50231
+    ///    uninstall the certificate from the LocalMachine/"Trusted Root Certification Authority" store.
+    ///    
     /// </summary>
     class Program
     {
         static readonly Uri _baseAddress = new Uri("https://localhost:50231/");
 
-        // Update here with your client and server certificate subject name
-        public const string ServerCertSubjectName = "service.com";
-        public const string ClientCertSubjectName = "HongMei Ge";
-        public const string ClientCertHash = "858CBC654C3B31C7CEEEF71A737A9CAD245FD52E";
+        // Update here with your client and server certificate 
+        public const string ServerCertHash = "F8A657C399C919DC96F0C272D35CE5D51880CEF6";
+        public const string ClientCertHash = "496B1B29D45375D49270966A45811E9F0AC870E2";
 
         static void Main(string[] args)
         {
             HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
-            config.HostNameComparisonMode = HostNameComparisonMode.Exact;
-
+            
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
                 routeTemplate: "api/{controller}/{id}",
@@ -91,6 +99,7 @@ namespace ClientCertificateSample
 
         private static void RunClient()
         {
+            // TEST CERTIFICATE ONLY, PLEASE REMOVE WHEN YOU REPLACE THE CERT WITH A REAL CERT
             // Perform the Server Certificate validation
             ServicePointManager.ServerCertificateValidationCallback += Program.RemoteCertificateValidationCallback;
 
@@ -136,18 +145,27 @@ namespace ClientCertificateSample
             response.Dispose();
         }
 
+        // TEST CERTIFICATE ONLY, PLEASE REMOVE YOU WHEN REPLACE THE CERT WITH A REAL CERT
         public static bool RemoteCertificateValidationCallback(Object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
         {
-            return certificate.Subject.EndsWith(Program.ServerCertSubjectName);
+            return certificate.GetCertHashString() == ServerCertHash;
         }
 
-        // You may need to update here to if you client certificate locates in other x509 store
+        // You SHOULD update here to if you client certificate locates in other x509 store
         private static X509Certificate GetClientCertificate()
         {
-            X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
+           X509Store store = new X509Store(StoreName.My, StoreLocation.CurrentUser);
             store.Open(OpenFlags.ReadOnly);
-            X509CertificateCollection col = store.Certificates.Find(X509FindType.FindBySubjectName, ClientCertSubjectName, true);
-            return col[1];
+            X509CertificateCollection col = store.Certificates.Find(X509FindType.FindByThumbprint, ClientCertHash, false);
+
+            if (col.Count == 1)
+            {
+                return col[0];
+            }
+            else
+            {
+                throw new ApplicationException("Cannot find a certificate. Please follow the setup steps at the beginning of this file to import the Client certificate.");
+            }
         }
 
         /// <summary>
