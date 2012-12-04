@@ -1,11 +1,15 @@
-﻿using System;
+﻿using Microsoft.Data.OData;
+using Microsoft.Data.OData.Query;
+using ODataService.Models;
+using System;
 using System.Data;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.OData;
-using ODataService.Models;
+using System.Web.Http.OData.Routing;
+using System.Web.Http.Routing;
 
 namespace ODataService.Controllers
 {
@@ -41,11 +45,11 @@ namespace ODataService.Controllers
         /// 
         /// GET /Products(1)
         /// </summary>
-        /// <param name="id">The key of the Product required</param>
+        /// <param name="key">The key of the Product required</param>
         /// <returns>The Product</returns>
-        public HttpResponseMessage GetById(int id)
+        public HttpResponseMessage GetByKey(int key)
         {
-            Product product = _db.Products.Where(p => p.ID == id).SingleOrDefault();
+            Product product = _db.Products.Where(p => p.ID == key).SingleOrDefault();
             if (product == null)
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound);
@@ -59,13 +63,13 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for updating products
         /// </summary>
-        public HttpResponseMessage Put(int id, Product update)
+        public HttpResponseMessage Put(int key, Product update)
         {
-            if (!_db.Products.Any(p => p.ID == id))
+            if (!_db.Products.Any(p => p.ID == key))
             {
                 throw ODataErrors.EntityNotFound(Request);
             }
-            update.ID = id; // ignore the ID in the entity use the ID in the URL.
+            update.ID = key; // ignore the ID in the entity use the ID in the URL.
 
             _db.Products.Attach(update);
             _db.Entry(update).State = System.Data.EntityState.Modified;
@@ -83,16 +87,19 @@ namespace ODataService.Controllers
             Product addedProduct = _db.Products.Add(product);
             _db.SaveChanges();
             var response = Request.CreateResponse(HttpStatusCode.Created, addedProduct);
-            response.Headers.Location = new Uri(Url.Link(ODataRouteNames.GetById, new { Controller = "Products", Id = addedProduct.ID }));
+            response.Headers.Location = new Uri(Url.ODataLink(Configuration.GetODataPathHandler(),
+                                  new EntitySetPathSegment(ControllerContext.ControllerDescriptor.ControllerName),
+                                  new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(addedProduct.ID, ODataVersion.V3))));
+            
             return response;
         }
 
         /// <summary>
         /// Support for partial updates of products
         /// </summary>
-        public HttpResponseMessage Patch(int id, Delta<Product> product)
+        public HttpResponseMessage Patch(int key, Delta<Product> product)
         {
-            Product dbProduct = _db.Products.SingleOrDefault(p => p.ID == id);
+            Product dbProduct = _db.Products.SingleOrDefault(p => p.ID == key);
             if (dbProduct == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound);
@@ -107,9 +114,9 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for deleting products by key.
         /// </summary>
-        public HttpResponseMessage Delete(int id)
+        public HttpResponseMessage Delete(int key)
         {
-            _db.Entry(_db.Products.Find(id)).State = EntityState.Deleted;
+            _db.Entry(_db.Products.Find(key)).State = EntityState.Deleted;
             _db.SaveChanges();
             return Request.CreateResponse(HttpStatusCode.Accepted);
         }
@@ -117,12 +124,12 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for removing links between resources
         /// </summary>
-        /// <param name="id">The key of the entity with the navigation property</param>
+        /// <param name="key">The key of the entity with the navigation property</param>
         /// <param name="navigationProperty">The navigation property on the entity to be modified</param>
         /// <param name="link">The url to the other entity that should no longer be linked to the entity via the navigation property</param>
-        public HttpResponseMessage DeleteLink(int id, string navigationProperty, [FromBody] Uri link)
+        public HttpResponseMessage DeleteLink(int key, string navigationProperty, [FromBody] Uri link)
         {
-            Product product = _db.Products.SingleOrDefault(p => p.ID == id);
+            Product product = _db.Products.SingleOrDefault(p => p.ID == key);
 
             switch (navigationProperty)
             {
@@ -147,21 +154,21 @@ namespace ODataService.Controllers
         /// support is required, if there was a Product.Orders relationship - a collection - then this would need 
         /// to respond to POST requests too.
         /// </remarks>
-        /// <param name="id">The key of the Entity in this EntitySet</param>
+        /// <param name="key">The key of the Entity in this EntitySet</param>
         /// <param name="navigationProperty">The navigation property of the Entity in this EntitySet that should be modified</param>
         /// <param name="link">The url to the other entity that should be related via the navigationProperty</param>
         [AcceptVerbs("POST", "PUT")]
-        public HttpResponseMessage CreateLink(int id, string navigationProperty, [FromBody] Uri link)
+        public HttpResponseMessage CreateLink(int key, string navigationProperty, [FromBody] Uri link)
         {
-            Product product = _db.Products.SingleOrDefault(p => p.ID == id);
+            Product product = _db.Products.SingleOrDefault(p => p.ID == key);
 
             switch (navigationProperty)
             {
                 case "Family":
                     // The utility method uses routing (ODataRoutes.GetById should match) to get the value of {id} parameter 
                     // which is the id of the ProductFamily.
-                    int relatedId = Configuration.GetKeyValue<int>(link);
-                    ProductFamily family = _db.ProductFamilies.SingleOrDefault(f => f.ID == relatedId);
+                    int relatedKey = Configuration.GetKeyValue<int>(link);
+                    ProductFamily family = _db.ProductFamilies.SingleOrDefault(f => f.ID == relatedKey);
                     product.Family = family;
                     break;
 
@@ -178,13 +185,13 @@ namespace ODataService.Controllers
         /// 
         /// GET /Products(11)/Family
         /// </summary>
-        /// <param name="parentId">The id of the Product</param>
+        /// <param name="key">The id of the Product</param>
         /// <returns>The related ProductFamily</returns>
-        public ProductFamily GetFamily(int parentId)
+        public ProductFamily GetFamily(int key)
         {
-            return _db.Products.Where(p => p.ID == parentId).Select(p => p.Family).SingleOrDefault();
+            return _db.Products.Where(p => p.ID == key).Select(p => p.Family).SingleOrDefault();
         }
-
+        
         protected override void Dispose(bool disposing)
         {
             _db.Dispose();

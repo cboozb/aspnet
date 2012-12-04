@@ -1,11 +1,12 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using Microsoft.Data.OData;
 using System.Net;
 using System.Net.Http;
+using System.Web.Http;
 using System.Web.Http.OData.Query;
-using Microsoft.Data.OData;
 
-namespace System.Web.Http.OData
+namespace ODataService
 {
     /// <summary>
     /// A set of useful correctly formatted OData errors.

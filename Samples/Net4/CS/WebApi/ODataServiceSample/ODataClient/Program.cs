@@ -1,7 +1,7 @@
-﻿using System;
+﻿using ODataClient.MSProducts.ODataService.Models;
+using System;
 using System.Data.Services.Client;
 using System.Linq;
-using ODataClient.MSProducts.ODataService.Models;
 
 namespace ODataClient
 {
@@ -142,6 +142,9 @@ namespace ODataClient
             Console.WriteLine("\t<< put product..family >>");
             var product = ctx.Products.AsEnumerable().First();
             var family = ctx.ProductFamilies.AsEnumerable().Skip(1).First();
+            Console.WriteLine(string.Format("Associating \nProduct: Id={0}, Name={1} \nTo\nProudctFamily: Id={2}, Name={3}",
+                product.ID, product.Name, family.ID, family.Name));
+
             ctx.SetLink(product, "Family", family);
             ctx.SaveChanges();
         }
@@ -152,6 +155,10 @@ namespace ODataClient
             Console.WriteLine("\t<< delete product..family >>");
             var product = ctx.Products.AsEnumerable().First();
             ctx.LoadProperty(product, "Family");
+
+            Console.WriteLine(string.Format("Unassociating \nProduct: Id={0}, Name={1} \nFrom\nProudctFamily: Id={2}, Name={3}",
+                product.ID, product.Name, product.Family.ID, product.Family.Name));
+
             ctx.SetLink(product, "Family", null);
             ctx.SaveChanges();
         }
@@ -176,6 +183,9 @@ namespace ODataClient
                 Name = "SQL SERVER",
                 Description = "A relational database engine."
             };
+
+            Console.WriteLine(string.Format("Creating ProductFamily with Id={0}, Name={1}, Description={2}", sql.ID, sql.Name, sql.Description));
+
             ctx.AddObject("ProductFamilies", sql);
             ctx.SaveChanges();
         }
@@ -184,13 +194,21 @@ namespace ODataClient
         {
             Container ctx = new Container();
             Console.WriteLine("\t<< patch productfamily >>");
-            ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == 4).AsEnumerable().SingleOrDefault();
+            int key = 4;
+            ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == key).AsEnumerable().SingleOrDefault();
+
             if (family != null)
             {
+                Console.WriteLine(string.Format("Patching ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
+
                 family.Description = "Patched Description";
                 ctx.UpdateObject(family);
 
                 ctx.SaveChanges(SaveChangesOptions.PatchOnUpdate);
+            }
+            else
+            {
+                Console.WriteLine(string.Format("ProductFamily with Id '{0}' not found.", key));
             }
         }
 
@@ -198,13 +216,20 @@ namespace ODataClient
         {
             Container ctx = new Container();
             Console.WriteLine("\t<< put productfamily >>");
-            ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == 4).FirstOrDefault();
+            int key = 4;
+            ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == key).FirstOrDefault();
             if (family != null)
             {
+                Console.WriteLine(string.Format("Updating ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
+
                 family.Description = "Updated Description";
                 ctx.UpdateObject(family);
 
                 ctx.SaveChanges(SaveChangesOptions.ReplaceOnUpdate);
+            }
+            else
+            {
+                Console.WriteLine(string.Format("ProductFamily with Id '{0}' not found.", key));
             }
         }
 
@@ -212,12 +237,19 @@ namespace ODataClient
         {
             Container ctx = new Container();
             Console.WriteLine("\t<< delete productfamily >>");
-            ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == 4).FirstOrDefault();
+            int key = 4;
+            ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == key).FirstOrDefault();
 
             if (family != null)
             {
+                Console.WriteLine(string.Format("Deleting ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
+
                 ctx.DeleteObject(family);
                 ctx.SaveChanges();
+            }
+            else
+            {
+                Console.WriteLine(string.Format("ProductFamily with Id '{0}' not found.", key));
             }
         }
 
@@ -245,6 +277,10 @@ namespace ODataClient
             Console.WriteLine("\t<< post productfamily..products >>");
             var product = ctx.Products.OrderBy(p => p.ID).First(); // OrderBy need to avoid Take throw.
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
+
+            Console.WriteLine(string.Format("Associating \nProduct: Id={0}, Name={1} \nTo\nProudctFamily: Id={2}, Name={3}",
+                product.ID, product.Name, family.ID, family.Name));
+
             ctx.AddLink(family, "Products", product);
             ctx.SaveChanges();
         }
@@ -255,6 +291,10 @@ namespace ODataClient
             Console.WriteLine("\t<< delete productfamily..products >>");
             var product = ctx.Products.OrderBy(p => p.ID).First(); // OrderBy need to avoid Take throw.
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
+
+            Console.WriteLine(string.Format("Unassociating \nProduct: Id={0}, Name={1} \nFrom\nProudctFamily: Id={2}, Name={3}",
+                product.ID, product.Name, family.ID, family.Name));
+
             ctx.DeleteLink(family, "Products", product);
             ctx.SaveChanges();
         }
@@ -265,6 +305,10 @@ namespace ODataClient
             Console.WriteLine("\t<< put productfamily..supplier >>");
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
             var supplier = ctx.Suppliers.Where(s => s.ID == 1).First();
+
+            Console.WriteLine(string.Format("Associating \nProductFamily: Id={0}, Name={1} \nTo\nSupplier: Id={2}, Name={3}",
+                family.ID, family.Name, supplier.ID, supplier.Name));
+
             ctx.SetLink(family, "Supplier", supplier);
             ctx.SaveChanges();
         }
@@ -291,9 +335,9 @@ namespace ODataClient
             Console.WriteLine("\tget productfamily.products     -> Print all the Products in the Office family.");
             Console.WriteLine("\tget productfamily.supplier     -> Print the supplier of the MS-DOS family.");
             Console.WriteLine("\tpost productfamily             -> Create productfamily 4 (SQL SERVER).");
-            Console.WriteLine("\tdelete productfamily           -> Delete productfamily 4 (SQL SERVER).");
             Console.WriteLine("\tpatch productfamily            -> Patch ProductFamily 4 (SQL SERVER).");
             Console.WriteLine("\tput productfamily              -> Replace ProductFamily 4 (SQL SERVER).");
+            Console.WriteLine("\tdelete productfamily           -> Delete productfamily 4 (SQL SERVER).");
             Console.WriteLine("\tput product..family            -> Set Product.Family to a ProductFamily.");
             Console.WriteLine("\tdelete product..family         -> Set Product.Family to NULL.");
             Console.WriteLine("\tpost productfamily..products   -> ProductFamily.Products.Add(product).");
