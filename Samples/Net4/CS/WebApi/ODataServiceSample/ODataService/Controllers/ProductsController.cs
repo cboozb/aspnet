@@ -47,7 +47,7 @@ namespace ODataService.Controllers
         /// </summary>
         /// <param name="key">The key of the Product required</param>
         /// <returns>The Product</returns>
-        public HttpResponseMessage GetByKey(int key)
+        public HttpResponseMessage Get(int key)
         {
             Product product = _db.Products.Where(p => p.ID == key).SingleOrDefault();
             if (product == null)

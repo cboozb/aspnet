@@ -26,7 +26,7 @@ namespace ODataService.Controllers
             return _db.Suppliers;
         }
 
-        public HttpResponseMessage GetByKey(int key)
+        public HttpResponseMessage Get(int key)
         {
             Supplier supplier = _db.Suppliers.SingleOrDefault(s => s.ID == key);
             if (supplier == null)
