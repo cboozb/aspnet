@@ -35,7 +35,7 @@ namespace ODataService
                 configuration.EnableOData(GetEdmModel());
 
                 //NOTE: Uncomment this if you want to enable diagnostic tracing
-                configuration.Services.Replace(typeof(ITraceWriter), new SystemDiagnosticsTraceWriter());
+                //configuration.Services.Replace(typeof(ITraceWriter), new SystemDiagnosticsTraceWriter());
 
                 // Create server
                 server = new HttpSelfHostServer(configuration);
