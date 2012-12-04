@@ -1,16 +1,13 @@
-﻿using Microsoft.Data.Edm;
-using Microsoft.Data.OData;
-using Microsoft.Data.OData.Query;
-using ODataService.Models;
-using System;
+﻿using System;
 using System.ServiceModel;
 using System.Web.Http;
 using System.Web.Http.OData.Builder;
 using System.Web.Http.OData.Routing;
-using System.Web.Http.Routing;
-using System.Web.Http.Routing;
 using System.Web.Http.SelfHost;
-using System.Web.Http.Tracing;
+using Microsoft.Data.Edm;
+using Microsoft.Data.OData;
+using Microsoft.Data.OData.Query;
+using ODataService.Models;
 
 namespace ODataService
 {

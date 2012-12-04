@@ -36,7 +36,7 @@ namespace ODataService
                 {
                     if (modelState[key].Errors.Count > 0)
                     {
-                        errorMessageBuilder.AppendLine(key + ":" + modelState[key].Value.RawValue);
+                        errorMessageBuilder.AppendLine(key + ":" + ((modelState[key].Value != null) ? modelState[key].Value.RawValue : "null"));
                     }
                 }
             }
