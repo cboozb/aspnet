@@ -1,7 +1,4 @@
-﻿using Microsoft.Data.OData;
-using Microsoft.Data.OData.Query;
-using ODataService.Models;
-using System;
+﻿using System;
 using System.Data;
 using System.Linq;
 using System.Net;
@@ -10,6 +7,9 @@ using System.Web.Http;
 using System.Web.Http.OData;
 using System.Web.Http.OData.Routing;
 using System.Web.Http.Routing;
+using Microsoft.Data.OData;
+using Microsoft.Data.OData.Query;
+using ODataService.Models;
 
 namespace ODataService.Controllers
 {

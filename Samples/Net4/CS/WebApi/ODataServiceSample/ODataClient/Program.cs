@@ -1,7 +1,7 @@
-﻿using ODataClient.MSProducts.ODataService.Models;
-using System;
+﻿using System;
 using System.Data.Services.Client;
 using System.Linq;
+using ODataClient.MSProducts.ODataService.Models;
 
 namespace ODataClient
 {

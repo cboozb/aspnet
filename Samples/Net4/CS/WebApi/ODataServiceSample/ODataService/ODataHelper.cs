@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
+using System.Web.Http.OData;
 using System.Web.Http.OData.Routing;
 using System.Web.Http.Routing;
 
@@ -26,8 +27,8 @@ namespace ODataService
 
         public static string GetModelStateErrorInformation(ModelStateDictionary modelState)
         {
-            StringBuilder sb = new StringBuilder();
-            sb.AppendLine("Invalid request received.");
+            StringBuilder errorMessageBuilder = new StringBuilder();
+            errorMessageBuilder.AppendLine("Invalid request received.");
 
             if (modelState != null)
             {
@@ -35,12 +36,12 @@ namespace ODataService
                 {
                     if (modelState[key].Errors.Count > 0)
                     {
-                        sb.AppendLine(key + ":" + modelState[key].Value.RawValue);
+                        errorMessageBuilder.AppendLine(key + ":" + modelState[key].Value.RawValue);
                     }
                 }
             }
 
-            return sb.ToString();
+            return errorMessageBuilder.ToString();
         }
     }
 }

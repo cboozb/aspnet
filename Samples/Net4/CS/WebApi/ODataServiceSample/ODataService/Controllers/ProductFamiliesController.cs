@@ -132,7 +132,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support ProductFamily.Products.Add(Product) and ProductFamily.Supplier = Supplier
         /// </summary>
-        public override HttpResponseMessage CreateLink(int key, string navigationProperty, [FromBody] Uri link)
+        public override void CreateLink(int key, string navigationProperty, [FromBody] Uri link)
         {
             ProductFamily family = _db.ProductFamilies.SingleOrDefault(p => p.ID == key);
             if (family == null)
@@ -162,10 +162,10 @@ namespace ODataService.Controllers
                     break;
 
                 default:
-                    return base.CreateLink(key, navigationProperty, link);
+                    base.CreateLink(key, navigationProperty, link);
+                    break;
             }
             _db.SaveChanges();
-            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace ODataService.Controllers
         ///     
         ///     [link]
         /// </summary>
-        public override HttpResponseMessage DeleteLink(int key, string navigationProperty, [FromBody] Uri link)
+        public override void DeleteLink(int key, string navigationProperty, [FromBody] Uri link)
         {
             ProductFamily family = _db.ProductFamilies.SingleOrDefault(p => p.ID == key);
             if (family == null)
@@ -191,11 +191,11 @@ namespace ODataService.Controllers
                     break;
 
                 default:
-                    return base.DeleteLink(key, navigationProperty, link);
+                    base.DeleteLink(key, navigationProperty, link);
+                    break;
 
             }
             _db.SaveChanges();
-            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -204,7 +204,7 @@ namespace ODataService.Controllers
         /// which uses this URL shape:
         ///     DELETE ~/ProductFamilies(id)/$links/Products(relatedId)
         /// </summary>
-        public override HttpResponseMessage DeleteLink(int key, string relatedKey, string navigationProperty)
+        public override void DeleteLink(int key, string relatedKey, string navigationProperty)
         {
             ProductFamily family = _db.ProductFamilies.SingleOrDefault(p => p.ID == key);
             if (family == null)
@@ -226,11 +226,10 @@ namespace ODataService.Controllers
 
 
                 default:
-                    return base.DeleteLink(key, relatedKey, navigationProperty);
-
+                    base.DeleteLink(key, relatedKey, navigationProperty);
+                    break;
             }
             _db.SaveChanges();
-            return Request.CreateResponse(HttpStatusCode.NoContent);
         }
 
         /// <summary>

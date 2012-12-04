@@ -82,13 +82,19 @@ namespace ODataService
             ODataModelBuilder modelBuilder = new ODataModelBuilder();
 
             var products = modelBuilder.EntitySet<Product>("Products");
-            products.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler, new EntitySetPathSegment(entityContext.EntitySet.Name), new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
+            products.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler, 
+                                                            new EntitySetPathSegment(entityContext.EntitySet.Name), 
+                                                            new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
 
             var suppliers = modelBuilder.EntitySet<Supplier>("Suppliers");
-            suppliers.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler, new EntitySetPathSegment(entityContext.EntitySet.Name), new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
+            suppliers.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler, 
+                                                            new EntitySetPathSegment(entityContext.EntitySet.Name), 
+                                                            new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
 
             var families = modelBuilder.EntitySet<ProductFamily>("ProductFamilies");
-            families.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler, new EntitySetPathSegment(entityContext.EntitySet.Name), new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
+            families.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler, 
+                                                            new EntitySetPathSegment(entityContext.EntitySet.Name), 
+                                                            new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
 
             var product = products.EntityType;
 
