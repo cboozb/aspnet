@@ -131,7 +131,7 @@ namespace ODataClient
         private static void Get_Products()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< get products >>");
+            Console.WriteLine("\n\t<< get products >>");
             foreach (var product in ctx.Products)
                 Console.WriteLine("\t{0}-{1}", product.ID, product.Name);
         }
@@ -139,10 +139,10 @@ namespace ODataClient
         private static void Put_Product_link_Family()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< put product..family >>");
+            Console.WriteLine("\n\t<< put product..family >>");
             var product = ctx.Products.AsEnumerable().First();
             var family = ctx.ProductFamilies.AsEnumerable().Skip(1).First();
-            Console.WriteLine(string.Format("Associating \nProduct: Id={0}, Name={1} \nTo\nProudctFamily: Id={2}, Name={3}",
+            Console.WriteLine(string.Format("\tAssociating \n\tProduct: Id={0}, Name={1} \n\tTo\n\tProudctFamily: Id={2}, Name={3}",
                 product.ID, product.Name, family.ID, family.Name));
 
             ctx.SetLink(product, "Family", family);
@@ -152,11 +152,11 @@ namespace ODataClient
         private static void Delete_Product_link_Family()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< delete product..family >>");
+            Console.WriteLine("\n\t<< delete product..family >>");
             var product = ctx.Products.AsEnumerable().First();
             ctx.LoadProperty(product, "Family");
 
-            Console.WriteLine(string.Format("Unassociating \nProduct: Id={0}, Name={1} \nFrom\nProudctFamily: Id={2}, Name={3}",
+            Console.WriteLine(string.Format("Unassociating \n\tProduct: Id={0}, Name={1} \n\tFrom\n\tProudctFamily: Id={2}, Name={3}",
                 product.ID, product.Name, product.Family.ID, product.Family.Name));
 
             ctx.SetLink(product, "Family", null);
@@ -168,7 +168,7 @@ namespace ODataClient
         private static void Get_ProductFamilies()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< get productfamilies >>");
+            Console.WriteLine("\n\t<< get productfamilies >>");
             foreach (var productFamily in ctx.ProductFamilies)
                 Console.WriteLine("\t{0}-{1}: {2}", productFamily.ID, productFamily.Name, productFamily.Description);
         }
@@ -176,7 +176,7 @@ namespace ODataClient
         private static void Post_ProductFamily()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< post productfamily >>");
+            Console.WriteLine("\n\t<< post productfamily >>");
             ProductFamily sql = new ProductFamily
             {
                 ID = 4,
@@ -193,7 +193,7 @@ namespace ODataClient
         private static void Patch_ProductFamily()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< patch productfamily >>");
+            Console.WriteLine("\n\t<< patch productfamily >>");
             int key = 4;
             ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == key).AsEnumerable().SingleOrDefault();
 
@@ -215,7 +215,7 @@ namespace ODataClient
         private static void Put_ProductFamily()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< put productfamily >>");
+            Console.WriteLine("\n\t<< put productfamily >>");
             int key = 4;
             ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == key).FirstOrDefault();
             if (family != null)
@@ -236,7 +236,7 @@ namespace ODataClient
         private static void Delete_ProductFamily()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< delete productfamily >>");
+            Console.WriteLine("\n\t<< delete productfamily >>");
             int key = 4;
             ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == key).FirstOrDefault();
 
@@ -256,7 +256,7 @@ namespace ODataClient
         private static void Get_ProductFamily_Supplier()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< get productfamily.supplier >>");
+            Console.WriteLine("\n\t<< get productfamily.supplier >>");
             var query = ctx.ProductFamilies.Where(p => p.ID == 1).Select(p => p.Supplier);
             foreach (var supplier in query)
                 Console.WriteLine("\t{0}-{1}", supplier.ID, supplier.Name);
@@ -265,7 +265,7 @@ namespace ODataClient
         private static void Get_ProductFamily_Products()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< get productfamily.products >>");
+            Console.WriteLine("\n\t<< get productfamily.products >>");
             var query = ctx.ProductFamilies.Where(p => p.ID == 3).SelectMany(p => p.Products);
             foreach (var product in query)
                 Console.WriteLine("\t{0}-{1}", product.ID, product.Name);
@@ -274,7 +274,7 @@ namespace ODataClient
         private static void Post_ProductFamily_link_Products()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< post productfamily..products >>");
+            Console.WriteLine("\n\t<< post productfamily..products >>");
             var product = ctx.Products.OrderBy(p => p.ID).First(); // OrderBy need to avoid Take throw.
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
 
@@ -288,7 +288,7 @@ namespace ODataClient
         private static void Delete_ProductFamily_link_Products()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< delete productfamily..products >>");
+            Console.WriteLine("\n\t<< delete productfamily..products >>");
             var product = ctx.Products.OrderBy(p => p.ID).First(); // OrderBy need to avoid Take throw.
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
 
@@ -302,7 +302,7 @@ namespace ODataClient
         private static void Put_ProductFamily_link_Supplier()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< put productfamily..supplier >>");
+            Console.WriteLine("\n\t<< put productfamily..supplier >>");
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
             var supplier = ctx.Suppliers.Where(s => s.ID == 1).First();
 
@@ -318,7 +318,7 @@ namespace ODataClient
         private static void Invoke_Action()
         {
             Container ctx = new Container();
-            Console.WriteLine("\t<< invoke action >>");
+            Console.WriteLine("\n\t<< invoke action >>");
             string uri = ctx.BaseUri.AbsoluteUri + "ProductFamilies(1)/CreateProduct";
             var results = ctx.Execute<int>(new Uri(uri), "POST", true, new BodyOperationParameter("Name", "New Product"));
             var result = results.Single();

@@ -9,7 +9,7 @@
 //------------------------------------------------------------------------------
 
 // Original file name:
-// Generation date: 12/3/2012 12:04:43 PM
+// Generation date: 12/5/2012 9:46:22 AM
 namespace ODataClient.MSProducts.ODataService.Models
 {
     

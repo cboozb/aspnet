@@ -12,7 +12,7 @@ namespace ODataClient.MSProducts.ODataService.Models
     public partial class Container
     {
         public Container()
-            : base(new Uri("http://localhost:50231"), DataServiceProtocolVersion.V3)
+            : base(new Uri(string.Format("http://{0}:50231", Environment.MachineName)), DataServiceProtocolVersion.V3)
         {
             this.IgnoreResourceNotFoundException = true;
             this.ResolveName = new global::System.Func<global::System.Type, string>(this.ResolveNameFromType);

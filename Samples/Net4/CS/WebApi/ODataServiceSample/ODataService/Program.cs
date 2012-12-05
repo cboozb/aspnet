@@ -4,6 +4,7 @@ using System.Web.Http;
 using System.Web.Http.OData.Builder;
 using System.Web.Http.OData.Routing;
 using System.Web.Http.SelfHost;
+using System.Web.Http.Tracing;
 using Microsoft.Data.Edm;
 using Microsoft.Data.OData;
 using Microsoft.Data.OData.Query;
@@ -16,7 +17,7 @@ namespace ODataService
     /// </summary>
     class Program
     {
-        static readonly Uri _baseAddress = new Uri("http://localhost:50231/");
+        static readonly Uri _baseAddress = new Uri(string.Format("http://{0}:50231/", Environment.MachineName));
 
         static void Main(string[] args)
         {
@@ -26,7 +27,6 @@ namespace ODataService
             {
                 // Set up server configuration
                 HttpSelfHostConfiguration configuration = new HttpSelfHostConfiguration(_baseAddress);
-                configuration.HostNameComparisonMode = HostNameComparisonMode.Exact;
 
                 // Enable OData
                 configuration.EnableOData(GetEdmModel());
