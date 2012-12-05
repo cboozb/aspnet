@@ -14,10 +14,16 @@ namespace ODataClient.MSProducts.ODataService.Models
         public Container()
             : base(new Uri(string.Format("http://{0}:50231", Environment.MachineName)), DataServiceProtocolVersion.V3)
         {
+            this.SendingRequest += Container_SendingRequest;
             this.IgnoreResourceNotFoundException = true;
             this.ResolveName = new global::System.Func<global::System.Type, string>(this.ResolveNameFromType);
             this.ResolveType = new global::System.Func<string, global::System.Type>(this.ResolveTypeFromName);
             this.OnContextCreated();
+        }
+
+        void Container_SendingRequest(object sender, System.Data.Services.Client.SendingRequestEventArgs e)
+        {
+            Console.WriteLine("\tRequest Uri: " + e.Request.RequestUri.ToString());
         }
     }
 }

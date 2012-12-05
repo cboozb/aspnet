@@ -27,6 +27,7 @@ namespace ODataService
             {
                 // Set up server configuration
                 HttpSelfHostConfiguration configuration = new HttpSelfHostConfiguration(_baseAddress);
+                configuration.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
 
                 // Enable OData
                 configuration.EnableOData(GetEdmModel());

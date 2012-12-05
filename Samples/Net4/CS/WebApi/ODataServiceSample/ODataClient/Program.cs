@@ -26,6 +26,10 @@ namespace ODataClient
                         Get_Products();
                         break;
 
+                    case "query products":
+                        Query_Products();
+                        break;
+
                     case "get productfamilies":
                         Get_ProductFamilies();
                         break;
@@ -103,6 +107,7 @@ namespace ODataClient
         private static void Test()
         {
             Get_Products();
+            Query_Products();
             Get_ProductFamily_Products();
             Get_ProductFamily_Supplier();
 
@@ -136,6 +141,27 @@ namespace ODataClient
                 Console.WriteLine("\t{0}-{1}", product.ID, product.Name);
         }
 
+        private static void Query_Products()
+        {
+            Container ctx = new Container();
+
+            Console.WriteLine("\n\t<< query products >>");
+
+            Console.WriteLine("\n\tGet top 4 products");
+            foreach (var product in ctx.Products.Take(4))
+                Console.WriteLine("\t{0}-{1}", product.ID, product.Name);
+
+            Console.WriteLine("\n\tGet products with name starting with 'Microsoft Office'");
+            foreach (var product in ctx.Products.Where(prd => prd.Name.StartsWith("Microsoft Office")))
+                Console.WriteLine("\t{0}-{1}", product.ID, product.Name);
+
+            Console.WriteLine("\n\tGet all products which expire soon");
+            foreach (var product in ctx.Products
+                                            .Where(prd => prd.SupportedUntil != null)
+                                            .OrderBy(prd => prd.SupportedUntil))
+                Console.WriteLine("\t{0}-{1}-{2}", product.SupportedUntil.HasValue ? product.SupportedUntil.Value.ToString() : "N/A", product.ID, product.Name);
+        }
+
         private static void Put_Product_link_Family()
         {
             Container ctx = new Container();
@@ -156,7 +182,7 @@ namespace ODataClient
             var product = ctx.Products.AsEnumerable().First();
             ctx.LoadProperty(product, "Family");
 
-            Console.WriteLine(string.Format("Unassociating \n\tProduct: Id={0}, Name={1} \n\tFrom\n\tProudctFamily: Id={2}, Name={3}",
+            Console.WriteLine(string.Format("\tUnassociating \n\tProduct: Id={0}, Name={1} \n\tFrom\n\tProudctFamily: Id={2}, Name={3}",
                 product.ID, product.Name, product.Family.ID, product.Family.Name));
 
             ctx.SetLink(product, "Family", null);
@@ -184,7 +210,7 @@ namespace ODataClient
                 Description = "A relational database engine."
             };
 
-            Console.WriteLine(string.Format("Creating ProductFamily with Id={0}, Name={1}, Description={2}", sql.ID, sql.Name, sql.Description));
+            Console.WriteLine(string.Format("\tCreating ProductFamily with Id={0}, Name={1}, Description={2}", sql.ID, sql.Name, sql.Description));
 
             ctx.AddObject("ProductFamilies", sql);
             ctx.SaveChanges();
@@ -199,7 +225,7 @@ namespace ODataClient
 
             if (family != null)
             {
-                Console.WriteLine(string.Format("Patching ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
+                Console.WriteLine(string.Format("\tPatching ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
 
                 family.Description = "Patched Description";
                 ctx.UpdateObject(family);
@@ -208,7 +234,7 @@ namespace ODataClient
             }
             else
             {
-                Console.WriteLine(string.Format("ProductFamily with Id '{0}' not found.", key));
+                Console.WriteLine(string.Format("\tProductFamily with Id '{0}' not found.", key));
             }
         }
 
@@ -220,7 +246,7 @@ namespace ODataClient
             ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == key).FirstOrDefault();
             if (family != null)
             {
-                Console.WriteLine(string.Format("Updating ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
+                Console.WriteLine(string.Format("\tUpdating ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
 
                 family.Description = "Updated Description";
                 ctx.UpdateObject(family);
@@ -229,7 +255,7 @@ namespace ODataClient
             }
             else
             {
-                Console.WriteLine(string.Format("ProductFamily with Id '{0}' not found.", key));
+                Console.WriteLine(string.Format("\tProductFamily with Id '{0}' not found.", key));
             }
         }
 
@@ -242,14 +268,14 @@ namespace ODataClient
 
             if (family != null)
             {
-                Console.WriteLine(string.Format("Deleting ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
+                Console.WriteLine(string.Format("\tDeleting ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
 
                 ctx.DeleteObject(family);
                 ctx.SaveChanges();
             }
             else
             {
-                Console.WriteLine(string.Format("ProductFamily with Id '{0}' not found.", key));
+                Console.WriteLine(string.Format("\tProductFamily with Id '{0}' not found.", key));
             }
         }
 
@@ -278,7 +304,7 @@ namespace ODataClient
             var product = ctx.Products.OrderBy(p => p.ID).First(); // OrderBy need to avoid Take throw.
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
 
-            Console.WriteLine(string.Format("Associating \nProduct: Id={0}, Name={1} \nTo\nProudctFamily: Id={2}, Name={3}",
+            Console.WriteLine(string.Format("\tAssociating \n\tProduct: Id={0}, Name={1} \n\tTo\n\tProudctFamily: Id={2}, Name={3}",
                 product.ID, product.Name, family.ID, family.Name));
 
             ctx.AddLink(family, "Products", product);
@@ -292,7 +318,7 @@ namespace ODataClient
             var product = ctx.Products.OrderBy(p => p.ID).First(); // OrderBy need to avoid Take throw.
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
 
-            Console.WriteLine(string.Format("Unassociating \nProduct: Id={0}, Name={1} \nFrom\nProudctFamily: Id={2}, Name={3}",
+            Console.WriteLine(string.Format("\tUnassociating \n\tProduct: Id={0}, Name={1} \n\tTo\n\tProudctFamily: Id={2}, Name={3}",
                 product.ID, product.Name, family.ID, family.Name));
 
             ctx.DeleteLink(family, "Products", product);
@@ -306,7 +332,7 @@ namespace ODataClient
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
             var supplier = ctx.Suppliers.Where(s => s.ID == 1).First();
 
-            Console.WriteLine(string.Format("Associating \nProductFamily: Id={0}, Name={1} \nTo\nSupplier: Id={2}, Name={3}",
+            Console.WriteLine(string.Format("\tAssociating \n\tProductFamily: Id={0}, Name={1} \n\tTo\n\tSupplier: Id={2}, Name={3}",
                 family.ID, family.Name, supplier.ID, supplier.Name));
 
             ctx.SetLink(family, "Supplier", supplier);
@@ -331,6 +357,7 @@ namespace ODataClient
         {
             Console.WriteLine("Available commands:");
             Console.WriteLine("\tget products                   -> Print all the Products.");
+            Console.WriteLine("\tquery products                 -> Query Products.");
             Console.WriteLine("\tget productfamilies            -> Print all the ProductFamilies.");
             Console.WriteLine("\tget productfamily.products     -> Print all the Products in the Office family.");
             Console.WriteLine("\tget productfamily.supplier     -> Print the supplier of the MS-DOS family.");
