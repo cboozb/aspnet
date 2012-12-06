@@ -12,7 +12,7 @@ namespace ODataClient.MSProducts.ODataService.Models
     public partial class Container
     {
         public Container()
-            : base(new Uri(string.Format("http://{0}:50231", Environment.MachineName)), DataServiceProtocolVersion.V3)
+            : base(new Uri("http://localhost:50231"), DataServiceProtocolVersion.V3)
         {
             this.SendingRequest += Container_SendingRequest;
             this.IgnoreResourceNotFoundException = true;
@@ -23,7 +23,7 @@ namespace ODataClient.MSProducts.ODataService.Models
 
         void Container_SendingRequest(object sender, System.Data.Services.Client.SendingRequestEventArgs e)
         {
-            Console.WriteLine("\tRequest Uri: " + e.Request.RequestUri.ToString());
+            Console.WriteLine("\t{0} {1}", e.Request.Method, e.Request.RequestUri.ToString());
         }
     }
 }

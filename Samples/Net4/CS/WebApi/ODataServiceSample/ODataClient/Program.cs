@@ -168,8 +168,8 @@ namespace ODataClient
             Console.WriteLine("\n\t<< put product..family >>");
             var product = ctx.Products.AsEnumerable().First();
             var family = ctx.ProductFamilies.AsEnumerable().Skip(1).First();
-            Console.WriteLine(string.Format("\tAssociating \n\tProduct: Id={0}, Name={1} \n\tTo\n\tProudctFamily: Id={2}, Name={3}",
-                product.ID, product.Name, family.ID, family.Name));
+            Console.WriteLine("\tAssociating \n\tProduct: Id={0}, Name={1} \n\tTo\n\tProudctFamily: Id={2}, Name={3}",
+                product.ID, product.Name, family.ID, family.Name);
 
             ctx.SetLink(product, "Family", family);
             ctx.SaveChanges();
@@ -182,8 +182,8 @@ namespace ODataClient
             var product = ctx.Products.AsEnumerable().First();
             ctx.LoadProperty(product, "Family");
 
-            Console.WriteLine(string.Format("\tUnassociating \n\tProduct: Id={0}, Name={1} \n\tFrom\n\tProudctFamily: Id={2}, Name={3}",
-                product.ID, product.Name, product.Family.ID, product.Family.Name));
+            Console.WriteLine("\tUnassociating \n\tProduct: Id={0}, Name={1} \n\tFrom\n\tProudctFamily: Id={2}, Name={3}",
+                product.ID, product.Name, product.Family.ID, product.Family.Name);
 
             ctx.SetLink(product, "Family", null);
             ctx.SaveChanges();
@@ -210,7 +210,7 @@ namespace ODataClient
                 Description = "A relational database engine."
             };
 
-            Console.WriteLine(string.Format("\tCreating ProductFamily with Id={0}, Name={1}, Description={2}", sql.ID, sql.Name, sql.Description));
+            Console.WriteLine("\tCreating ProductFamily with Id={0}, Name={1}, Description={2}", sql.ID, sql.Name, sql.Description);
 
             ctx.AddObject("ProductFamilies", sql);
             ctx.SaveChanges();
@@ -225,7 +225,7 @@ namespace ODataClient
 
             if (family != null)
             {
-                Console.WriteLine(string.Format("\tPatching ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
+                Console.WriteLine("\tPatching ProductFamily with Id={0}, Name={1}", family.ID, family.Name);
 
                 family.Description = "Patched Description";
                 ctx.UpdateObject(family);
@@ -234,7 +234,7 @@ namespace ODataClient
             }
             else
             {
-                Console.WriteLine(string.Format("\tProductFamily with Id '{0}' not found.", key));
+                Console.WriteLine("\tProductFamily with Id '{0}' not found.", key);
             }
         }
 
@@ -246,7 +246,7 @@ namespace ODataClient
             ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == key).FirstOrDefault();
             if (family != null)
             {
-                Console.WriteLine(string.Format("\tUpdating ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
+                Console.WriteLine("\tUpdating ProductFamily with Id={0}, Name={1}", family.ID, family.Name);
 
                 family.Description = "Updated Description";
                 ctx.UpdateObject(family);
@@ -255,7 +255,7 @@ namespace ODataClient
             }
             else
             {
-                Console.WriteLine(string.Format("\tProductFamily with Id '{0}' not found.", key));
+                Console.WriteLine("\tProductFamily with Id '{0}' not found.", key);
             }
         }
 
@@ -268,14 +268,14 @@ namespace ODataClient
 
             if (family != null)
             {
-                Console.WriteLine(string.Format("\tDeleting ProductFamily with Id={0}, Name={1}", family.ID, family.Name));
+                Console.WriteLine("\tDeleting ProductFamily with Id={0}, Name={1}", family.ID, family.Name);
 
                 ctx.DeleteObject(family);
                 ctx.SaveChanges();
             }
             else
             {
-                Console.WriteLine(string.Format("\tProductFamily with Id '{0}' not found.", key));
+                Console.WriteLine("\tProductFamily with Id '{0}' not found.", key);
             }
         }
 
@@ -304,8 +304,8 @@ namespace ODataClient
             var product = ctx.Products.OrderBy(p => p.ID).First(); // OrderBy need to avoid Take throw.
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
 
-            Console.WriteLine(string.Format("\tAssociating \n\tProduct: Id={0}, Name={1} \n\tTo\n\tProudctFamily: Id={2}, Name={3}",
-                product.ID, product.Name, family.ID, family.Name));
+            Console.WriteLine("\tAssociating \n\tProduct: Id={0}, Name={1} \n\tTo\n\tProudctFamily: Id={2}, Name={3}",
+                product.ID, product.Name, family.ID, family.Name);
 
             ctx.AddLink(family, "Products", product);
             ctx.SaveChanges();
@@ -318,8 +318,8 @@ namespace ODataClient
             var product = ctx.Products.OrderBy(p => p.ID).First(); // OrderBy need to avoid Take throw.
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
 
-            Console.WriteLine(string.Format("\tUnassociating \n\tProduct: Id={0}, Name={1} \n\tTo\n\tProudctFamily: Id={2}, Name={3}",
-                product.ID, product.Name, family.ID, family.Name));
+            Console.WriteLine("\tUnassociating \n\tProduct: Id={0}, Name={1} \n\tTo\n\tProudctFamily: Id={2}, Name={3}",
+                product.ID, product.Name, family.ID, family.Name);
 
             ctx.DeleteLink(family, "Products", product);
             ctx.SaveChanges();
@@ -332,8 +332,8 @@ namespace ODataClient
             var family = ctx.ProductFamilies.OrderBy(pf => pf.ID).First();
             var supplier = ctx.Suppliers.Where(s => s.ID == 1).First();
 
-            Console.WriteLine(string.Format("\tAssociating \n\tProductFamily: Id={0}, Name={1} \n\tTo\n\tSupplier: Id={2}, Name={3}",
-                family.ID, family.Name, supplier.ID, supplier.Name));
+            Console.WriteLine("\tAssociating \n\tProductFamily: Id={0}, Name={1} \n\tTo\n\tSupplier: Id={2}, Name={3}",
+                family.ID, family.Name, supplier.ID, supplier.Name);
 
             ctx.SetLink(family, "Supplier", supplier);
             ctx.SaveChanges();

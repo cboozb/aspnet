@@ -69,7 +69,7 @@ namespace ODataService.Controllers
             {
                 throw ODataErrors.EntityNotFound(Request);
             }
-            update.ID = key; // ignore the ID in the entity use the ID in the URL.
+            update.ID = key; // ignore the key in the entity use the key in the URL.
 
             _db.Products.Attach(update);
             _db.Entry(update).State = System.Data.EntityState.Modified;

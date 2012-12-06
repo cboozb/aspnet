@@ -17,7 +17,7 @@ namespace ODataService
     /// </summary>
     class Program
     {
-        static readonly Uri _baseAddress = new Uri(string.Format("http://{0}:50231/", Environment.MachineName));
+        static readonly Uri _baseAddress = new Uri("http://localhost:50231/"); 
 
         static void Main(string[] args)
         {
