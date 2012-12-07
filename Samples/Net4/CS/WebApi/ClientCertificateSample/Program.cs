@@ -169,7 +169,8 @@ namespace ClientCertificateSample
         }
 
         /// <summary>
-        /// This class disables the default certificate validation, we are doing the client certificate checking in the CustomCertificateMessageHandler
+        /// This class disables the default certificate validation, we are doing the client certificate checking in the CustomCertificateMessageHandler. 
+        /// Please note that this is not performing revocation check any more. It is app's responsibility to perform proper validation in the CustomCertificateMessageHandler. 
         /// </summary>
         class NoOpValidator : X509CertificateValidator
         {
