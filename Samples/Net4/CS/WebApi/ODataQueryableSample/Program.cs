@@ -128,6 +128,10 @@ namespace ODataQueryableSample
             response = client.GetAsync("/api/customer/?$filter=year(BirthTime) eq 2001").Result;
             response.EnsureSuccessStatusCode();
             Console.WriteLine("\nFilter with year call: " + response.Content.ReadAsStringAsync().Result);
+
+            // filter with expression using multiplication is not allowed
+            response = client.GetAsync("/api/customer/?$filter=Id mul 2 eq 6").Result;
+            Console.WriteLine("\nFilter with multiplication in the expression is not allowed: " + response.Content.ReadAsStringAsync().Result);
         }
 
         /// <summary>
@@ -153,9 +157,23 @@ namespace ODataQueryableSample
             response.EnsureSuccessStatusCode();
             Console.WriteLine("\nOrderBy Id, return the second and third one: " + response.Content.ReadAsStringAsync().Result);
 
-            // order by Id and then take the first two thousand. This will result in an error due to our check in the OrderController.
+            // order by Id and then take the first two thousand. This will result in an error due to our check in the OrderController which only allows Top up to 9.
             response = client.GetAsync("/api/order/?$orderby=Id&$top=2000").Result;
             Console.WriteLine("\nOrderBy Id with invalid top value: " + response.Content.ReadAsStringAsync().Result);
+
+            // order by Name and then take the first two. This will result in an error due to our check in the OrderController which only allows order by Id property.
+            response = client.GetAsync("/api/order/?$orderby=Name&$top=2").Result;
+            Console.WriteLine("\nOrderBy Name is not allowed: " + response.Content.ReadAsStringAsync().Result);
+
+            // Filter the orders to return those whose Id is bigger than 10. 
+            response = client.GetAsync("/api/order/?$filter=Id ge 10").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nFilter with Id, returns 3 orders: " + response.Content.ReadAsStringAsync().Result);
+
+            // Filter the orders to return those whose quantity is bigger or equal to 100. This will result in an error due to our check in the 
+            // OrderController which disallows filtering orders based on its quantity.
+            response = client.GetAsync("/api/order/?$filter=Quantity ge 100").Result;
+            Console.WriteLine("\nFilter with Quantity is not allowed: " + response.Content.ReadAsStringAsync().Result);
         }
 
         /// <summary>

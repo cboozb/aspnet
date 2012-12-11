@@ -1,8 +1,9 @@
-﻿using ODataQueryableSample.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Http;
+using System.Web.Http.OData.Query;
+using ODataQueryableSample.Models;
 
 namespace ODataQueryableSample.Controllers
 {
@@ -34,7 +35,7 @@ namespace ODataQueryableSample.Controllers
             new Customer { Id = 3, Name = "NewLow", BirthTime = new DateTime(2004, 4, 4) },
         };
 
-        [Queryable]
+        [Queryable(AllowedArithmeticOperators=AllowedArithmeticOperators.Add)]
         public IEnumerable<Customer> Get()
         {
             return CustomerList;
