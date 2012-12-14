@@ -142,7 +142,7 @@ namespace ODataService.Controllers
             switch (navigationProperty)
             {
                 case "Products":
-                    int productId = Configuration.GetKeyValue<int>(link);
+                    int productId = Configuration.GetKeyValue<int>(this.Request, link);
                     Product product = _db.Products.SingleOrDefault(p => p.ID == productId);
                     if (product == null)
                     {
@@ -152,7 +152,7 @@ namespace ODataService.Controllers
                     break;
 
                 case "Supplier":
-                    int supplierId = Configuration.GetKeyValue<int>(link);
+                    int supplierId = Configuration.GetKeyValue<int>(this.Request, link);
                     Supplier supplier = _db.Suppliers.SingleOrDefault(s => s.ID == supplierId);
                     if (supplier == null)
                     {

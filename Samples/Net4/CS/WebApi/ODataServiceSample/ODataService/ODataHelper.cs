@@ -12,9 +12,13 @@ namespace ODataService
 {
     public static class ODataHelper
     {
-        public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, Uri uri)
+        public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, HttpRequestMessage currentRequest, Uri uri)
         {
-            IHttpRouteData data = configuration.Routes.GetRouteData(new HttpRequestMessage { RequestUri = uri });
+            // Workaround bug: http://aspnetwebstack.codeplex.com/workitem/215
+            var currentUri = currentRequest.RequestUri;
+            currentRequest.RequestUri = uri;
+            IHttpRouteData data = configuration.Routes.GetRouteData(currentRequest);
+            currentRequest.RequestUri = currentUri;
 
             //get the path template Ex: ~/entityset/key/$links/navigation
             var path = data.Values[ODataRouteConstants.ODataPath] as string;

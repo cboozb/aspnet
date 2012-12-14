@@ -3,7 +3,6 @@ using System.ServiceModel;
 using System.Web.Http;
 using System.Web.Http.OData.Builder;
 using System.Web.Http.OData.Routing;
-using System.Web.Http.SelfHost;
 using System.Web.Http.Tracing;
 using Microsoft.Data.Edm;
 using Microsoft.Data.OData;
@@ -12,58 +11,13 @@ using ODataService.Models;
 
 namespace ODataService
 {
-    /// <summary>
-    /// Runs a sample OData Service that exposes, Products, ProductFamilies and Suppliers.
-    /// </summary>
-    class Program
+    public static class ModelBuilder
     {
-        static readonly Uri _baseAddress = new Uri("http://localhost:50231/"); 
-
-        static void Main(string[] args)
-        {
-            HttpSelfHostServer server = null;
-
-            try
-            {
-                // Set up server configuration
-                HttpSelfHostConfiguration configuration = new HttpSelfHostConfiguration(_baseAddress);
-                configuration.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
-
-                // Enable OData
-                configuration.EnableOData(GetEdmModel());
-
-                //NOTE: Uncomment this if you want to enable diagnostic tracing
-                //configuration.Services.Replace(typeof(ITraceWriter), new SystemDiagnosticsTraceWriter());
-
-                // Create server
-                server = new HttpSelfHostServer(configuration);
-
-                // Start listening
-                server.OpenAsync().Wait();
-                Console.WriteLine("Listening on " + _baseAddress);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine("Could not start server: {0}", e.GetBaseException().Message);
-            }
-            finally
-            {
-                Console.WriteLine("Hit ENTER to exit...");
-                Console.ReadLine();
-
-                if (server != null)
-                {
-                    // Stop listening
-                    server.CloseAsync().Wait();
-                }
-            }
-        }
-
         /// <summary>
         /// Get the EdmModel.
         /// </summary>
         /// <returns></returns>
-        static IEdmModel GetEdmModel()
+        public static IEdmModel GetEdmModel()
         {
             // build the model by convention
             return GetImplicitEdmModel();
@@ -80,18 +34,18 @@ namespace ODataService
             ODataModelBuilder modelBuilder = new ODataModelBuilder();
 
             var products = modelBuilder.EntitySet<Product>("Products");
-            products.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler, 
-                                                            new EntitySetPathSegment(entityContext.EntitySet.Name), 
+            products.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler,
+                                                            new EntitySetPathSegment(entityContext.EntitySet.Name),
                                                             new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
 
             var suppliers = modelBuilder.EntitySet<Supplier>("Suppliers");
-            suppliers.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler, 
-                                                            new EntitySetPathSegment(entityContext.EntitySet.Name), 
+            suppliers.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler,
+                                                            new EntitySetPathSegment(entityContext.EntitySet.Name),
                                                             new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
 
             var families = modelBuilder.EntitySet<ProductFamily>("ProductFamilies");
-            families.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler, 
-                                                            new EntitySetPathSegment(entityContext.EntitySet.Name), 
+            families.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler,
+                                                            new EntitySetPathSegment(entityContext.EntitySet.Name),
                                                             new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
 
             var product = products.EntityType;
@@ -129,21 +83,21 @@ namespace ODataService
             // Create navigation Link builders
             products.HasNavigationPropertiesLink(
                 product.NavigationProperties,
-                (entityContext, navigationProperty) => new Uri(entityContext.UrlHelper.ODataLink(entityContext.PathHandler, 
-                                                                new EntitySetPathSegment(entityContext.EntitySet.Name), 
+                (entityContext, navigationProperty) => new Uri(entityContext.UrlHelper.ODataLink(entityContext.PathHandler,
+                                                                new EntitySetPathSegment(entityContext.EntitySet.Name),
                                                                 new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3)),
                                                                 new NavigationPathSegment(navigationProperty.Name))));
 
             families.HasNavigationPropertiesLink(
                 productFamily.NavigationProperties,
-                (entityContext, navigationProperty) => new Uri(entityContext.UrlHelper.ODataLink(entityContext.PathHandler, new EntitySetPathSegment(entityContext.EntitySet.Name), 
+                (entityContext, navigationProperty) => new Uri(entityContext.UrlHelper.ODataLink(entityContext.PathHandler, new EntitySetPathSegment(entityContext.EntitySet.Name),
                                                                 new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3)),
                                                                 new NavigationPathSegment(navigationProperty.Name))));
 
             suppliers.HasNavigationPropertiesLink(
                 supplier.NavigationProperties,
-                (entityContext, navigationProperty) => new Uri(entityContext.UrlHelper.ODataLink(entityContext.PathHandler, new EntitySetPathSegment(entityContext.EntitySet.Name), 
-                                                                new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3)), 
+                (entityContext, navigationProperty) => new Uri(entityContext.UrlHelper.ODataLink(entityContext.PathHandler, new EntitySetPathSegment(entityContext.EntitySet.Name),
+                                                                new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3)),
                                                                 new NavigationPathSegment(navigationProperty.Name))));
 
             ActionConfiguration createProduct = product.Action("CreateProduct");
@@ -169,7 +123,7 @@ namespace ODataService
             ActionConfiguration createProduct = modelBuilder.Entity<ProductFamily>().Action("CreateProduct");
             createProduct.Parameter<string>("Name");
             createProduct.Returns<int>();
-            
+
             return modelBuilder.GetEdmModel();
         }
     }

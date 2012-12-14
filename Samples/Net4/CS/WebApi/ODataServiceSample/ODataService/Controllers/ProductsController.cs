@@ -167,7 +167,7 @@ namespace ODataService.Controllers
                 case "Family":
                     // The utility method uses routing (ODataRoutes.GetById should match) to get the value of {id} parameter 
                     // which is the id of the ProductFamily.
-                    int relatedKey = Configuration.GetKeyValue<int>(link);
+                    int relatedKey = Configuration.GetKeyValue<int>(this.Request, link);
                     ProductFamily family = _db.ProductFamilies.SingleOrDefault(f => f.ID == relatedKey);
                     product.Family = family;
                     break;
