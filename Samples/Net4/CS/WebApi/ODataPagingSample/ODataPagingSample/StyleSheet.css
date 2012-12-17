@@ -1,0 +1,66 @@
+﻿body {
+    font-family: "Lucida Sans Unicode", "Lucida Grande", Sans-Serif;
+    font-size: 14px;
+    background: #fff;
+    width: 850px;
+    text-align: left;
+    margin: 20px;
+}
+
+h1 {
+    font-size: 24px;
+    color: #039;
+    text-align: center;
+}
+
+#currentPageDisplay {
+    color: #039;
+}
+
+#previousButton {
+    visibility: hidden;
+}
+
+#nextButton {
+    float: right;
+    visibility: hidden;
+}
+
+table {
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+#isbnCol {
+    width: 100px;
+}
+
+#titleCol {
+    width: 300px;
+}
+
+#authorCol {
+    width: 200px;
+}
+
+#publisherCol {
+    width: 250px;
+}
+
+th {
+    font-size: 14px;
+    font-weight: normal;
+    color: #039;
+    border-bottom: 2px solid #6678b1;
+    padding: 10px 8px;
+}
+
+td {
+    color: #669;
+    padding: 9px 8px 0;
+}
+
+tbody tr:hover td {
+    color: #009;
+}
+
