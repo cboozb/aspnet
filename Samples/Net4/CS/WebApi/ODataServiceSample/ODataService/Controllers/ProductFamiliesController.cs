@@ -39,7 +39,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for getting a ProductFamily by key
         /// </summary>
-        protected override ProductFamily GetEntityByKey(int key)
+        protected override ProductFamily GetEntityByKey([FromODataUri] int key)
         {
            return _db.ProductFamilies.SingleOrDefault(f => f.ID == key);
         }
@@ -60,7 +60,7 @@ namespace ODataService.Controllers
         /// Support for deleting a ProductFamily
         /// </summary>
         /// <param name="key"></param>
-        protected override void DeleteEntity(int key)
+        protected override void DeleteEntity([FromODataUri] int key)
         {
             ProductFamily toDelete = _db.ProductFamilies.FirstOrDefault(f => f.ID == key);
             if (toDelete == null)
@@ -74,7 +74,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for patching a ProductFamily
         /// </summary>
-        protected override ProductFamily PatchEntity(int key, Delta<ProductFamily> patch)
+        protected override ProductFamily PatchEntity([FromODataUri] int key, Delta<ProductFamily> patch)
         {
             ProductFamily toUpdate = _db.ProductFamilies.FirstOrDefault(f => f.ID == key);
             if (toUpdate == null)
@@ -89,7 +89,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for replacing a ProductFamily
         /// </summary>
-        protected override ProductFamily UpdateEntity(int key, ProductFamily update)
+        protected override ProductFamily UpdateEntity([FromODataUri] int key, ProductFamily update)
         {
             if (key != update.ID)
             {
@@ -116,7 +116,7 @@ namespace ODataService.Controllers
         /// Support for /ProductFamily(1)/Products
         /// </summary>
         [Queryable]
-        public IQueryable<Product> GetProducts(int key)
+        public IQueryable<Product> GetProducts([FromODataUri] int key)
         {
             return _db.ProductFamilies.Where(pf => pf.ID == key).SelectMany(pf => pf.Products);
         }
@@ -124,7 +124,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for /ProductFamily(1)/Supplier
         /// </summary>
-        public Supplier GetSupplier(int key)
+        public Supplier GetSupplier([FromODataUri] int key)
         {
             return _db.ProductFamilies.Where(pf => pf.ID == key).Select(pf => pf.Supplier).SingleOrDefault();
         }
@@ -132,7 +132,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support ProductFamily.Products.Add(Product) and ProductFamily.Supplier = Supplier
         /// </summary>
-        public override void CreateLink(int key, string navigationProperty, [FromBody] Uri link)
+        public override void CreateLink([FromODataUri] int key, string navigationProperty, [FromBody] Uri link)
         {
             ProductFamily family = _db.ProductFamilies.SingleOrDefault(p => p.ID == key);
             if (family == null)
@@ -142,7 +142,7 @@ namespace ODataService.Controllers
             switch (navigationProperty)
             {
                 case "Products":
-                    int productId = Configuration.GetKeyValue<int>(Request, link);
+                    int productId = Configuration.GetKeyValue<int>(link);
                     Product product = _db.Products.SingleOrDefault(p => p.ID == productId);
                     if (product == null)
                     {
@@ -152,7 +152,7 @@ namespace ODataService.Controllers
                     break;
 
                 case "Supplier":
-                    int supplierId = Configuration.GetKeyValue<int>(Request, link);
+                    int supplierId = Configuration.GetKeyValue<int>(link);
                     Supplier supplier = _db.Suppliers.SingleOrDefault(s => s.ID == supplierId);
                     if (supplier == null)
                     {
@@ -176,7 +176,7 @@ namespace ODataService.Controllers
         ///     
         ///     [link]
         /// </summary>
-        public override void DeleteLink(int key, string navigationProperty, [FromBody] Uri link)
+        public override void DeleteLink([FromODataUri] int key, string navigationProperty, [FromBody] Uri link)
         {
             ProductFamily family = _db.ProductFamilies.SingleOrDefault(p => p.ID == key);
             if (family == null)
@@ -204,7 +204,7 @@ namespace ODataService.Controllers
         /// which uses this URL shape:
         ///     DELETE ~/ProductFamilies(id)/$links/Products(relatedId)
         /// </summary>
-        public override void DeleteLink(int key, string relatedKey, string navigationProperty)
+        public override void DeleteLink([FromODataUri] int key, string relatedKey, string navigationProperty)
         {
             ProductFamily family = _db.ProductFamilies.SingleOrDefault(p => p.ID == key);
             if (family == null)
@@ -239,7 +239,7 @@ namespace ODataService.Controllers
         /// <param name="parameters"></param>
         /// <returns></returns>
         [HttpPost]
-        public int CreateProduct(int key, ODataActionParameters parameters)
+        public int CreateProduct([FromODataUri] int key, ODataActionParameters parameters)
         {
             if (!ModelState.IsValid)
             {

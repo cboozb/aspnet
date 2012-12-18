@@ -25,19 +25,25 @@ namespace ODataService
         /// <param name="currentRequest">The current request</param>
         /// <param name="uri">OData uri that contains the key value</param>
         /// <returns>The key value</returns>
-        public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, HttpRequestMessage currentRequest, Uri uri)
+        public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, Uri uri)
         {
+            HttpConfiguration config = new HttpConfiguration();
+            config.EnableOData(ModelBuilder.GetEdmModel());
             var newRequest = new HttpRequestMessage(HttpMethod.Get, uri);
-            foreach (var key in currentRequest.Properties.Keys)
+            IHttpRouteData data = config.Routes.GetRouteData(newRequest);
+            if (data == null)
             {
-                newRequest.Properties.Add(key, currentRequest.Properties[key]);
+                throw new InvalidOperationException("The link is not a valid odata link.");
             }
-            IHttpRouteData data = configuration.Routes.GetRouteData(newRequest);
 
             //get the path template Ex: ~/entityset/key/$links/navigation
             var path = data.Values[ODataRouteConstants.ODataPath] as string;
             var odataPath = configuration.GetODataPathHandler().Parse(path);
             var keySegment = odataPath.Segments.OfType<KeyValuePathSegment>().First().Value;
+            if (keySegment == null)
+            {
+                throw new InvalidOperationException("The link does not contain a key.");
+            }
 
             var value = ODataUriUtils.ConvertFromUriLiteral(keySegment, Microsoft.Data.OData.ODataVersion.V3);
             return (TKey) value;

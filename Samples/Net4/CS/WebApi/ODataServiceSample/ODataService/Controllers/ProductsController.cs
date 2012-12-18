@@ -47,7 +47,7 @@ namespace ODataService.Controllers
         /// </summary>
         /// <param name="key">The key of the Product required</param>
         /// <returns>The Product</returns>
-        public HttpResponseMessage Get(int key)
+        public HttpResponseMessage Get([FromODataUri] int key)
         {
             Product product = _db.Products.Where(p => p.ID == key).SingleOrDefault();
             if (product == null)
@@ -63,7 +63,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for updating products
         /// </summary>
-        public HttpResponseMessage Put(int key, Product update)
+        public HttpResponseMessage Put([FromODataUri] int key, Product update)
         {
             if (!_db.Products.Any(p => p.ID == key))
             {
@@ -97,7 +97,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for partial updates of products
         /// </summary>
-        public HttpResponseMessage Patch(int key, Delta<Product> product)
+        public HttpResponseMessage Patch([FromODataUri] int key, Delta<Product> product)
         {
             Product dbProduct = _db.Products.SingleOrDefault(p => p.ID == key);
             if (dbProduct == null)
@@ -114,7 +114,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for deleting products by key.
         /// </summary>
-        public HttpResponseMessage Delete(int key)
+        public HttpResponseMessage Delete([FromODataUri] int key)
         {
             _db.Entry(_db.Products.Find(key)).State = EntityState.Deleted;
             _db.SaveChanges();
@@ -127,7 +127,7 @@ namespace ODataService.Controllers
         /// <param name="key">The key of the entity with the navigation property</param>
         /// <param name="navigationProperty">The navigation property on the entity to be modified</param>
         /// <param name="link">The url to the other entity that should no longer be linked to the entity via the navigation property</param>
-        public HttpResponseMessage DeleteLink(int key, string navigationProperty, [FromBody] Uri link)
+        public HttpResponseMessage DeleteLink([FromODataUri] int key, string navigationProperty, [FromBody] Uri link)
         {
             Product product = _db.Products.SingleOrDefault(p => p.ID == key);
 
@@ -158,7 +158,7 @@ namespace ODataService.Controllers
         /// <param name="navigationProperty">The navigation property of the Entity in this EntitySet that should be modified</param>
         /// <param name="link">The url to the other entity that should be related via the navigationProperty</param>
         [AcceptVerbs("POST", "PUT")]
-        public HttpResponseMessage CreateLink(int key, string navigationProperty, [FromBody] Uri link)
+        public HttpResponseMessage CreateLink([FromODataUri] int key, string navigationProperty, [FromBody] Uri link)
         {
             Product product = _db.Products.SingleOrDefault(p => p.ID == key);
 
@@ -167,7 +167,7 @@ namespace ODataService.Controllers
                 case "Family":
                     // The utility method uses routing (ODataRoutes.GetById should match) to get the value of {id} parameter 
                     // which is the id of the ProductFamily.
-                    int relatedKey = Configuration.GetKeyValue<int>(Request, link);
+                    int relatedKey = Configuration.GetKeyValue<int>(link);
                     ProductFamily family = _db.ProductFamilies.SingleOrDefault(f => f.ID == relatedKey);
                     product.Family = family;
                     break;
@@ -187,7 +187,7 @@ namespace ODataService.Controllers
         /// </summary>
         /// <param name="key">The id of the Product</param>
         /// <returns>The related ProductFamily</returns>
-        public ProductFamily GetFamily(int key)
+        public ProductFamily GetFamily([FromODataUri] int key)
         {
             return _db.Products.Where(p => p.ID == key).Select(p => p.Family).SingleOrDefault();
         }

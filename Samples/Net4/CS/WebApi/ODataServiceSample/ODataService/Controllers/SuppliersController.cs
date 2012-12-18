@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.OData;
 using ODataService.Models;
 
 namespace ODataService.Controllers
@@ -26,7 +27,7 @@ namespace ODataService.Controllers
             return _db.Suppliers;
         }
 
-        public HttpResponseMessage Get(int key)
+        public HttpResponseMessage Get([FromODataUri] int key)
         {
             Supplier supplier = _db.Suppliers.SingleOrDefault(s => s.ID == key);
             if (supplier == null)
