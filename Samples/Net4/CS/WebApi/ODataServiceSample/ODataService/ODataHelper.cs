@@ -12,7 +12,7 @@ using Microsoft.Data.OData.Query;
 namespace ODataService
 {
     /// <summary>
-    /// Helper class to facilitate building odata service.
+    /// Helper class to facilitate building an odata service.
     /// </summary>
     public static class ODataHelper
     {
@@ -22,7 +22,6 @@ namespace ODataService
         /// </summary>
         /// <typeparam name="TKey">The type of the key</typeparam>
         /// <param name="configuration">Http configuration object</param>
-        /// <param name="currentRequest">The current request</param>
         /// <param name="uri">OData uri that contains the key value</param>
         /// <returns>The key value</returns>
         public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, Uri uri)
@@ -52,7 +51,7 @@ namespace ODataService
         /// <summary>
         /// Convert model state errors into string value.
         /// </summary>
-        /// <param name="modelState">Model states</param>
+        /// <param name="modelState">Model state</param>
         /// <returns>String value which contains all model errors</returns>
         public static string GetModelStateErrorInformation(ModelStateDictionary modelState)
         {

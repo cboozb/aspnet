@@ -39,7 +39,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for getting a ProductFamily by key
         /// </summary>
-        protected override ProductFamily GetEntityByKey([FromODataUri] int key)
+        protected override ProductFamily GetEntityByKey(int key)
         {
            return _db.ProductFamilies.SingleOrDefault(f => f.ID == key);
         }
@@ -60,7 +60,7 @@ namespace ODataService.Controllers
         /// Support for deleting a ProductFamily
         /// </summary>
         /// <param name="key"></param>
-        protected override void DeleteEntity([FromODataUri] int key)
+        protected override void DeleteEntity(int key)
         {
             ProductFamily toDelete = _db.ProductFamilies.FirstOrDefault(f => f.ID == key);
             if (toDelete == null)
@@ -74,7 +74,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for patching a ProductFamily
         /// </summary>
-        protected override ProductFamily PatchEntity([FromODataUri] int key, Delta<ProductFamily> patch)
+        protected override ProductFamily PatchEntity(int key, Delta<ProductFamily> patch)
         {
             ProductFamily toUpdate = _db.ProductFamilies.FirstOrDefault(f => f.ID == key);
             if (toUpdate == null)
@@ -89,7 +89,7 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for replacing a ProductFamily
         /// </summary>
-        protected override ProductFamily UpdateEntity([FromODataUri] int key, ProductFamily update)
+        protected override ProductFamily UpdateEntity(int key, ProductFamily update)
         {
             if (key != update.ID)
             {
