@@ -25,7 +25,9 @@ namespace ODataService.SelfHost
                 HttpSelfHostConfiguration configuration = new HttpSelfHostConfiguration(_baseAddress);
                 configuration.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
 
-                // Enable OData
+                configuration.Formatters.Clear();
+
+                // Enables OData support by adding an OData route and enabling OData controller and action selection, querying, and formatter support for OData. 
                 configuration.EnableOData(ModelBuilder.GetEdmModel());
 
                 //NOTE: Uncomment this if you want to enable diagnostic tracing

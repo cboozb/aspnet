@@ -11,6 +11,9 @@ using ODataService.Models;
 
 namespace ODataService
 {
+    /// <summary>
+    /// Helper class to build the EdmModels by both explicit or implicit methods.
+    /// </summary>
     public static class ModelBuilder
     {
         /// <summary>

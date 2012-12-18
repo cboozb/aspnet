@@ -142,7 +142,7 @@ namespace ODataService.Controllers
             switch (navigationProperty)
             {
                 case "Products":
-                    int productId = Configuration.GetKeyValue<int>(this.Request, link);
+                    int productId = Configuration.GetKeyValue<int>(Request, link);
                     Product product = _db.Products.SingleOrDefault(p => p.ID == productId);
                     if (product == null)
                     {
@@ -152,7 +152,7 @@ namespace ODataService.Controllers
                     break;
 
                 case "Supplier":
-                    int supplierId = Configuration.GetKeyValue<int>(this.Request, link);
+                    int supplierId = Configuration.GetKeyValue<int>(Request, link);
                     Supplier supplier = _db.Suppliers.SingleOrDefault(s => s.ID == supplierId);
                     if (supplier == null)
                     {
@@ -246,7 +246,7 @@ namespace ODataService.Controllers
                 throw new HttpResponseException(Request.CreateODataErrorResponse(HttpStatusCode.BadRequest,
                     new ODataError()
                     {
-                        Message = ODataHelper.GetModelStateErrorInformation(this.ModelState)
+                        Message = ODataHelper.GetModelStateErrorInformation(ModelState)
                     }));
             }
         

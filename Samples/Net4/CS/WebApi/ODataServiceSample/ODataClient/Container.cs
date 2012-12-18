@@ -14,11 +14,11 @@ namespace ODataClient.MSProducts.ODataService.Models
         public Container()
             : base(new Uri("http://localhost:50231"), DataServiceProtocolVersion.V3)
         {
-            this.SendingRequest += Container_SendingRequest;
-            this.IgnoreResourceNotFoundException = true;
-            this.ResolveName = new global::System.Func<global::System.Type, string>(this.ResolveNameFromType);
-            this.ResolveType = new global::System.Func<string, global::System.Type>(this.ResolveTypeFromName);
-            this.OnContextCreated();
+            SendingRequest += Container_SendingRequest;
+            IgnoreResourceNotFoundException = true;
+            ResolveName = new global::System.Func<global::System.Type, string>(ResolveNameFromType);
+            ResolveType = new global::System.Func<string, global::System.Type>(ResolveTypeFromName);
+            OnContextCreated();
         }
 
         void Container_SendingRequest(object sender, System.Data.Services.Client.SendingRequestEventArgs e)

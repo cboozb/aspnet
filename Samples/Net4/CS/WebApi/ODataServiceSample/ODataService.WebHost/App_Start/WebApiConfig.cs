@@ -10,6 +10,8 @@ namespace ODataService.WebHost
         public static void Register(HttpConfiguration config)
         {
             config.Formatters.Clear();
+
+            // Enables OData support by adding an OData route and enabling OData controller and action selection, querying, and formatter support for OData. 
             config.EnableOData(ModelBuilder.GetEdmModel());
 
             // To disable tracing in your application, please comment out or remove the following line of code
