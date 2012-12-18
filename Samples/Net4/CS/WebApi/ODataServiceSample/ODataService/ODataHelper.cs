@@ -27,19 +27,20 @@ namespace ODataService
         /// <returns>The key value</returns>
         public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, HttpRequestMessage currentRequest, Uri uri)
         {
-            var currentUri = currentRequest.RequestUri;
-            currentRequest.RequestUri = uri;
-            IHttpRouteData data = configuration.Routes.GetRouteData(currentRequest);
-            currentRequest.RequestUri = currentUri;
+            var newRequest = new HttpRequestMessage(HttpMethod.Get, uri);
+            foreach (var key in currentRequest.Properties.Keys)
+            {
+                newRequest.Properties.Add(key, currentRequest.Properties[key]);
+            }
+            IHttpRouteData data = configuration.Routes.GetRouteData(newRequest);
 
             //get the path template Ex: ~/entityset/key/$links/navigation
             var path = data.Values[ODataRouteConstants.ODataPath] as string;
             var odataPath = configuration.GetODataPathHandler().Parse(path);
-            var key = odataPath.Segments.OfType<KeyValuePathSegment>().First().Value;
+            var keySegment = odataPath.Segments.OfType<KeyValuePathSegment>().First().Value;
 
-            var value = ODataUriUtils.ConvertFromUriLiteral(key, Microsoft.Data.OData.ODataVersion.V3);
-            // TODO: this needs to use ODataLib to convert from OData literal form into the appropriate primitive type instance.
-            return (TKey)Convert.ChangeType(key, typeof(TKey));
+            var value = ODataUriUtils.ConvertFromUriLiteral(keySegment, Microsoft.Data.OData.ODataVersion.V3);
+            return (TKey) value;
         }
 
         /// <summary>
