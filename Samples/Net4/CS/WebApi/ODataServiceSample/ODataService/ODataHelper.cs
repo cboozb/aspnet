@@ -16,6 +16,24 @@ namespace ODataService
     /// </summary>
     public static class ODataHelper
     {
+        private static HttpConfiguration _configuration = null;
+        /// <summary>
+        /// Cached configuration to get odata route on the fly.
+        /// </summary>
+        private static HttpConfiguration Configuration
+        {
+            get
+            {
+                if (_configuration == null)
+                {
+                    _configuration = new HttpConfiguration();
+                    _configuration.EnableOData(ModelBuilder.GetEdmModel());
+                }
+
+                return _configuration;
+            }
+        }
+
         /// <summary>
         /// Helper method to get the key value from a uri.
         /// Usually used by $link action to extract the key value from the url in body.
@@ -26,25 +44,22 @@ namespace ODataService
         /// <returns>The key value</returns>
         public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, Uri uri)
         {
-            HttpConfiguration config = new HttpConfiguration();
-            config.EnableOData(ModelBuilder.GetEdmModel());
             var newRequest = new HttpRequestMessage(HttpMethod.Get, uri);
-            IHttpRouteData data = config.Routes.GetRouteData(newRequest);
+            IHttpRouteData data = Configuration.Routes.GetRouteData(newRequest);
             if (data == null)
             {
                 throw new InvalidOperationException("The link is not a valid odata link.");
             }
 
-            //get the path template Ex: ~/entityset/key/$links/navigation
-            var path = data.Values[ODataRouteConstants.ODataPath] as string;
-            var odataPath = configuration.GetODataPathHandler().Parse(path);
-            var keySegment = odataPath.Segments.OfType<KeyValuePathSegment>().First().Value;
+            //get the odata path Ex: ~/entityset/key/$links/navigation
+            var odataPath = newRequest.GetODataPath();
+            var keySegment = odataPath.Segments.OfType<KeyValuePathSegment>().FirstOrDefault();
             if (keySegment == null)
             {
                 throw new InvalidOperationException("The link does not contain a key.");
             }
 
-            var value = ODataUriUtils.ConvertFromUriLiteral(keySegment, Microsoft.Data.OData.ODataVersion.V3);
+            var value = ODataUriUtils.ConvertFromUriLiteral(keySegment.Value, Microsoft.Data.OData.ODataVersion.V3);
             return (TKey) value;
         }
 
