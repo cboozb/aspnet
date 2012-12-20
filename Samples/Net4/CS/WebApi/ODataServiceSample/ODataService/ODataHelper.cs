@@ -16,7 +16,8 @@ namespace ODataService
     /// </summary>
     public static class ODataHelper
     {
-        private static HttpConfiguration _configuration = null;
+        private static HttpConfiguration _configuration;
+
         /// <summary>
         /// Cached configuration to get odata route on the fly.
         /// </summary>
