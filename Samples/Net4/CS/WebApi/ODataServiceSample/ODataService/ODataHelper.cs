@@ -16,26 +16,22 @@ namespace ODataService
     /// </summary>
     public static class ODataHelper
     {
-        /// <summary>
-        /// Cached configuration to get odata route on the fly.
-        /// </summary>
         private const string ODataRouteConfigurationKey = "MS_ODataRouteConfiguration";
 
         /// <summary>
-        /// Helper method to get the key value from a uri.
-        /// Usually used by $link action to extract the key value from the url in body.
+        /// Helper method to get the odata path for an arbitrary odata uri.
         /// </summary>
-        /// <typeparam name="TKey">The type of the key</typeparam>
         /// <param name="configuration">Http configuration object</param>
-        /// <param name="uri">OData uri that contains the key value</param>
-        /// <returns>The key value</returns>
-        public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, Uri uri)
+        /// <param name="uri">OData uri</param>
+        /// <returns>The parsed odata path</returns>
+        public static ODataPath GetODataPath(this HttpConfiguration configuration, Uri uri)
         {
             var newRequest = new HttpRequestMessage(HttpMethod.Get, uri);
             HttpConfiguration odataRouteConfig = null;
-            if (configuration.Properties.ContainsKey(ODataRouteConfigurationKey))
+            object value;
+            if (configuration.Properties.TryGetValue(ODataRouteConfigurationKey, out value))
             {
-                odataRouteConfig = configuration.Properties[ODataRouteConfigurationKey] as HttpConfiguration;
+                odataRouteConfig = value as HttpConfiguration;
             }
 
             if (odataRouteConfig == null)
@@ -47,21 +43,35 @@ namespace ODataService
                 }
                 var odataRoute = configuration.Routes[ODataRouteConstants.RouteName];
                 odataRouteConfig.Routes.MapHttpRoute(
-                    ODataRouteConstants.RouteName,
-                    odataRoute.RouteTemplate,
-                    null,
-                    odataRoute.Constraints);
+                    name: ODataRouteConstants.RouteName,
+                    routeTemplate: odataRoute.RouteTemplate,
+                    defaults: null,
+                    constraints: odataRoute.Constraints);
                 configuration.Properties.TryAdd(ODataRouteConfigurationKey, odataRouteConfig);
             }
 
-            IHttpRouteData data = odataRouteConfig.Routes.GetRouteData(newRequest);
-            if (data == null)
+            IHttpRouteData routeData = odataRouteConfig.Routes.GetRouteData(newRequest);
+            if (routeData == null)
             {
                 throw new InvalidOperationException("The link is not a valid odata link.");
             }
 
             //get the odata path Ex: ~/entityset/key/$links/navigation
-            var odataPath = newRequest.GetODataPath();
+            return newRequest.GetODataPath();
+        }
+
+        /// <summary>
+        /// Helper method to get the key value from a uri.
+        /// Usually used by $link action to extract the key value from the url in body.
+        /// </summary>
+        /// <typeparam name="TKey">The type of the key</typeparam>
+        /// <param name="configuration">Http configuration object</param>
+        /// <param name="uri">OData uri that contains the key value</param>
+        /// <returns>The key value</returns>
+        public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, Uri uri)
+        {
+            //get the odata path Ex: ~/entityset/key/$links/navigation
+            var odataPath = configuration.GetODataPath(uri);
             var keySegment = odataPath.Segments.OfType<KeyValuePathSegment>().FirstOrDefault();
             if (keySegment == null)
             {
