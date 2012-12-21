@@ -16,24 +16,10 @@ namespace ODataService
     /// </summary>
     public static class ODataHelper
     {
-        private static HttpConfiguration _configuration;
-
         /// <summary>
         /// Cached configuration to get odata route on the fly.
         /// </summary>
-        private static HttpConfiguration Configuration
-        {
-            get
-            {
-                if (_configuration == null)
-                {
-                    _configuration = new HttpConfiguration();
-                    _configuration.EnableOData(ModelBuilder.GetEdmModel());
-                }
-
-                return _configuration;
-            }
-        }
+        private const string ODataRouteConfigurationKey = "MS_ODataRouteConfiguration";
 
         /// <summary>
         /// Helper method to get the key value from a uri.
@@ -46,7 +32,29 @@ namespace ODataService
         public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, Uri uri)
         {
             var newRequest = new HttpRequestMessage(HttpMethod.Get, uri);
-            IHttpRouteData data = Configuration.Routes.GetRouteData(newRequest);
+            HttpConfiguration odataRouteConfig = null;
+            if (configuration.Properties.ContainsKey(ODataRouteConfigurationKey))
+            {
+                odataRouteConfig = configuration.Properties[ODataRouteConfigurationKey] as HttpConfiguration;
+            }
+
+            if (odataRouteConfig == null)
+            {
+                odataRouteConfig = new HttpConfiguration(new HttpRouteCollection(configuration.VirtualPathRoot));
+                if (!configuration.Routes.ContainsKey(ODataRouteConstants.RouteName))
+                {
+                    throw new InvalidOperationException("You must enable odata route in global configuration first.");
+                }
+                var odataRoute = configuration.Routes[ODataRouteConstants.RouteName];
+                odataRouteConfig.Routes.MapHttpRoute(
+                    ODataRouteConstants.RouteName,
+                    odataRoute.RouteTemplate,
+                    null,
+                    odataRoute.Constraints);
+                configuration.Properties.TryAdd(ODataRouteConfigurationKey, odataRouteConfig);
+            }
+
+            IHttpRouteData data = odataRouteConfig.Routes.GetRouteData(newRequest);
             if (data == null)
             {
                 throw new InvalidOperationException("The link is not a valid odata link.");
