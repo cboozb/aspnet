@@ -60,7 +60,7 @@ namespace ODataService.Controllers
         /// Support for deleting a ProductFamily
         /// </summary>
         /// <param name="key"></param>
-        protected override void DeleteEntity(int key)
+        public override void Delete([FromODataUri]int key)
         {
             ProductFamily toDelete = _db.ProductFamilies.FirstOrDefault(f => f.ID == key);
             if (toDelete == null)
@@ -142,7 +142,7 @@ namespace ODataService.Controllers
             switch (navigationProperty)
             {
                 case "Products":
-                    int productId = Configuration.GetKeyValue<int>(link);
+                    int productId = Request.GetKeyValue<int>(link);
                     Product product = _db.Products.SingleOrDefault(p => p.ID == productId);
                     if (product == null)
                     {
@@ -152,7 +152,7 @@ namespace ODataService.Controllers
                     break;
 
                 case "Supplier":
-                    int supplierId = Configuration.GetKeyValue<int>(link);
+                    int supplierId = Request.GetKeyValue<int>(link);
                     Supplier supplier = _db.Suppliers.SingleOrDefault(s => s.ID == supplierId);
                     if (supplier == null)
                     {

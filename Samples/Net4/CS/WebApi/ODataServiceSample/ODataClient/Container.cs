@@ -1,7 +1,10 @@
-﻿using System;
+﻿using Microsoft.Data.Edm;
+using Microsoft.Data.Edm.Csdl;
+using System;
 using System.Data.Services.Common;
+using System.Xml;
 
-namespace ODataClient.MSProducts.ODataService.Models
+namespace ODataClient.MSProducts
 {
     /// <summary>
     /// Create an override for the generated Container (i.e. ctx) for the ODataService.Sample
@@ -12,13 +15,22 @@ namespace ODataClient.MSProducts.ODataService.Models
     public partial class Container
     {
         public Container()
-            : base(new Uri("http://localhost:50231"), DataServiceProtocolVersion.V3)
+            : this(new Uri("http://localhost:50231"))
         {
             SendingRequest += Container_SendingRequest;
             IgnoreResourceNotFoundException = true;
             ResolveName = new global::System.Func<global::System.Type, string>(ResolveNameFromType);
             ResolveType = new global::System.Func<string, global::System.Type>(ResolveTypeFromName);
             OnContextCreated();
+            this.Format.LoadServiceModel = LoadModel;
+            this.Format.UseJson();
+        }
+
+        private IEdmModel LoadModel()
+        {
+            var xmlTextReader = new XmlTextReader(GetMetadataUri().ToString());
+            IEdmModel model = EdmxReader.Parse(xmlTextReader);
+            return model;
         }
 
         void Container_SendingRequest(object sender, System.Data.Services.Client.SendingRequestEventArgs e)

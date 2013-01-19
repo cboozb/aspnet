@@ -16,47 +16,34 @@ namespace ODataService
     /// </summary>
     public static class ODataHelper
     {
-        private const string ODataRouteConfigurationKey = "MS_ODataRouteConfiguration";
-
         /// <summary>
         /// Helper method to get the odata path for an arbitrary odata uri.
         /// </summary>
-        /// <param name="configuration">Http configuration object</param>
+        /// <param name="request">The request instance in current context</param>
         /// <param name="uri">OData uri</param>
         /// <returns>The parsed odata path</returns>
-        public static ODataPath GetODataPath(this HttpConfiguration configuration, Uri uri)
+        public static ODataPath CreateODataPath(this HttpRequestMessage request, Uri uri)
         {
+            if (uri == null)
+            {
+                throw new ArgumentNullException("uri");
+            }
+
             var newRequest = new HttpRequestMessage(HttpMethod.Get, uri);
-            HttpConfiguration odataRouteConfig = null;
-            object value;
-            if (configuration.Properties.TryGetValue(ODataRouteConfigurationKey, out value))
-            {
-                odataRouteConfig = value as HttpConfiguration;
-            }
+            var route = request.GetRouteData().Route;
 
-            if (odataRouteConfig == null)
-            {
-                odataRouteConfig = new HttpConfiguration(new HttpRouteCollection(configuration.VirtualPathRoot));
-                if (!configuration.Routes.ContainsKey(ODataRouteConstants.RouteName))
-                {
-                    throw new InvalidOperationException("You must enable odata route in global configuration first.");
-                }
-                var odataRoute = configuration.Routes[ODataRouteConstants.RouteName];
-                odataRouteConfig.Routes.MapHttpRoute(
-                    name: ODataRouteConstants.RouteName,
-                    routeTemplate: odataRoute.RouteTemplate,
-                    defaults: null,
-                    constraints: odataRoute.Constraints);
-                configuration.Properties.TryAdd(ODataRouteConfigurationKey, odataRouteConfig);
-            }
-
-            IHttpRouteData routeData = odataRouteConfig.Routes.GetRouteData(newRequest);
+            var newRoute = new HttpRoute(
+                route.RouteTemplate,
+                new HttpRouteValueDictionary(route.Defaults),
+                new HttpRouteValueDictionary(route.Constraints),
+                new HttpRouteValueDictionary(route.DataTokens),
+                route.Handler);
+            var routeData = newRoute.GetRouteData(request.GetConfiguration().VirtualPathRoot, newRequest);
             if (routeData == null)
             {
                 throw new InvalidOperationException("The link is not a valid odata link.");
             }
 
-            //get the odata path Ex: ~/entityset/key/$links/navigation
             return newRequest.GetODataPath();
         }
 
@@ -65,13 +52,18 @@ namespace ODataService
         /// Usually used by $link action to extract the key value from the url in body.
         /// </summary>
         /// <typeparam name="TKey">The type of the key</typeparam>
-        /// <param name="configuration">Http configuration object</param>
+        /// <param name="request">The request instance in current context</param>
         /// <param name="uri">OData uri that contains the key value</param>
         /// <returns>The key value</returns>
-        public static TKey GetKeyValue<TKey>(this HttpConfiguration configuration, Uri uri)
+        public static TKey GetKeyValue<TKey>(this HttpRequestMessage request, Uri uri)
         {
+            if (uri == null)
+            {
+                throw new ArgumentNullException("uri");
+            }
+
             //get the odata path Ex: ~/entityset/key/$links/navigation
-            var odataPath = configuration.GetODataPath(uri);
+            var odataPath = request.CreateODataPath(uri);
             var keySegment = odataPath.Segments.OfType<KeyValuePathSegment>().FirstOrDefault();
             if (keySegment == null)
             {
@@ -79,7 +71,7 @@ namespace ODataService
             }
 
             var value = ODataUriUtils.ConvertFromUriLiteral(keySegment.Value, Microsoft.Data.OData.ODataVersion.V3);
-            return (TKey) value;
+            return (TKey)value;
         }
 
         /// <summary>

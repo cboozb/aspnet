@@ -9,8 +9,8 @@
 //------------------------------------------------------------------------------
 
 // Original file name:
-// Generation date: 12/5/2012 9:46:22 AM
-namespace ODataClient.MSProducts.ODataService.Models
+// Generation date: 1/17/2013 3:31:15 PM
+namespace ODataClient.MSProducts
 {
     
     /// <summary>
@@ -23,7 +23,7 @@ namespace ODataClient.MSProducts.ODataService.Models
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
         public Container(global::System.Uri serviceRoot) : 
-                base(serviceRoot)
+                base(serviceRoot, global::System.Data.Services.Common.DataServiceProtocolVersion.V3)
         {
             this.ResolveName = new global::System.Func<global::System.Type, string>(this.ResolveNameFromType);
             this.ResolveType = new global::System.Func<string, global::System.Type>(this.ResolveTypeFromName);
@@ -40,7 +40,7 @@ namespace ODataClient.MSProducts.ODataService.Models
         {
             if (typeName.StartsWith("ODataService.Models", global::System.StringComparison.Ordinal))
             {
-                return this.GetType().Assembly.GetType(string.Concat("ODataClient.MSProducts.ODataService.Models", typeName.Substring(19)), false);
+                return this.GetType().Assembly.GetType(string.Concat("ODataClient.MSProducts", typeName.Substring(19)), false);
             }
             return null;
         }
@@ -52,7 +52,7 @@ namespace ODataClient.MSProducts.ODataService.Models
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Data.Services.Design", "1.0.0")]
         protected string ResolveNameFromType(global::System.Type clientType)
         {
-            if (clientType.Namespace.Equals("ODataClient.MSProducts.ODataService.Models", global::System.StringComparison.Ordinal))
+            if (clientType.Namespace.Equals("ODataClient.MSProducts", global::System.StringComparison.Ordinal))
             {
                 return string.Concat("ODataService.Models.", clientType.Name);
             }

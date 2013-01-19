@@ -17,7 +17,7 @@ namespace ODataService.Controllers
     /// GET /Suppliers?$filter=..&$orderby=..&$top=..&$skip=..
     /// POST /Suppliers
     /// </summary>
-    public class SuppliersController : ApiController
+    public class SuppliersController : ODataController
     {
         ProductsContext _db = new ProductsContext();
 

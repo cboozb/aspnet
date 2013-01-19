@@ -37,19 +37,25 @@ namespace ODataService
             ODataModelBuilder modelBuilder = new ODataModelBuilder();
 
             var products = modelBuilder.EntitySet<Product>("Products");
-            products.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler,
-                                                            new EntitySetPathSegment(entityContext.EntitySet.Name),
-                                                            new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
+            products.HasEditLink(
+                entityContext => entityContext.Url.ODataLink(
+                    new EntitySetPathSegment(entityContext.EntitySet.Name),
+                    new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))),
+                followsConventions: true);
 
             var suppliers = modelBuilder.EntitySet<Supplier>("Suppliers");
-            suppliers.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler,
-                                                            new EntitySetPathSegment(entityContext.EntitySet.Name),
-                                                            new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
+            suppliers.HasEditLink(
+                entityContext => entityContext.Url.ODataLink(
+                    new EntitySetPathSegment(entityContext.EntitySet.Name),
+                    new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))),
+                followsConventions: true);
 
             var families = modelBuilder.EntitySet<ProductFamily>("ProductFamilies");
-            families.HasEditLink(entityContext => entityContext.UrlHelper.ODataLink(entityContext.PathHandler,
-                                                            new EntitySetPathSegment(entityContext.EntitySet.Name),
-                                                            new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))));
+            families.HasEditLink(
+                entityContext => entityContext.Url.ODataLink(
+                    new EntitySetPathSegment(entityContext.EntitySet.Name),
+                    new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3))),
+                followsConventions: true);
 
             var product = products.EntityType;
 
@@ -86,22 +92,30 @@ namespace ODataService
             // Create navigation Link builders
             products.HasNavigationPropertiesLink(
                 product.NavigationProperties,
-                (entityContext, navigationProperty) => new Uri(entityContext.UrlHelper.ODataLink(entityContext.PathHandler,
-                                                                new EntitySetPathSegment(entityContext.EntitySet.Name),
-                                                                new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3)),
-                                                                new NavigationPathSegment(navigationProperty.Name))));
+                (entityContext, navigationProperty) => 
+                    new Uri(entityContext.Url.ODataLink(
+                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3)),
+                        new NavigationPathSegment(navigationProperty.Name))),
+                followsConventions: true);
 
             families.HasNavigationPropertiesLink(
                 productFamily.NavigationProperties,
-                (entityContext, navigationProperty) => new Uri(entityContext.UrlHelper.ODataLink(entityContext.PathHandler, new EntitySetPathSegment(entityContext.EntitySet.Name),
-                                                                new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3)),
-                                                                new NavigationPathSegment(navigationProperty.Name))));
+                (entityContext, navigationProperty) => 
+                    new Uri(entityContext.Url.ODataLink(
+                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3)),
+                        new NavigationPathSegment(navigationProperty.Name))),
+                followsConventions: true);
 
             suppliers.HasNavigationPropertiesLink(
                 supplier.NavigationProperties,
-                (entityContext, navigationProperty) => new Uri(entityContext.UrlHelper.ODataLink(entityContext.PathHandler, new EntitySetPathSegment(entityContext.EntitySet.Name),
-                                                                new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3)),
-                                                                new NavigationPathSegment(navigationProperty.Name))));
+                (entityContext, navigationProperty) => 
+                    new Uri(entityContext.Url.ODataLink(
+                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(entityContext.EntityInstance.ID, ODataVersion.V3)),
+                        new NavigationPathSegment(navigationProperty.Name))),
+                followsConventions: true);
 
             ActionConfiguration createProduct = product.Action("CreateProduct");
             createProduct.Parameter<string>("Name");

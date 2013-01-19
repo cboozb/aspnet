@@ -25,13 +25,17 @@ namespace ODataService.SelfHost
                 HttpSelfHostConfiguration configuration = new HttpSelfHostConfiguration(_baseAddress);
                 configuration.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
 
-                configuration.Formatters.Clear();
+                // Enables OData support by adding an OData route and enabling querying support for OData.
+                // Action selector and odata media type formatters will be registered in per-controller configuration only
+                configuration.Routes.MapODataRoute(
+                    routeName: "OData",
+                    routePrefix: null,
+                    model: ModelBuilder.GetEdmModel());
+                configuration.EnableQuerySupport();
 
-                // Enables OData support by adding an OData route and enabling OData controller and action selection, querying, and formatter support for OData. 
-                configuration.EnableOData(ModelBuilder.GetEdmModel());
-
-                //NOTE: Uncomment this if you want to enable diagnostic tracing
-                //configuration.EnableSystemDiagnosticsTracing();
+                // To disable tracing in your application, please comment out or remove the following line of code
+                // For more information, refer to: http://www.asp.net/web-api
+                configuration.EnableSystemDiagnosticsTracing();
 
                 // Create server
                 server = new HttpSelfHostServer(configuration);

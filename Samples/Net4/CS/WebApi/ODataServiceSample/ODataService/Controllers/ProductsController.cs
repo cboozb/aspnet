@@ -16,7 +16,7 @@ namespace ODataService.Controllers
     /// <summary>
     /// This controller implements everything the OData Web API integration enables by hand.
     /// </summary>
-    public class ProductsController : ApiController
+    public class ProductsController : ODataController
     {
         // this example uses EntityFramework CodeFirst
         ProductsContext _db = new ProductsContext();
@@ -87,8 +87,19 @@ namespace ODataService.Controllers
             Product addedProduct = _db.Products.Add(product);
             _db.SaveChanges();
             var response = Request.CreateResponse(HttpStatusCode.Created, addedProduct);
-            response.Headers.Location = new Uri(Url.ODataLink(Configuration.GetODataPathHandler(),
-                                  new EntitySetPathSegment(ControllerContext.ControllerDescriptor.ControllerName),
+            var odataPath = Request.GetODataPath();
+            if (odataPath == null)
+            {
+                throw new InvalidOperationException("There is no ODataPath in the request.");
+            }
+            var entitySetPathSegment = odataPath.Segments.FirstOrDefault() as EntitySetPathSegment;
+            if (entitySetPathSegment == null)
+            {
+                throw new InvalidOperationException("ODataPath doesn't start with EntitySetPathSegment.");
+            }
+
+            response.Headers.Location = new Uri(Url.ODataLink(
+                                  entitySetPathSegment,
                                   new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(addedProduct.ID, ODataVersion.V3))));
             
             return response;
@@ -167,7 +178,7 @@ namespace ODataService.Controllers
                 case "Family":
                     // The utility method uses routing (ODataRoutes.GetById should match) to get the value of {id} parameter 
                     // which is the id of the ProductFamily.
-                    int relatedKey = Configuration.GetKeyValue<int>(link);
+                    int relatedKey = Request.GetKeyValue<int>(link);
                     ProductFamily family = _db.ProductFamilies.SingleOrDefault(f => f.ID == relatedKey);
                     product.Family = family;
                     break;
