@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -105,8 +106,8 @@ namespace ROOT_PROJECT_NAMESPACE.Areas.Trace.TraceWriters
             RequestTrace requestTrace = new RequestTrace
             {
                 Id = traceRecord.RequestId.ToString(),
-                Method = request.Method.ToString(),
-                Uri = request.RequestUri.ToString(),
+                Method = (request == null) ? String.Empty : request.Method.ToString(),
+                Uri = (request == null || request.RequestUri == null) ? String.Empty : request.RequestUri.ToString(),
                 Timestamp = traceRecord.Timestamp,
                 Status = (int) traceRecord.Status,
                 Reason = traceRecord.Status == 0 ? null : traceRecord.Status.ToString()
