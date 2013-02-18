@@ -11,8 +11,8 @@
     <ProjectTypeGuids>{E3E379DF-F4C6-4180-9B81-6769533ABE47};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ResultLimitSample</RootNamespace>
-    <AssemblyName>ResultLimitSample</AssemblyName>
+    <RootNamespace>ODataPagingSample</RootNamespace>
+    <AssemblyName>ODataPagingSample</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <MvcBuildViews>false</MvcBuildViews>
     <UseIISExpress>true</UseIISExpress>
@@ -45,14 +45,13 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\EntityFramework.5.0.0\lib\net40\EntityFramework.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.Data.Edm, Version=5.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Data.Edm.5.2.0-rc1\lib\net40\Microsoft.Data.Edm.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Data.Edm.5.2.0\lib\net40\Microsoft.Data.Edm.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Data.OData, Version=5.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.Data.OData.5.2.0-rc1\lib\net40\Microsoft.Data.OData.dll</HintPath>
+      <HintPath>..\packages\Microsoft.Data.OData.5.2.0\lib\net40\Microsoft.Data.OData.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <Private>True</Private>
@@ -71,84 +70,89 @@
     <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.4.0.20710.0\lib\net40\System.Net.Http.Formatting.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http.WebRequest, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
+    </Reference>
     <Reference Include="System.Runtime.Serialization" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Spatial, Version=5.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Spatial.5.2.0-rc1\lib\net40\System.Spatial.dll</HintPath>
+      <HintPath>..\packages\System.Spatial.5.2.0\lib\net40\System.Spatial.dll</HintPath>
     </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.4.0.20710.0\lib\net40\System.Web.Http.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web.Http.OData, Version=0.3.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+    <Reference Include="System.Web.Http.OData, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Microsoft.AspNet.WebApi.OData.0.3.0-rc\lib\net40\System.Web.Http.OData.dll</HintPath>
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.OData.4.0.0\lib\net40\System.Web.Http.OData.dll</HintPath>
     </Reference>
     <Reference Include="System.Web.Http.WebHost, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.4.0.20710.0\lib\net40\System.Web.Http.WebHost.dll</HintPath>
     </Reference>
-    <Reference Include="System.Web" />
-    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Web.Routing" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.XML" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Controllers\BooksController.cs" />
+    <Compile Include="Controllers\MoviesController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
-    <Compile Include="Models\Book.cs">
-      <DependentUpon>BooksModel.tt</DependentUpon>
+    <Compile Include="Models\Movie.cs">
+      <DependentUpon>MoviesDb.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\BooksModel.Context.cs">
+    <Compile Include="Models\MoviesDb.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>BooksModel.Context.tt</DependentUpon>
+      <DependentUpon>MoviesDb.Context.tt</DependentUpon>
     </Compile>
-    <Compile Include="Models\BooksModel.cs">
+    <Compile Include="Models\MoviesDb.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>BooksModel.tt</DependentUpon>
+      <DependentUpon>MoviesDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Models\MoviesDb.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>MoviesDb.edmx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="App_Data\BooksDb.sdf" />
-    <Content Include="Assets\arrow_Next_16xLG_color.png" />
-    <Content Include="Assets\arrow_Previous_16xLG_color.png" />
-    <Content Include="default.html" />
+    <Content Include="App_Data\MoviesDb.mdf" />
+    <Content Include="Assets\next.png" />
+    <Content Include="Assets\previous.png" />
+    <Content Include="default.aspx" />
     <Content Include="Global.asax" />
-    <EntityDeploy Include="Models\BooksModel.edmx">
+    <EntityDeploy Include="Models\MoviesDb.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
-      <LastGenOutput>BooksModel.Designer.cs</LastGenOutput>
+      <LastGenOutput>MoviesDb.Designer.cs</LastGenOutput>
     </EntityDeploy>
-    <Content Include="Models\BooksModel.Context.tt">
+    <Content Include="Models\MoviesDb.Context.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>BooksModel.edmx</DependentUpon>
-      <LastGenOutput>BooksModel.Context.cs</LastGenOutput>
+      <DependentUpon>MoviesDb.edmx</DependentUpon>
+      <LastGenOutput>MoviesDb.Context.cs</LastGenOutput>
     </Content>
-    <Content Include="Models\BooksModel.edmx.diagram">
-      <DependentUpon>BooksModel.edmx</DependentUpon>
+    <Content Include="Models\MoviesDb.edmx.diagram">
+      <DependentUpon>MoviesDb.edmx</DependentUpon>
     </Content>
-    <Content Include="Models\BooksModel.tt">
+    <Content Include="Models\MoviesDb.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <DependentUpon>BooksModel.edmx</DependentUpon>
-      <LastGenOutput>BooksModel.cs</LastGenOutput>
+      <DependentUpon>MoviesDb.edmx</DependentUpon>
+      <LastGenOutput>MoviesDb.cs</LastGenOutput>
     </Content>
-    <None Include="Scripts\jquery-1.8.3.intellisense.js" />
-    <Content Include="Scripts\datajs-1.1.0.js" />
-    <Content Include="Scripts\datajs-1.1.0.min.js" />
+    <None Include="Scripts\jquery-1.9.1.intellisense.js" />
+    <Content Include="Scripts\jquery-1.9.1.js" />
+    <Content Include="Scripts\jquery-1.9.1.min.js" />
+    <Content Include="Scripts\knockout-2.2.1.debug.js" />
+    <Content Include="Scripts\knockout-2.2.1.js" />
     <Content Include="Scripts\paging.js" />
-    <Content Include="Scripts\jquery-1.8.3.js" />
-    <Content Include="Scripts\jquery-1.8.3.min.js" />
-    <Content Include="Scripts\knockout-2.2.0.debug.js" />
-    <Content Include="Scripts\knockout-2.2.0.js" />
     <Content Include="StyleSheet.css" />
     <Content Include="Web.config">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Scripts\jquery-1.9.1.min.map" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -160,7 +164,9 @@
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="packages.config" />
+    <Content Include="packages.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Properties\" />

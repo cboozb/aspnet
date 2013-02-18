@@ -13,10 +13,10 @@ namespace ODataPagingSample.Models
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
     
-    public partial class BooksDbEntities : DbContext
+    public partial class MoviesDb : DbContext
     {
-        public BooksDbEntities()
-            : base("name=BooksDbEntities")
+        public MoviesDb()
+            : base("name=MoviesDb")
         {
         }
     
@@ -25,6 +25,6 @@ namespace ODataPagingSample.Models
             throw new UnintentionalCodeFirstException();
         }
     
-        public DbSet<Book> Books { get; set; }
+        public DbSet<Movie> Movies { get; set; }
     }
 }
