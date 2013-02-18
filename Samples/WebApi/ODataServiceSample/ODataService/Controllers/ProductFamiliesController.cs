@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.Data.OData;
+using ODataService.Models;
+using System;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.OData;
-using ODataService.Models;
-using Microsoft.Data.OData;
+using System.Web.Http.OData.Routing;
 
 namespace ODataService.Controllers
 {
@@ -27,7 +28,6 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for querying ProductFamilies
         /// </summary>
-        [Queryable]
         public override IQueryable<ProductFamily> Get()
         {
             // if you need to secure this data, one approach would be
@@ -67,6 +67,11 @@ namespace ODataService.Controllers
             {
                 throw ODataErrors.EntityNotFound(Request);
             }
+            foreach (var product in toDelete.Products.ToList())
+            {
+                _db.Products.Remove(product);
+            }
+
             _db.ProductFamilies.Remove(toDelete);
             _db.SaveChanges();
         }
@@ -113,7 +118,7 @@ namespace ODataService.Controllers
         }
 
         /// <summary>
-        /// Support for /ProductFamily(1)/Products
+        /// Support for /ProductFamilies(1)/Products
         /// </summary>
         [Queryable]
         public IQueryable<Product> GetProducts([FromODataUri] int key)
@@ -122,7 +127,30 @@ namespace ODataService.Controllers
         }
 
         /// <summary>
-        /// Support for /ProductFamily(1)/Supplier
+        /// Support for POST /ProductFamiles(1)/Products
+        /// </summary>
+        public HttpResponseMessage PostProducts([FromODataUri] int key, Product product)
+        {
+            var family = _db.ProductFamilies.Find(key);
+            if (family == null)
+            {
+                throw Request.EntityNotFound();
+            }
+
+            family.Products.Add(product);
+            _db.SaveChanges();
+
+            var response = Request.CreateResponse(
+                HttpStatusCode.Created,
+                product);
+            response.Headers.Location = new Uri(Url.ODataLink(
+                new EntitySetPathSegment("Products"),
+                new KeyValuePathSegment(product.ID.ToString())));
+            return response;
+        }
+
+        /// <summary>
+        /// Support for /ProductFamilies(1)/Supplier
         /// </summary>
         public Supplier GetSupplier([FromODataUri] int key)
         {

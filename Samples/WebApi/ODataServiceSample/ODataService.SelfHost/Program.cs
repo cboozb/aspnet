@@ -1,13 +1,10 @@
-﻿using System;
+﻿using ODataService.Extensions;
+using System;
 using System.Web.Http;
-using System.Web.Http.OData.Builder;
+using System.Web.Http.OData.Query;
 using System.Web.Http.OData.Routing;
+using System.Web.Http.OData.Routing.Conventions;
 using System.Web.Http.SelfHost;
-using System.Web.Http.Tracing;
-using Microsoft.Data.Edm;
-using Microsoft.Data.OData;
-using Microsoft.Data.OData.Query;
-using ODataService.Models;
 
 namespace ODataService.SelfHost
 {
@@ -22,23 +19,37 @@ namespace ODataService.SelfHost
             try
             {
                 // Set up server configuration
-                HttpSelfHostConfiguration configuration = new HttpSelfHostConfiguration(_baseAddress);
-                configuration.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
+                HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
+                config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
+
+                // Add $format support
+                config.MessageHandlers.Add(new FormatQueryMessageHandler());
+
+                // Add NavigationRoutingConvention2 to support POST, PUT, PATCH and DELETE on navigation property
+                var conventions = ODataRoutingConventions.CreateDefault();
+                conventions.Insert(0, new NavigationRoutingConvention2());
 
                 // Enables OData support by adding an OData route and enabling querying support for OData.
                 // Action selector and odata media type formatters will be registered in per-controller configuration only
-                configuration.Routes.MapODataRoute(
+                config.Routes.MapODataRoute(
                     routeName: "OData",
                     routePrefix: null,
-                    model: ModelBuilder.GetEdmModel());
-                configuration.EnableQuerySupport();
+                    model: ModelBuilder.GetEdmModel(),
+                    pathHandler: new DefaultODataPathHandler(),
+                    routingConventions: conventions);
+
+                // Enable queryable support and allow $format query
+                config.EnableQuerySupport(new QueryableAttribute { 
+                    AllowedQueryOptions = AllowedQueryOptions.Supported | AllowedQueryOptions.Format });
 
                 // To disable tracing in your application, please comment out or remove the following line of code
                 // For more information, refer to: http://www.asp.net/web-api
-                configuration.EnableSystemDiagnosticsTracing();
+                config.EnableSystemDiagnosticsTracing();
+
+                config.Filters.Add(new ModelValidationFilterAttribute());
 
                 // Create server
-                server = new HttpSelfHostServer(configuration);
+                server = new HttpSelfHostServer(config);
 
                 // Start listening
                 server.OpenAsync().Wait();

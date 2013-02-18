@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.OData;
 using ODataService.Models;
+using ODataService.Extensions;
 
 namespace ODataService.Controllers
 {
@@ -21,7 +22,6 @@ namespace ODataService.Controllers
     {
         ProductsContext _db = new ProductsContext();
 
-        [Queryable]
         public IQueryable<Supplier> Get()
         {
             return _db.Suppliers;

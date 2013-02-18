@@ -199,6 +199,26 @@ asyncTest("put productfamilies", function () {
         });
 });
 
+asyncTest("post productfamily.products", function () {
+    expect(1);
+
+    console.log("post productfamily.products");
+    OData.request({
+        requestUri: "/ProductFamilies(4)/Products",
+        method: "POST",
+        data: { Name: "SQL Server 2012", ReleaseDate: new Date(2012, 3, 6), SupportedUntil: new Date(2017, 7, 11) }
+    }, function (product) {
+        ok(product);
+        console.log("post product");
+        console.log("\tCreating Product with Id={0}, Name={1}".format(product.ID, product.Name));
+        start();
+    }, function (err) {
+        console.log(err.message);
+        ok(false);
+        start();
+    });
+});
+
 asyncTest("delete productfamilies", function () {
     expect(2);
 

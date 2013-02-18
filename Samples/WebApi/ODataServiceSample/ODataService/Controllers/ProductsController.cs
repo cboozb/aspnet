@@ -10,6 +10,7 @@ using System.Web.Http.Routing;
 using Microsoft.Data.OData;
 using Microsoft.Data.OData.Query;
 using ODataService.Models;
+using ODataService.Extensions;
 
 namespace ODataService.Controllers
 {
@@ -33,7 +34,6 @@ namespace ODataService.Controllers
         /// </remarks>
         /// </summary>
         /// <returns>An IQueryable with all the products you want it to be possible for clients to reach.</returns>
-        [Queryable]
         public IQueryable<Product> Get()
         {
             // If you have any security filters you should apply them before returning then from this method.

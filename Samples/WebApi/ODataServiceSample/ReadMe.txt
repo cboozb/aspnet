@@ -44,6 +44,19 @@ Furthermore, the ODataService exposes a Service Document (aka. $metadata documen
 lists all the top-level entities so clients can discover them. This enables OData clients
 to discover and consume OData Services exposed through ASP.NET Web APO.
 
+Update (hongyes 2/18/2013)
+
+1. Added $format support in the sample. The Extensions.FormatQueryMessageHandler class handles 
+$format from query string and change accept header based on it. It accepts:
+    * $format=xml => application/xml
+    * $format=json => application/json
+    * $format=atom => application/atom+xml
+
+2. Added Extensions/NavigationRoutingConvention2 class to support POST, PUT and DELETE http 
+method on navigation property. The default NavigationRoutingConvention only supports GET method.
+The new convention demonstrates how to customize routing convention and how to register it into 
+OData route.
+
 For a detailed description of this sample, please see 
 http://blogs.msdn.com/b/alexj/archive/2012/08/15/odata-support-in-asp-net-web-api.aspx
 

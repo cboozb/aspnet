@@ -38,6 +38,10 @@ namespace ODataClient
                         Get_ProductFamily_Products();
                         break;
 
+                    case "post productfamily.products":
+                        Post_ProductFamily_Products();
+                        break;
+
                     case "get productfamily.supplier":
                         Get_ProductFamily_Supplier();
                         break;
@@ -118,6 +122,9 @@ namespace ODataClient
             Get_ProductFamilies();
             Put_ProductFamily();
             Get_ProductFamilies();
+
+            Post_ProductFamily_Products();
+
             Delete_ProductFamily();
             Get_ProductFamilies();
 
@@ -213,6 +220,26 @@ namespace ODataClient
             Console.WriteLine("\tCreating ProductFamily with Id={0}, Name={1}, Description={2}", sql.ID, sql.Name, sql.Description);
 
             ctx.AddObject("ProductFamilies", sql);
+            ctx.SaveChanges();
+        }
+
+        private static void Post_ProductFamily_Products()
+        {
+            Container ctx = new Container();
+            Console.WriteLine("\n\t<< post productfamily.products >>");
+            int key = 4;
+            ProductFamily family = ctx.ProductFamilies.Where(pf => pf.ID == key).AsEnumerable().SingleOrDefault();
+
+            var sql2012 = new Product
+            {
+                Name = "SQL Server 2012",
+                ReleaseDate = new DateTime(2012, 3, 6),
+                SupportedUntil = new DateTime(2017, 7, 11)
+            };
+            ctx.AddRelatedObject(family, "Products", sql2012);
+
+            Console.WriteLine("\tCreating Product with Name={0} under ProductFamily with name {1}", sql2012.Name, family.Name);
+
             ctx.SaveChanges();
         }
 
