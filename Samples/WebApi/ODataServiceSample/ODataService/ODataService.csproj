@@ -105,7 +105,7 @@
     <Compile Include="Controllers\SuppliersController.cs" />
     <Compile Include="Extensions\FormatQueryMessageHandler.cs" />
     <Compile Include="Extensions\ModelValidationFilterAttribute.cs" />
-    <Compile Include="Extensions\NavigationRoutingConvention2.cs" />
+    <Compile Include="Extensions\CustomNavigationRoutingConvention.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Models\Address.cs" />
     <Compile Include="Models\Product.cs" />

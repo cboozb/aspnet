@@ -9,7 +9,10 @@ using System.Web.Http.OData.Routing.Conventions;
 
 namespace ODataService.Extensions
 {
-    public class NavigationRoutingConvention2 : EntitySetRoutingConvention
+    /// <summary>
+    /// Custom convention to support GET/POST/PUT/PATCH/DELETE routing on navigation property
+    /// </summary>
+    public class CustomNavigationRoutingConvention : EntitySetRoutingConvention
     {
         public override string SelectAction(ODataPath odataPath, HttpControllerContext controllerContext, ILookup<string, HttpActionDescriptor> actionMap)
         {
@@ -45,8 +48,8 @@ namespace ODataService.Extensions
                 {
                     KeyValuePathSegment keySegment = odataPath.Segments[1] as KeyValuePathSegment;
                     controllerContext.RouteData.Values[ODataRouteConstants.Key] = keySegment.Value;
-                    string key = prefix + navigationProperty.Name + "From" + declaringType.Name;
-                    return (actionMap.Contains(key) ? key : (prefix + navigationProperty.Name));
+                    string actionName = prefix + navigationProperty.Name + "From" + declaringType.Name;
+                    return (actionMap.Contains(actionName) ? actionName : (prefix + navigationProperty.Name));
                 }
             }
 

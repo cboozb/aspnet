@@ -10,7 +10,7 @@ namespace ODataVersioningSample.Tests.V2
 
         public void RunTests()
         {
-            Console.WriteLine("V1 Client Tests:");
+            Console.WriteLine("V2 Client Tests:");
             GetProducts();
             QueryProducts();
             GetProduct();

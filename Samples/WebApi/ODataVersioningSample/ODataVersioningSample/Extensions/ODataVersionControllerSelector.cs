@@ -5,6 +5,10 @@ using System.Web.Http.Dispatcher;
 
 namespace ODataVersioningSample.Extensions
 {
+    /// <summary>
+    /// Controllerselector that figures out the version suffix from the route name.
+    /// For example: request from route V1 can be dispatched to ProductsV1Controller.
+    /// </summary>
     public class ODataVersionControllerSelector : DefaultHttpControllerSelector
     {
         private Dictionary<string, string> _routeVersionSuffixMapping = new Dictionary<string, string>();

@@ -27,7 +27,7 @@ namespace ODataService.SelfHost
 
                 // Add NavigationRoutingConvention2 to support POST, PUT, PATCH and DELETE on navigation property
                 var conventions = ODataRoutingConventions.CreateDefault();
-                conventions.Insert(0, new NavigationRoutingConvention2());
+                conventions.Insert(0, new CustomNavigationRoutingConvention());
 
                 // Enables OData support by adding an OData route and enabling querying support for OData.
                 // Action selector and odata media type formatters will be registered in per-controller configuration only
