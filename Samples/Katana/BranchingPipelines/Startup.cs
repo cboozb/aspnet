@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using Microsoft.Owin.Mapping;
-using Owin;
+﻿using Owin;
 using Owin.Types;
+using System.Collections.Generic;
 
 namespace BranchingPipelines
 {
@@ -42,8 +40,7 @@ namespace BranchingPipelines
 
         private void MapIfIE(IAppBuilder builder)
         {
-            // TODO: Split to MapPredicate and MapPredicateAsync so we don't have Func ambiguity
-            builder.MapPredicate(new Func<IDictionary<string, object>, bool>(IsIE), builder2 =>
+            builder.MapPredicate(IsIE, builder2 =>
             {
                 builder2.UseType<AddBreadCrumbMiddleware>("took-IE-branch");
                 builder2.UseType<DisplayBreadCrumbs>();

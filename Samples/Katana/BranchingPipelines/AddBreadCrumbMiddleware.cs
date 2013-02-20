@@ -1,13 +1,11 @@
-﻿using System;
+﻿using Owin.Types;
+using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 using System.Threading.Tasks;
 
 namespace BranchingPipelines
 {
     using AppFunc = Func<IDictionary<string, object>, Task>;
-    using Owin.Types;
 
     public class AddBreadCrumbMiddleware
     {
