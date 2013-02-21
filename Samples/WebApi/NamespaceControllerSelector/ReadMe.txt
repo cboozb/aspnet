@@ -26,3 +26,6 @@ route template. For example:
 It tries to match this variable with the last segement of the controller's 
 namespace. For example, if the namespace is "MyApplication.V1", it tries to 
 match "V1" (case-insensitive).
+
+When you run the console application, it sends an HTTP request to the "v1" URI
+and another to the "v2" URI, and displays the results.

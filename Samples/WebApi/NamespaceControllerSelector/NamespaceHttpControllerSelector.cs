@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -15,23 +16,26 @@ namespace NamespaceControllerSelectorSample
     public class NamespaceHttpControllerSelector : IHttpControllerSelector
     {
         private const string NamespaceKey = "namespace";
+        private const string ControllerKey = "controller";
 
-        private readonly DefaultHttpControllerSelector _defaultSelector;
-        private readonly Dictionary<string, HttpControllerDescriptor> _controllers; 
+        private readonly HttpConfiguration _configuration;
+        private readonly Lazy<Dictionary<string, HttpControllerDescriptor>> _controllers; 
 
         public NamespaceHttpControllerSelector(HttpConfiguration config)
         {
-            _defaultSelector = new DefaultHttpControllerSelector(config);
-            _controllers = new Dictionary<string, HttpControllerDescriptor>(StringComparer.OrdinalIgnoreCase);
-
-            InitializeControllerDictionary(config);
+            _configuration = config;
+            _controllers = new Lazy<Dictionary<string, HttpControllerDescriptor>>(InitializeControllerDictionary);
         }
 
-        private void InitializeControllerDictionary(HttpConfiguration config)
+        private Dictionary<string, HttpControllerDescriptor> InitializeControllerDictionary()
         {
-            // Create a lookup table where key is "namespace.type"
-            IAssembliesResolver assembliesResolver = config.Services.GetAssembliesResolver();
-            IHttpControllerTypeResolver controllersResolver = config.Services.GetHttpControllerTypeResolver();
+            var dictionary = new Dictionary<string, HttpControllerDescriptor>(StringComparer.OrdinalIgnoreCase);
+
+            // Create a lookup table where key is "namespace.controller". The value of "namespace" is the last
+            // segment of the full namespace. For example:
+            // MyApplication.Controllers.V1.ProductsController => "V1.Products"
+            IAssembliesResolver assembliesResolver = _configuration.Services.GetAssembliesResolver();
+            IHttpControllerTypeResolver controllersResolver = _configuration.Services.GetHttpControllerTypeResolver();
 
             ICollection<Type> controllerTypes = controllersResolver.GetControllerTypes(assembliesResolver);
             HashSet<string> duplicates = new HashSet<string>();
@@ -44,33 +48,37 @@ namespace NamespaceControllerSelectorSample
                 // This matches the behavior of DefaultHttpControllerSelector.
                 var controllerName = t.Name.Remove(t.Name.Length - DefaultHttpControllerSelector.ControllerSuffix.Length);
 
-                var key = string.Format("{0}.{1}", segments[segments.Length - 1], controllerName);
+                var key = String.Format(CultureInfo.InvariantCulture, "{0}.{1}", segments[segments.Length - 1], controllerName);
 
-                if (_controllers.Keys.Contains(key))
+                // Check for duplicate keys.
+                if (dictionary.Keys.Contains(key))
                 {
                     duplicates.Add(key);
                 }
                 else
                 {
-                    _controllers[key] = new HttpControllerDescriptor(config, t.Name, t);  
+                    dictionary[key] = new HttpControllerDescriptor(_configuration, t.Name, t);  
                 }
             }
 
+            // Remove any duplicates from the dictionary, because these create ambiguous matches. 
+            // For example, "Foo.V1.ProductsController" and "Bar.V1.ProductsController" both map to "v1.products".
             foreach (string s in duplicates)
             {
-                _controllers.Remove(s);
+                dictionary.Remove(s);
             }
+            return dictionary;
         }
 
-        // Get the namespace variable from the route data, if present.
-        static private string GetNamespace(IHttpRouteData routeData)
+        // Get a value from the route data, if present.
+        private static T GetRouteVariable<T>(IHttpRouteData routeData, string name)
         {
-            object namespaceName = null;
-            if (routeData.Values.TryGetValue(NamespaceKey, out namespaceName))
+            object result = null;
+            if (routeData.Values.TryGetValue(name, out result))
             {
-                return namespaceName as string;
+                return (T)result;
             }
-            return null;
+            return default(T);
         }
 
         public HttpControllerDescriptor SelectController(HttpRequestMessage request)
@@ -81,25 +89,24 @@ namespace NamespaceControllerSelectorSample
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
-            string controllerName = _defaultSelector.GetControllerName(request);
+            // Get the namespace and controller variables from the route data.
+            string namespaceName = GetRouteVariable<string>(routeData, NamespaceKey);
+            if (namespaceName == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
+
+            string controllerName = GetRouteVariable<string>(routeData, ControllerKey);
             if (controllerName == null)
             {
                 throw new HttpResponseException(HttpStatusCode.NotFound);
             }
 
-            string namespaceName = GetNamespace(routeData);
-            if (namespaceName == null)
-            {
-                // When route data does not contain a value for "{namespace}",
-                // fall back to default selection logic.
-                return _defaultSelector.SelectController(request);
-            }
-            
             // Find a matching controller.
-            string key = string.Format("{0}.{1}", namespaceName, controllerName);
+            string key = String.Format(CultureInfo.InvariantCulture, "{0}.{1}", namespaceName, controllerName);
 
             HttpControllerDescriptor controllerDescriptor;
-            if (_controllers.TryGetValue(key, out controllerDescriptor))
+            if (_controllers.Value.TryGetValue(key, out controllerDescriptor))
             {
                 return controllerDescriptor;
             }
@@ -111,7 +118,7 @@ namespace NamespaceControllerSelectorSample
 
         public IDictionary<string, HttpControllerDescriptor> GetControllerMapping()
         {
-            return _controllers;
+            return _controllers.Value;
         }
     }
 }
