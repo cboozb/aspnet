@@ -12,14 +12,18 @@ namespace System.Web.Http.OData.NHibernate
             string from = "from " + query.Context.ElementClrType.Name + " $it" + Environment.NewLine;
 
             // convert $filter to HQL where clause.
-            string where = ToString(query.Filter);
+            WhereClause where = ToFilterQuery(query.Filter);
 
             // convert $orderby to HQL orderby clause.
-            string orderBy = ToString(query.OrderBy);
+            string orderBy = ToOrderByQuery(query.OrderBy);
 
             // create a query using the where clause and the orderby clause.
-            string queryString = from + where + orderBy;
+            string queryString = from + where.Clause + orderBy;
             IQuery hQuery = session.CreateQuery(queryString);
+            for (int i = 0; i < where.PositionalParameters.Length; i++)
+            {
+                hQuery.SetParameter(i, where.PositionalParameters[i]);
+            }
 
             // Apply $skip.
             hQuery = hQuery.Apply(query.Skip);
@@ -50,12 +54,12 @@ namespace System.Web.Http.OData.NHibernate
             return query;
         }
 
-        private static string ToString(OrderByQueryOption orderByQuery)
+        private static string ToOrderByQuery(OrderByQueryOption orderByQuery)
         {
             return NHibernateOrderByBinder.BindOrderByQueryOption(orderByQuery);
         }
 
-        private static string ToString(FilterQueryOption filterQuery)
+        private static WhereClause ToFilterQuery(FilterQueryOption filterQuery)
         {
             return NHibernateFilterBinder.BindFilterQueryOption(filterQuery);
         }

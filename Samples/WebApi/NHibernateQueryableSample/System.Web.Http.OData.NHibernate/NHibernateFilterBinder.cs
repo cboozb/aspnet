@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Web.Http.OData.Query;
 using Microsoft.Data.Edm;
 using Microsoft.Data.OData.Query;
@@ -9,21 +10,32 @@ namespace System.Web.Http.OData.NHibernate
     public class NHibernateFilterBinder
     {
         private IEdmModel _model;
+        private List<object> _positionalParmeters = new List<object>();
+
+        private static WhereClause _emptyWhereClause = new WhereClause
+        {
+            Clause = String.Empty,
+            PositionalParameters = new object[0]
+        };
 
         protected NHibernateFilterBinder(IEdmModel model)
         {
             _model = model;
         }
 
-        public static string BindFilterQueryOption(FilterQueryOption filterQuery)
+        public static WhereClause BindFilterQueryOption(FilterQueryOption filterQuery)
         {
             if (filterQuery != null)
             {
                 NHibernateFilterBinder binder = new NHibernateFilterBinder(filterQuery.Context.Model);
-                return "where " + binder.BindFilter(filterQuery) + Environment.NewLine;
+                return new WhereClause
+                {
+                    Clause = "where " + binder.BindFilter(filterQuery) + Environment.NewLine,
+                    PositionalParameters = binder._positionalParmeters.ToArray()
+                };
             }
 
-            return "";
+            return _emptyWhereClause;
         }
 
         protected string BindFilter(FilterQueryOption filterQuery)
@@ -186,12 +198,8 @@ namespace System.Web.Http.OData.NHibernate
 
         private string BindConstantNode(ConstantNode constantNode)
         {
-            if (constantNode.Value is string)
-            {
-                return String.Format("'{0}'", constantNode.Value);
-            }
-
-            return constantNode.Value.ToString();
+            _positionalParmeters.Add(constantNode.Value);
+            return "?";
         }
 
         private string BindBinaryOperatorNode(BinaryOperatorNode binaryOperatorNode)
