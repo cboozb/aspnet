@@ -5,7 +5,6 @@ using System.Web.Http;
 using System.Web.Http.Dispatcher;
 using System.Web.Http.SelfHost;
 
-
 namespace NamespaceControllerSelectorSample
 {
     class Program
@@ -71,14 +70,12 @@ namespace NamespaceControllerSelectorSample
                 Console.WriteLine("Version 1 response: '{0}'\n", content);
             }
 
-
             using (HttpResponseMessage response = client.GetAsync("api/v2/values").Result)
             {
                 response.EnsureSuccessStatusCode();
                 string content = response.Content.ReadAsStringAsync().Result;
                 Console.WriteLine("Version 2 response: '{0}'\n", content);
             }
-
         }
     }
 }

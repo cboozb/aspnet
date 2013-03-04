@@ -19,11 +19,13 @@ namespace NamespaceControllerSelectorSample
         private const string ControllerKey = "controller";
 
         private readonly HttpConfiguration _configuration;
-        private readonly Lazy<Dictionary<string, HttpControllerDescriptor>> _controllers; 
+        private readonly Lazy<Dictionary<string, HttpControllerDescriptor>> _controllers;
+        private readonly HashSet<string> _duplicates;
 
         public NamespaceHttpControllerSelector(HttpConfiguration config)
         {
             _configuration = config;
+            _duplicates = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             _controllers = new Lazy<Dictionary<string, HttpControllerDescriptor>>(InitializeControllerDictionary);
         }
 
@@ -38,7 +40,6 @@ namespace NamespaceControllerSelectorSample
             IHttpControllerTypeResolver controllersResolver = _configuration.Services.GetHttpControllerTypeResolver();
 
             ICollection<Type> controllerTypes = controllersResolver.GetControllerTypes(assembliesResolver);
-            HashSet<string> duplicates = new HashSet<string>();
 
             foreach (Type t in controllerTypes)
             {
@@ -53,7 +54,7 @@ namespace NamespaceControllerSelectorSample
                 // Check for duplicate keys.
                 if (dictionary.Keys.Contains(key))
                 {
-                    duplicates.Add(key);
+                    _duplicates.Add(key);
                 }
                 else
                 {
@@ -63,7 +64,7 @@ namespace NamespaceControllerSelectorSample
 
             // Remove any duplicates from the dictionary, because these create ambiguous matches. 
             // For example, "Foo.V1.ProductsController" and "Bar.V1.ProductsController" both map to "v1.products".
-            foreach (string s in duplicates)
+            foreach (string s in _duplicates)
             {
                 dictionary.Remove(s);
             }
@@ -109,6 +110,12 @@ namespace NamespaceControllerSelectorSample
             if (_controllers.Value.TryGetValue(key, out controllerDescriptor))
             {
                 return controllerDescriptor;
+            }
+            else if (_duplicates.Contains(key))
+            {
+                throw new HttpResponseException(
+                    request.CreateErrorResponse(HttpStatusCode.InternalServerError,
+                    "Multiple controllers were found that match this request."));
             }
             else
             {
