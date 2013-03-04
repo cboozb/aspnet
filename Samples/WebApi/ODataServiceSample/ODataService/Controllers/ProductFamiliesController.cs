@@ -69,7 +69,7 @@ namespace ODataService.Controllers
             }
             foreach (var product in toDelete.Products.ToList())
             {
-                _db.Products.Remove(product);
+                product.Family = null;
             }
 
             _db.ProductFamilies.Remove(toDelete);

@@ -9,31 +9,42 @@ ko.bindingHandlers.hidden = {
     }
 }
 
-// the URL of the first page to retrieve
-var startPage = "api/Books?$orderby=ISBN";
+// the URL of the feed
+var feedUrl = "api/Movies";
 
 var viewModel = new Object();
-viewModel.books = ko.observable();
-viewModel.currentPage = ko.observable(startPage);
+viewModel.movies = ko.observable();
+viewModel.currentPage = ko.observable();
 viewModel.previousPages = ko.observableArray();
 viewModel.nextPage = ko.observable();
+viewModel.currentPageNumber = ko.observable();
+viewModel.totalPageNumber = ko.observable();
 
-// On initialization, make a request for the first page
 $(document).ready(function () {
-    OData.read(viewModel.currentPage(), function (data) {
-        viewModel.nextPage(data.__next);
-        viewModel.books(data.results);
-        ko.applyBindings(viewModel);
-    });
+    ko.applyBindings(viewModel);
 });
+
+// When the run query button is clicked, make a request to get the feed with the specified query string
+var runQueryClicked = function () {
+    var queryUrl = feedUrl + "?" + document.getElementById("query").value;
+    $.get(queryUrl, function (data) {
+        viewModel.currentPage(queryUrl);
+        viewModel.currentPageNumber(1);
+        viewModel.totalPageNumber(data["odata.count"] == undefined ? null : Math.ceil(data["odata.count"] / data.value.length));
+        viewModel.previousPages.removeAll();
+        viewModel.nextPage(data["odata.nextLink"]);
+        viewModel.movies(data.value);
+    });
+}
 
 // When the previous button is clicked, make a request to get the previous page viewed
 var previousButtonClicked = function () {
     var previousPageLink = viewModel.previousPages.pop();
-    OData.read(previousPageLink, function (data) {
+    $.get(previousPageLink, function (data) {
         viewModel.nextPage(viewModel.currentPage());
         viewModel.currentPage(previousPageLink);
-        viewModel.books(data.results);
+        viewModel.currentPageNumber(viewModel.currentPageNumber() - 1);
+        viewModel.movies(data.value);
     });
 }
 
@@ -41,10 +52,11 @@ var previousButtonClicked = function () {
 // from the current page's request
 var nextButtonClicked = function () {
     var nextPageLink = viewModel.nextPage();
-    OData.read(nextPageLink, function (data) {
+    $.get(nextPageLink, function (data) {
         viewModel.previousPages.push(viewModel.currentPage());
         viewModel.currentPage(nextPageLink);
-        viewModel.nextPage(data.__next);
-        viewModel.books(data.results);
+        viewModel.nextPage(data["odata.nextLink"]);
+        viewModel.currentPageNumber(viewModel.currentPageNumber() + 1);
+        viewModel.movies(data.value);
     });
 }

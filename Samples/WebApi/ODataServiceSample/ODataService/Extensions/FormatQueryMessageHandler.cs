@@ -21,18 +21,12 @@ namespace ODataService.Extensions
             HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var queryStrings = request.RequestUri.ParseQueryString();
-            string format = null;
-            foreach (string name in queryStrings.Keys)
-            {
-                if (name == "$format")
-                {
-                    format = queryStrings[name].Trim();
-                    break;
-                }
-            }
+            string format = queryStrings["$format"];
 
             switch (format)
             {
+                case null:
+                    break;
                 case "xml":
                     request.Headers.Accept.Clear();
                     request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/xml"));
@@ -46,6 +40,8 @@ namespace ODataService.Extensions
                     request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/atom+xml"));
                     break;
                 default:
+                    request.Headers.Accept.Clear();
+                    request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse(format));
                     break;
             }
 

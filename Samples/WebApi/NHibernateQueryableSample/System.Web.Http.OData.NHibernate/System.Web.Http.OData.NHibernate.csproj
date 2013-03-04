@@ -79,6 +79,7 @@
     <Compile Include="NHibernateFilterBinder.cs" />
     <Compile Include="NHibernateOrderByBinder.cs" />
     <Compile Include="ODataQueryOptionExtensions.cs" />
+    <Compile Include="WhereClause.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

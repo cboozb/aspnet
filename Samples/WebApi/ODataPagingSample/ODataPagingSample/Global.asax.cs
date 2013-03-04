@@ -10,16 +10,13 @@ namespace ODataPagingSample
     {
         protected void Application_Start()
         {
-            // Creates the model for our Books entity set
+            // Creates the model for our Movies entity set
             ODataConventionModelBuilder modelBuilder = new ODataConventionModelBuilder();
-            EntityTypeConfiguration<Book> bookConfiguration = modelBuilder.Entity<Book>();
-            bookConfiguration.HasKey(book => book.ISBN);
-            modelBuilder.EntitySet<Book>("Books");
+            modelBuilder.EntitySet<Movie>("Movies");
             IEdmModel model = modelBuilder.GetEdmModel();
 
-            // Enables OData with the 'api' prefix. Requests can then be made to 'virtual root'/api/Books for example
-            // This call does several things: it creates a route for OData requests and enables OData querying, routing, and formatting
-            GlobalConfiguration.Configuration.EnableOData(model, "api");
+            // Adds an OData route with the 'api' prefix. Requests can then be made to /api/Movies for example
+            GlobalConfiguration.Configuration.Routes.MapODataRoute(routeName: "OData", routePrefix: "api", model: model);
         }
     }
 }

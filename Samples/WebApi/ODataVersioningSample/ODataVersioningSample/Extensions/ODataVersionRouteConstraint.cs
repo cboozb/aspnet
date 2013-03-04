@@ -8,6 +8,13 @@ using System.Web.Http.Routing;
 
 namespace ODataVersioningSample.Extensions
 {
+    /// <summary>
+    /// Route constraint to allow constraint odata route by query string or headers
+    /// which is partically used in versioning scenario. For example, you may set 
+    /// query string constraint to v=1 and the route that matching it will be 
+    /// considered as a v1 request and corresponding model will be used to server 
+    /// it
+    /// </summary>
     public class ODataVersionRouteConstraint : ODataPathRouteConstraint
     {
         public ODataVersionRouteConstraint(

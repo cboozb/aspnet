@@ -15,13 +15,26 @@ namespace ODataVersioningSample.V1
         public static void Register(HttpConfiguration config)
         {
             // Versioning by route prefix
-            config.Routes.MapODataRoute("V1RouteVersioning", "versionbyroute/v1", GetModel());
+            config.Routes.MapODataRoute(
+                routeName: "V1RouteVersioning",
+                routePrefix: "versionbyroute/v1",
+                model: GetModel());
 
             // Versioning by query string
-            config.Routes.MapODataRoute("V1QueryStringVersioning", "versionbyquery", GetModel(), new { v = "1" }, null);
+            config.Routes.MapODataRoute(
+                routeName: "V1QueryStringVersioning", 
+                routePrefix: "versionbyquery",
+                model: GetModel(),
+                queryConstraints: new { v = "1" },
+                headerConstraints: null);
 
             // Versioning by header value
-            config.Routes.MapODataRoute("V1HeaderVersioning", "versionbyheader", GetModel(), null, new { v = "1" });
+            config.Routes.MapODataRoute(
+                routeName: "V1HeaderVersioning",
+                routePrefix: "versionbyheader",
+                model: GetModel(),
+                queryConstraints: null,
+                headerConstraints: new { v = "1" });
 
             var controllerSelector = config.Services.GetService(typeof(IHttpControllerSelector)) as ODataVersionControllerSelector;
             // Mapping route name to controller versioning suffix
