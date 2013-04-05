@@ -30,7 +30,7 @@ window.viewModel = (function () {
 
         var keys = {};
         var data = {
-            Movies: $.map(self.movies(), function (movie) {
+            MovieIDs: $.map(self.movies(), function (movie) {
                 if (movie.selected()) {
                     keys[movie.id] = movie;
                     return movie.id;

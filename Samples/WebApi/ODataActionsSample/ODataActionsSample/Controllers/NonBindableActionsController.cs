@@ -12,7 +12,7 @@ namespace ODataActionsSample.Controllers
 {
     // Controller for handling non-bindable actions.
     [ODataFormatting]
-    public class NonBindableActionsController : ApiController
+    public class NonBindableActionsController : ODataController
     {
         MoviesContext db = new MoviesContext();
 

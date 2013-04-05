@@ -88,6 +88,33 @@ namespace ODataActionsSample.Controllers
         }
 
         [HttpPost]
+        public Movie SetDueDate([FromODataUri] int key, ODataActionParameters parameters)
+        {
+            if (!ModelState.IsValid)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            } 
+            
+            var movie = GetEntityByKey(key);
+            if (movie == null)
+            {
+                throw new HttpResponseException(HttpStatusCode.NotFound);
+            }
+
+            movie.DueDate = (DateTime)parameters["DueDate"];
+            // In a real app you would validate this date (not in the past, etc).
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+            return movie;
+        }
+
+        [HttpPost]
         public ICollection<Movie> CheckOutMany(ODataActionParameters parameters)
         {
             if (!ModelState.IsValid)
@@ -96,7 +123,7 @@ namespace ODataActionsSample.Controllers
             }
 
             // Client passes a list of movie IDs to check out.
-            var movieIDs = parameters["Movies"] as ICollection<int>;
+            var movieIDs = parameters["MovieIDs"] as ICollection<int>;
 
             var results = new List<Movie>();
             foreach (Movie movie in db.Movies.Where(m => movieIDs.Contains(m.ID)))

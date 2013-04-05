@@ -1,4 +1,6 @@
-﻿using ODataActionsSample.Models;
+﻿using Microsoft.Data.OData;
+using Microsoft.Data.OData.Query;
+using ODataActionsSample.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +19,11 @@ namespace ODataActionsSample
             var moviesEntitySet = modelBuilder.EntitySet<Movie>("Movies");
             moviesEntitySet.EntityType.Ignore(m => m.TimeStamp);    // Don't expose timestamp to clients
 
-            // CheckOut is transient action, because it is not available when the item is already checked out.
+            // Now add actions to the EDM.
+
+            // CheckOut
+            // URI: ~/odata/Movies(1)/CheckOut
+            // Transient action. It is not available when the item is already checked out.
             ActionConfiguration checkout = modelBuilder.Entity<Movie>().TransientAction("CheckOut");
 
             // Provide a function that returns a link to the action, when the action is available, or
@@ -26,41 +32,67 @@ namespace ODataActionsSample
             {
                 Movie movie = ctx.EntityInstance as Movie;
 
-                // Note: In some cases, checking whether the action is available may be a relatively expensive 
-                // operation. You should avoid performing expensive checks in loops (i.e., when serializing a
-                // feed). Instead, simply mark the action as available by including the action link. 
+                // Note: In some cases, checking whether the action is available may be relatively expensive.
+                // For example, it might require a DB lookup. 
 
-                // The SkipExpensiveAvailabilityChecks is a flag that says whether to skip expensive checks.
-                // If this flag is true AND your availability check is true, then you should skip the check.
+                // Avoid doing expensive checks inside a loop (i.e., when serializing a feed). Instead, simply 
+                // mark the action as available, by returning an action link. 
 
-                // In this sample, the check is not really expensive, but we honor the flag to show how it works.
+                // The SkipExpensiveAvailabilityChecks flag says whether to skip expensive checks. If this flag 
+                // is true AND your availability check is expensive, skip the check and return a link.
                 
-                if (ctx.SkipExpensiveAvailabilityChecks || movie.IsCheckedOut == false)
+                // In this sample, the check is not really expensive, but we honor the flag to show how it works.
+                bool createLink = true;
+                if (ctx.SkipExpensiveAvailabilityChecks)
                 {
+                    // Caller asked us to skip the availability check.
+                    createLink = true;
+                }
+                else if (movie.IsCheckedOut == false) // Here is the "expensive" check
+                {
+                    createLink = true;
+                }
+
+                if (createLink)
+                {
+                    // Return the URI of the action.
                     return new Uri(ctx.Url.ODataLink(
                         new EntitySetPathSegment(ctx.EntitySet),
-                        new KeyValuePathSegment(movie.ID.ToString()),
+                        new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(movie.ID, ODataVersion.V3)),
                         new ActionPathSegment(checkout.Name)));
                 }
                 else
                 {
-                    // The movie is checked out, so do not return an action link.
                     return null;
                 }
             }, followsConventions: true);   // "followsConventions" means the action follows OData conventions.
             checkout.ReturnsFromEntitySet<Movie>("Movies");
 
-            // ReturnMovie is always bindable. If the movie is not checked out, the action is a no-op.
+            // ReturnMovie
+            // URI: ~/odata/Movies(1)/Return
+            // Always bindable. If the movie is not checked out, the action is a no-op.
+            // Binds to a single entity; no parameters.
             var returnAction = modelBuilder.Entity<Movie>().Action("Return");
             returnAction.ReturnsFromEntitySet<Movie>("Movies");
 
-            // CheckOutMany is bound to a collection, instead of a single entity.
+            // SetDueData action
+            // URI: ~/odata/Movies(1)/SetDueDate
+            // Binds to a single entity; takes an action parameter.
+            var setDueDate = modelBuilder.Entity<Movie>().Action("SetDueDate");
+            setDueDate.Parameter<DateTime>("DueDate");
+            setDueDate.ReturnsFromEntitySet<Movie>("Movies");
+
+            // CheckOutMany action
+            // URI: ~/odata/Movies/CheckOutMany
+            // Binds to a collection; instead of a single entity.
             // Also, it takes a collection parameter and returns a collection.
             ActionConfiguration checkoutMany = modelBuilder.Entity<Movie>().Collection.Action("CheckOutMany");
-            checkoutMany.CollectionParameter<int>("Movies");
+            checkoutMany.CollectionParameter<int>("MovieIDs");
             checkoutMany.ReturnsCollectionFromEntitySet<Movie>("Movies");
 
-            // CreateMovie is a non-bindable action. You invoke it from the service root: ~/odata/CreateMovie
+            // CreateMovie action
+            // URI: ~/odata/CreateMovie
+            // Non-bindable action. You invoke it from the service root.
             ActionConfiguration createMovie = modelBuilder.Action("CreateMovie");
             createMovie.Parameter<string>("Title");
             createMovie.ReturnsFromEntitySet<Movie>("Movies");
