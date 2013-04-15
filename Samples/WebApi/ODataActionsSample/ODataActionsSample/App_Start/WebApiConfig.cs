@@ -95,10 +95,17 @@ namespace ODataActionsSample
             setDueDate.Parameter<DateTime>("DueDate");
             setDueDate.ReturnsFromEntitySet<Movie>("Movies");
 
+            // CheckOut action
+            // URI: ~/odata/Movies/CheckOut
+            // Shows how to bind to a collection, instead of a single entity.
+            // This action also accepts $filter queries. For example:
+            //     ~/odata/Movies/CheckOut?$filter=Year eq 2005
+            var checkOutFromCollection = modelBuilder.Entity<Movie>().Collection.Action("CheckOut");
+            checkOutFromCollection.ReturnsCollectionFromEntitySet<Movie>("Movies");
+
             // CheckOutMany action
             // URI: ~/odata/Movies/CheckOutMany
-            // Binds to a collection, instead of a single entity.
-            // Also, it takes a collection parameter and returns a collection.
+            // Shows an action that takes a collection parameter.
             ActionConfiguration checkoutMany = modelBuilder.Entity<Movie>().Collection.Action("CheckOutMany");
             checkoutMany.CollectionParameter<int>("MovieIDs");
             checkoutMany.ReturnsCollectionFromEntitySet<Movie>("Movies");

@@ -8,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.OData;
+using System.Web.Http.OData.Query;
 
 namespace ODataActionsSample.Controllers
 {
@@ -29,6 +30,7 @@ namespace ODataActionsSample.Controllers
             }
         }
 
+        // 
         public override IQueryable<Movie> Get()
         {
             return db.Movies;
@@ -114,6 +116,7 @@ namespace ODataActionsSample.Controllers
             return movie;
         }
 
+        // Check out a list of movies.
         [HttpPost]
         public ICollection<Movie> CheckOutMany(ODataActionParameters parameters)
         {
@@ -125,12 +128,51 @@ namespace ODataActionsSample.Controllers
             // Client passes a list of movie IDs to check out.
             var movieIDs = parameters["MovieIDs"] as ICollection<int>;
 
+            // Try to check out each movie in the list.
             var results = new List<Movie>();
             foreach (Movie movie in db.Movies.Where(m => movieIDs.Contains(m.ID)))
             {
                 if (TryCheckoutMovie(movie))
                 {
                     results.Add(movie);                    
+                }
+            }
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
+
+            // Return a list of the movies that were checked out.
+            return results;
+        }
+
+        [HttpPost]
+        // This action accepts $filter queries. For example:
+        //     ~/odata/Movies/CheckOut?$filter=Year eq 2005
+        public ICollection<Movie> CheckOut(ODataQueryOptions opts)
+        {
+            // Validate the query options.
+            var settings = new ODataValidationSettings()
+            {
+                AllowedQueryOptions = AllowedQueryOptions.Filter
+            };
+            opts.Validate(settings);
+
+            // Use the query options to get a filtered list of movies.
+            var movies = opts.ApplyTo(db.Movies) as IQueryable<Movie>;
+
+            // Try to check out each movie in the list.
+            var results = new List<Movie>();
+            foreach (Movie movie in movies)
+            {
+                if (TryCheckoutMovie(movie))
+                {
+                    results.Add(movie);
                 }
             }
 

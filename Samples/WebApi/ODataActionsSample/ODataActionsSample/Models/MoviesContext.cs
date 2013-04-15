@@ -36,11 +36,11 @@ namespace ODataActionsSample.Models
         {
             List<Movie> movies = new List<Movie>()
             {
-                new Movie() { Title = "Maximum Payback" },
-                new Movie() { Title = "Inferno of Retribution" },
-                new Movie() { Title = "Fatal Vengeance 2" },
-                new Movie() { Title = "Sudden Danger" },
-                new Movie() { Title = "Deadly Honor IV" }
+                new Movie() { Title = "Maximum Payback", Year = 1990 },
+                new Movie() { Title = "Inferno of Retribution", Year = 2005 },
+                new Movie() { Title = "Fatal Vengeance 2", Year = 2012 },
+                new Movie() { Title = "Sudden Danger", Year = 2012 },
+                new Movie() { Title = "Deadly Honor IV", Year = 1977 }
             };
             movies.ForEach(m => context.Movies.Add(m));
             context.SaveChanges();
