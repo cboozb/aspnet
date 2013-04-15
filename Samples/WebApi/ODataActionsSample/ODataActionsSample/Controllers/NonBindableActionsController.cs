@@ -1,6 +1,7 @@
 ﻿using ODataActionsSample.Models;
 using System;
 using System.Collections.Generic;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -11,7 +12,6 @@ using System.Web.Http.OData.Routing;
 namespace ODataActionsSample.Controllers
 {
     // Controller for handling non-bindable actions.
-    [ODataFormatting]
     public class NonBindableActionsController : ODataController
     {
         MoviesContext db = new MoviesContext();
@@ -31,8 +31,15 @@ namespace ODataActionsSample.Controllers
                 Title = title
             };
 
-            db.Movies.Add(movie);
-            db.SaveChanges();
+            try
+            {
+                db.Movies.Add(movie);
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                throw new HttpResponseException(HttpStatusCode.BadRequest);
+            }
             return movie;
         }
 

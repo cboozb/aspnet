@@ -1,4 +1,5 @@
-﻿using Microsoft.Data.OData;
+﻿using Microsoft.Data.Edm;
+using Microsoft.Data.OData;
 using Microsoft.Data.OData.Query;
 using ODataActionsSample.Models;
 using System;
@@ -14,6 +15,18 @@ namespace ODataActionsSample
     public static class WebApiConfig
     {
         public static void Register(HttpConfiguration config)
+        {
+            // Add a custom route convention for non-bindable actions.
+            // (Web API does not have a built-in routing convention for non-bindable actions.)
+            IList<IODataRoutingConvention> conventions = ODataRoutingConventions.CreateDefault();
+            conventions.Insert(0, new NonBindableActionRoutingConvention("NonBindableActions"));
+
+            // Map the OData route.
+            config.Routes.MapODataRoute("ODataRoute", "odata", GetModel(), new DefaultODataPathHandler(), conventions);
+        }
+
+        // Builds the EDM model for the OData service, including the OData action definitions.
+        private static IEdmModel GetModel()
         {
             ODataModelBuilder modelBuilder = new ODataConventionModelBuilder();
             var moviesEntitySet = modelBuilder.EntitySet<Movie>("Movies");
@@ -40,7 +53,7 @@ namespace ODataActionsSample
 
                 // The SkipExpensiveAvailabilityChecks flag says whether to skip expensive checks. If this flag 
                 // is true AND your availability check is expensive, skip the check and return a link.
-                
+
                 // In this sample, the check is not really expensive, but we honor the flag to show how it works.
                 bool createLink = true;
                 if (ctx.SkipExpensiveAvailabilityChecks)
@@ -48,7 +61,7 @@ namespace ODataActionsSample
                     // Caller asked us to skip the availability check.
                     createLink = true;
                 }
-                else if (movie.IsCheckedOut == false) // Here is the "expensive" check
+                else if (!movie.IsCheckedOut) // Here is the "expensive" check
                 {
                     createLink = true;
                 }
@@ -75,7 +88,7 @@ namespace ODataActionsSample
             var returnAction = modelBuilder.Entity<Movie>().Action("Return");
             returnAction.ReturnsFromEntitySet<Movie>("Movies");
 
-            // SetDueData action
+            // SetDueDate action
             // URI: ~/odata/Movies(1)/SetDueDate
             // Binds to a single entity; takes an action parameter.
             var setDueDate = modelBuilder.Entity<Movie>().Action("SetDueDate");
@@ -84,7 +97,7 @@ namespace ODataActionsSample
 
             // CheckOutMany action
             // URI: ~/odata/Movies/CheckOutMany
-            // Binds to a collection; instead of a single entity.
+            // Binds to a collection, instead of a single entity.
             // Also, it takes a collection parameter and returns a collection.
             ActionConfiguration checkoutMany = modelBuilder.Entity<Movie>().Collection.Action("CheckOutMany");
             checkoutMany.CollectionParameter<int>("MovieIDs");
@@ -97,14 +110,7 @@ namespace ODataActionsSample
             createMovie.Parameter<string>("Title");
             createMovie.ReturnsFromEntitySet<Movie>("Movies");
 
-            // Add a custom route convention for non-bindable actions.
-            // (Web API does not have a built-in routing convention for non-bindable actions.)
-            IList<IODataRoutingConvention> conventions = ODataRoutingConventions.CreateDefault();
-            conventions.Insert(0, new NonBindableActionRoutingConvention("NonBindableActions"));
-
-            // Map the OData route.
-            Microsoft.Data.Edm.IEdmModel model = modelBuilder.GetEdmModel();
-            config.Routes.MapODataRoute("ODataRoute", "odata", model, new DefaultODataPathHandler(), conventions);
+            return modelBuilder.GetEdmModel();
         }
     }
 }

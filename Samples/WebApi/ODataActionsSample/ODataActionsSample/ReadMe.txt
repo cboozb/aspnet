@@ -13,7 +13,7 @@ Add a movie:        /odata/CreateMovie
 These actions demonstrate some of the of various options for OData actions:
 
 * Always-bindable actions
-* Transient (occasionablly bindable) actions
+* Transient (occasionally bindable) actions
 * Actions bound to an entity
 * Actions bound to an entity collection
 * Non-bindable actions

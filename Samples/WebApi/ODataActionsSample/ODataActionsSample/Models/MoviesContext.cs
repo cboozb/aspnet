@@ -14,11 +14,6 @@ namespace ODataActionsSample.Models
             Database.SetInitializer(new MoviesInitializer());
         }
 
-        public MoviesContext()
-            : base("name=DefaultConnection")
-        {
-        }
-
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             // Set the TimeStamp property to be an optimistic concurrency token.
