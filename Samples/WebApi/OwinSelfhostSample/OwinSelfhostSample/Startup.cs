@@ -1,8 +1,7 @@
 ﻿using Owin;
 using System.Web.Http;
 
-
-namespace WebAPIOWIN
+namespace OwinSelfhostSample
 {
     public class Startup
     {

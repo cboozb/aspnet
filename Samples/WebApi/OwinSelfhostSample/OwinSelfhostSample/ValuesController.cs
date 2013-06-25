@@ -5,7 +5,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 
-namespace WebAPIOWIN.Controllers
+namespace OwinSelfhostSample
 {
     public class ValuesController : ApiController
     {
