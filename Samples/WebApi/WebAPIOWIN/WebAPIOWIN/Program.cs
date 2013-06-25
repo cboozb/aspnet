@@ -4,13 +4,13 @@ using Microsoft.Owin.Hosting;
 
 namespace WebAPIOWIN
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        static void Main()
         {
             string baseAddress = string.Format("http://localhost:1025");
 
-            //Start OWIN host
+            // Start OWIN host
             using (WebApp.Start<Startup>(url: baseAddress))
             {
                 //Create HttpCient and make a request to api/values
