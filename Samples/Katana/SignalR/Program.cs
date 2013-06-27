@@ -9,7 +9,7 @@ namespace SignalR
         static void Main(string[] args)
         {
             string uri = "http://localhost:9999/";
-            using (WebApplication.Start<Startup>(uri))
+            using (WebApp.Start<Startup>(uri))
             {
                 Console.WriteLine("Started");
                 // Open the SignalR negotiation page to make sure things are working.

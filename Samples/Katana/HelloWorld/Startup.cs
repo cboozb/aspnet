@@ -10,7 +10,7 @@ namespace HelloWorld
 {
     using AppFunc = Func<IDictionary<string, object>, Task>;
 
-    // Note the Web.Config owin:HandleAllRequests setting that is used to direct all requests to your OWIN application.
+    // Note the Web.Config owin:AutomaticAppStartup setting that is used to direct all requests to your OWIN application.
     // Alternatively you can specify routes in the global.asax file.
     public class Startup
     {

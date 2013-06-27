@@ -11,7 +11,7 @@ namespace Embedded
         {
             string baseUrl = "http://localhost:12345/";
 
-            using (WebApplication.Start<Startup>(new StartOptions() { Url = baseUrl, Server = "Microsoft.Owin.Host.HttpListener" }))
+            using (WebApp.Start<Startup>(new StartOptions(baseUrl) { ServerFactory = "Microsoft.Owin.Host.HttpListener" }))
             {
                 // Launch the browser
                 Process.Start(baseUrl);
