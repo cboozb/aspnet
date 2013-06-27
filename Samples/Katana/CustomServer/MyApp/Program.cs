@@ -10,7 +10,7 @@ namespace MyApp
         {
             string baseUrl = "http://localhost:12345/";
 
-            using (WebApplication.Start<Startup>(new StartOptions() { Url = baseUrl, Server = "MyCustomServer" }))
+            using (WebApp.Start<Startup>(new StartOptions(baseUrl) { ServerFactory = "MyCustomServer" }))
             {
                 // Note: CustomServer has not actually been implemented, no requests will be accepted.
 

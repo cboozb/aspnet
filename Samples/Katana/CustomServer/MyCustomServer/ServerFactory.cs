@@ -2,15 +2,11 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-// Mark the server assembly with this attribute. The server loader will find it and invoke the Initialize and Create methods.
-[assembly: MyCustomServer.OwinServerFactoryAttribute]
-
 namespace MyCustomServer
 {
     using AppFunc = Func<IDictionary<string, object>, Task>;
 
-    [AttributeUsage(AttributeTargets.Assembly)]
-    public class OwinServerFactoryAttribute : Attribute
+    public static class ServerFactory
     {
         /// <summary>
         /// Optional. This gives the server the chance to tell the application about what capabilities are supported.
