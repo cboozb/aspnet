@@ -174,6 +174,21 @@ namespace ODataQueryableSample
             // OrderController which disallows filtering orders based on its quantity.
             response = client.GetAsync("/api/order/?$filter=Quantity ge 100").Result;
             Console.WriteLine("\nFilter with Quantity is not allowed: " + response.Content.ReadAsStringAsync().Result);
+
+            // select name and birth time
+            response = client.GetAsync("api/customer/?$select=Name,BirthTime").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nSelect a subset of the fields of an entity: " + response.Content.ReadAsStringAsync().Result);
+
+            // expand the orders of a customer
+            response = client.GetAsync("api/customer/?$expand=Orders").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nExpand the orders of a customer: " + response.Content.ReadAsStringAsync().Result);
+
+            // select and expand combined
+            response = client.GetAsync("api/customer/?$expand=Orders&$select=Name,Orders/Name,Orders/Quantity").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nSelect and expand combined: " + response.Content.ReadAsStringAsync().Result);
         }
 
         /// <summary>
