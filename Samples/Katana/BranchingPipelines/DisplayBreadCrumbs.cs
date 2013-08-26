@@ -1,30 +1,23 @@
-﻿using Owin.Types;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.Owin;
 using System.Threading.Tasks;
 
 namespace BranchingPipelines
 {
-    using AppFunc = Func<IDictionary<string, object>, Task>;
-
-    public class DisplayBreadCrumbs
+    public class DisplayBreadCrumbs : OwinMiddleware
     {
-        public DisplayBreadCrumbs(AppFunc ignored)
+        public DisplayBreadCrumbs(OwinMiddleware next) : base(next)
         {
         }
 
-        public Task Invoke(IDictionary<string, object> environment)
+        public override Task Invoke(IOwinContext context)
         {
-            OwinRequest request = new OwinRequest(environment);
-            OwinResponse response = new OwinResponse(environment);
+            context.Response.ContentType = "text/plain";
 
-            response.ContentType = "text/plain";
+            string responseText = context.Request.Headers.Get("breadcrumbs") + "\r\n"
+                + "PathBase: " + context.Request.PathBase + "\r\n"
+                + "Path: " + context.Request.Path + "\r\n";
 
-            string responseText = request.GetHeader("breadcrumbs") + "\r\n"
-                + "PathBase: " + request.PathBase + "\r\n"
-                + "Path: " + request.Path + "\r\n";
-
-            return response.WriteAsync(responseText);
+            return context.Response.WriteAsync(responseText);
         }
     }
 }

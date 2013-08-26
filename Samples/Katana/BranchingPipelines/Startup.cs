@@ -1,56 +1,56 @@
 ﻿using Owin;
-using Owin.Types;
+using Microsoft.Owin;
 using System.Collections.Generic;
 
 namespace BranchingPipelines
 {
     public class Startup
     {
-        public void Configuration(IAppBuilder builder)
+        public void Configuration(IAppBuilder app)
         {
-            builder.UseType<AddBreadCrumbMiddleware>("start-of-the-line");
+            app.Use<AddBreadCrumbMiddleware>("start-of-the-line");
 
-            builder.MapPath("/branch1", builder1 =>
+            app.Map("/branch1", app1 =>
             {
-                builder1.UseType<AddBreadCrumbMiddleware>("took-branch1");
+                app1.Use<AddBreadCrumbMiddleware>("took-branch1");
 
                 // Nesting paths, e.g. /branch1/branch2
-                builder1.MapPath("/branch2", builder2 =>
+                app1.Map("/branch2", app2 =>
                 {
-                    builder2.UseType<AddBreadCrumbMiddleware>("took-branch2");
-                    builder2.UseType<DisplayBreadCrumbs>();
+                    app2.Use<AddBreadCrumbMiddleware>("took-branch2");
+                    app2.Use<DisplayBreadCrumbs>();
                 });
 
-                MapIfIE(builder1);
-                builder1.UseType<DisplayBreadCrumbs>();
+                MapIfIE(app1);
+                app1.Use<DisplayBreadCrumbs>();
             });
 
             // Only full segments are matched, so /branch1 does not match /branch100
-            builder.MapPath("/branch100", builder1 =>
+            app.Map("/branch100", app1 =>
             {
-                builder1.UseType<AddBreadCrumbMiddleware>("took-branch100");
-                builder1.UseType<DisplayBreadCrumbs>();
+                app1.Use<AddBreadCrumbMiddleware>("took-branch100");
+                app1.Use<DisplayBreadCrumbs>();
             });
 
-            MapIfIE(builder);
+            MapIfIE(app);
 
-            builder.UseType<AddBreadCrumbMiddleware>("no-branches-taken");
-            builder.UseType<DisplayBreadCrumbs>();
+            app.Use<AddBreadCrumbMiddleware>("no-branches-taken");
+            app.Use<DisplayBreadCrumbs>();
         }
 
-        private void MapIfIE(IAppBuilder builder)
+        private void MapIfIE(IAppBuilder app)
         {
-            builder.MapPredicate(IsIE, builder2 =>
+            app.MapWhen(IsIE, app2 =>
             {
-                builder2.UseType<AddBreadCrumbMiddleware>("took-IE-branch");
-                builder2.UseType<DisplayBreadCrumbs>();
+                app2.Use<AddBreadCrumbMiddleware>("took-IE-branch");
+                app2.Use<DisplayBreadCrumbs>();
             });
         }
 
-        private bool IsIE(IDictionary<string, object> environment)
+        private bool IsIE(IOwinContext context)
         {
-            OwinRequest request = new OwinRequest(environment);
-            return request.GetHeader("User-Agent").Contains("MSIE");
+            // No longer accurate on IE11
+            return context.Request.Headers.Get("User-Agent").Contains("MSIE");
         }
     }
 }

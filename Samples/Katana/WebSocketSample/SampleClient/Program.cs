@@ -11,6 +11,8 @@ namespace SampleClient
         static void Main(string[] args)
         {
             RunSample().Wait();
+            Console.WriteLine("Finished");
+            Console.ReadKey();
         }
 
         public static async Task RunSample()

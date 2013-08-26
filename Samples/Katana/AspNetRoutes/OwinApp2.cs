@@ -1,15 +1,15 @@
-﻿using Owin.Types;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Microsoft.Owin;
 
 namespace AspNetRoutes
 {
     public class OwinApp2
     {
         // Invoked once per request.
-        public static Task Invoke(OwinRequest request, OwinResponse response)
+        public static Task Invoke(IOwinContext context)
         {
-            response.ContentType = "text/plain";
-            return response.WriteAsync("Hello World 2");
+            context.Response.ContentType = "text/plain";
+            return context.Response.WriteAsync("Hello World 2");
         }
     }
 }

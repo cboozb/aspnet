@@ -1,28 +1,22 @@
-﻿using Owin.Types;
-using System;
-using System.Collections.Generic;
+﻿using Microsoft.Owin;
 using System.Threading.Tasks;
 
 namespace BranchingPipelines
 {
-    using AppFunc = Func<IDictionary<string, object>, Task>;
-
-    public class AddBreadCrumbMiddleware
+    public class AddBreadCrumbMiddleware : OwinMiddleware
     {
-        private AppFunc _next;
         private string _breadcrumb;
 
-        public AddBreadCrumbMiddleware(AppFunc next, string breadcrumb)
+        public AddBreadCrumbMiddleware(OwinMiddleware next, string breadcrumb)
+            : base(next)
         {
-            _next = next;
             _breadcrumb = breadcrumb;
         }
 
-        public Task Invoke(IDictionary<string, object> environment)
+        public override Task Invoke(IOwinContext context)
         {
-            OwinRequest request = new OwinRequest(environment);
-            request.AddHeader("breadcrumbs", _breadcrumb);
-            return _next(environment);
+            context.Request.Headers.Append("breadcrumbs", _breadcrumb);
+            return Next.Invoke(context);
         }
     }
 }

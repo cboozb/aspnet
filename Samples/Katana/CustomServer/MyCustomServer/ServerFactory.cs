@@ -6,7 +6,7 @@ namespace MyCustomServer
 {
     using AppFunc = Func<IDictionary<string, object>, Task>;
 
-    public static class ServerFactory
+    public static class OwinServerFactory
     {
         /// <summary>
         /// Optional. This gives the server the chance to tell the application about what capabilities are supported.

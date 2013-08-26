@@ -1,5 +1,5 @@
 ﻿using Owin;
-using Owin.Types;
+using Microsoft.Owin;
 using System.Threading.Tasks;
 
 namespace Embedded
@@ -7,16 +7,9 @@ namespace Embedded
     public class Startup
     {
         // Invoked once at startup to configure your application.
-        public void Configuration(IAppBuilder builder)
+        public void Configuration(IAppBuilder app)
         {
-            builder.UseHandlerAsync(Invoke);
-        }
-
-        // Invoked once per request.
-        public Task Invoke(OwinRequest request, OwinResponse response)
-        {
-            response.ContentType = "text/plain";
-            return response.WriteAsync("Hello World");
+            app.UseWelcomePage();
         }
     }
 }

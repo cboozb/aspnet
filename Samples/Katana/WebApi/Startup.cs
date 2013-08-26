@@ -3,8 +3,8 @@ using System.Web.Http;
 
 namespace WebApi
 {
-    // Note the Web.Config owin:HandleAllRequests setting that is used to direct all requests to your OWIN application.
-    // Alternatively you can specify routes in the global.asax file.
+    // Note: By default all requests go through this OWIN pipeline. Alternatively you can turn this off by adding an appSetting owin:AutomaticAppStartup with value “false”. 
+    // With this turned off you can still have OWIN apps listening on specific routes by adding routes in global.asax file using MapOwinPath or MapOwinRoute extensions on RouteTable.Routes
     public class Startup
     {
         // Invoked once at startup to configure your application.

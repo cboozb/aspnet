@@ -12,9 +12,9 @@ namespace AspNetRoutes
             // Paths that start with /owin will be directed to our startup class.
             RouteTable.Routes.MapOwinPath("/owin");
 
-            RouteTable.Routes.MapOwinPath("/special", builder =>
+            RouteTable.Routes.MapOwinPath("/special", app =>
             {
-                builder.UseHandlerAsync(OwinApp2.Invoke);
+                app.Run(OwinApp2.Invoke);
             });
         }
     }

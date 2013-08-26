@@ -6,7 +6,7 @@ namespace SignalR
     {
         public void Configuration(IAppBuilder app)
         {
-            app.MapHubs();
+            app.MapSignalR();
         }
     }
 }

@@ -1,22 +1,22 @@
-﻿using Owin;
-using Owin.Types;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
+using Microsoft.Owin;
+using Owin;
 
 namespace AspNetRoutes
 {
     public class Startup
     {
         // Invoked once at startup to configure your application.
-        public void Configuration(IAppBuilder builder)
+        public void Configuration(IAppBuilder app)
         {
-            builder.UseHandlerAsync(Invoke);
+            app.Run(Invoke);
         }
 
         // Invoked once per request.
-        public Task Invoke(OwinRequest request, OwinResponse response)
+        public Task Invoke(IOwinContext context)
         {
-            response.ContentType = "text/plain";
-            return response.WriteAsync("Hello World");
+            context.Response.ContentType = "text/plain";
+            return context.Response.WriteAsync("Hello World");
         }
     }
 }

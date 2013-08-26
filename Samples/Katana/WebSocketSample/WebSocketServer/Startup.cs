@@ -1,50 +1,84 @@
 ﻿
+using Microsoft.Owin;
 using Owin;
-using Owin.Types;
 using System;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace WebSocketServer
 {
+    // http://owin.org/extensions/owin-WebSocket-Extension-v0.4.0.htm
+    using WebSocketAccept = Action<IDictionary<string, object>, // options
+        Func<IDictionary<string, object>, Task>>; // callback
+    using WebSocketCloseAsync =
+        Func<int /* closeStatus */,
+            string /* closeDescription */,
+            CancellationToken /* cancel */,
+            Task>;
+    using WebSocketReceiveAsync =
+        Func<ArraySegment<byte> /* data */,
+            CancellationToken /* cancel */,
+            Task<Tuple<int /* messageType */,
+                bool /* endOfMessage */,
+                int /* count */>>>;
+    using WebSocketSendAsync =
+        Func<ArraySegment<byte> /* data */,
+            int /* messageType */,
+            bool /* endOfMessage */,
+            CancellationToken /* cancel */,
+            Task>;
+    using WebSocketReceiveResult = Tuple<int, // type
+        bool, // end of message?
+        int>; // count
+
     /// <summary>
     /// This sample requires Windows 8, .NET 4.5, and Microsoft.Owin.Host.HttpListener.
     /// </summary>
     public class Startup
     {
         // Run at startup
-        public void Configuration(IAppBuilder builder)
+        public void Configuration(IAppBuilder app)
         {
-            builder.UseHandlerAsync(UpgradeToWebSockets);
+            app.Use(UpgradeToWebSockets);
+            app.UseWelcomePage();
         }
 
         // Run once per request
-        private Task UpgradeToWebSockets(OwinRequest request, OwinResponse response, Func<Task> next)
+        private Task UpgradeToWebSockets(IOwinContext context, Func<Task> next)
         {
-            if (!request.CanAccept)
+            WebSocketAccept accept = context.Get<WebSocketAccept>("websocket.Accept");
+            if (accept == null)
             {
                 // Not a websocket request
                 return next();
             }
 
-            request.Accept(WebSocketEcho);
+            accept(null, WebSocketEcho);
 
             return Task.FromResult<object>(null);
         }
 
-        private async Task WebSocketEcho(OwinWebSocket websocket)
+        private async Task WebSocketEcho(IDictionary<string, object> websocketContext)
         {
+            var sendAsync = (WebSocketSendAsync)websocketContext["websocket.SendAsync"];
+            var receiveAsync = (WebSocketReceiveAsync)websocketContext["websocket.ReceiveAsync"];
+            var closeAsync = (WebSocketCloseAsync)websocketContext["websocket.CloseAsync"];
+            var callCancelled = (CancellationToken)websocketContext["websocket.CallCancelled"];
+
             byte[] buffer = new byte[1024];
-            OwinWebSocketReceiveMessage received = await websocket.ReceiveAsync(new ArraySegment<byte>(buffer), websocket.CallCancelled);
-            
-            while (websocket.ClientCloseStatus == 0)
+            WebSocketReceiveResult received = await receiveAsync(new ArraySegment<byte>(buffer), callCancelled);
+
+            object status;
+            while (!websocketContext.TryGetValue("websocket.ClientCloseStatus", out status) || (int)status == 0)
             {
                 // Echo anything we receive
-                await websocket.SendAsync(new ArraySegment<byte>(buffer, 0, received.Count), received.MessageType, received.EndOfMessage, websocket.CallCancelled);
+                await sendAsync(new ArraySegment<byte>(buffer, 0, received.Item3), received.Item1, received.Item2, callCancelled);
 
-                received = await websocket.ReceiveAsync(new ArraySegment<byte>(buffer), websocket.CallCancelled);
+                received = await receiveAsync(new ArraySegment<byte>(buffer), callCancelled);
             }
 
-            await websocket.CloseAsync(websocket.ClientCloseStatus, websocket.ClientCloseDescription, websocket.CallCancelled);
+            await closeAsync((int)websocketContext["websocket.ClientCloseStatus"], (string)websocketContext["websocket.ClientCloseDescription"], callCancelled);
         }
     }
 }
