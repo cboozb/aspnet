@@ -1,8 +1,6 @@
 HttpRangeRequestSample
 ----------------------
 
-Note: This sample uses a nightly build of the runtime. It does not run against the RTM version.
-
 ByteRangeStreamContent provides support for generating byte range views over a seekable stream 
 as defined by HTTP/1.1 range requests. The ByteRangeStreamContent can be used to generate 
 HTTP/1.1 206 (Partial Content) responses where the client only requests one or more ranges of 

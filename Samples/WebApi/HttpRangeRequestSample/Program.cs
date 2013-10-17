@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Microsoft.Owin.Hosting;
+using Owin;
+using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.ServiceModel;
 using System.Web.Http;
-using System.Web.Http.SelfHost;
 
 namespace HttpRangeRequestSample
 {
@@ -13,51 +13,32 @@ namespace HttpRangeRequestSample
     /// </summary>
     class Program
     {
-        static readonly Uri _baseAddress = new Uri("http://localhost:50231/");
+        static readonly string baseAddress = "http://localhost:50231";
 
         static void Main(string[] args)
         {
-            HttpSelfHostServer server = null;
-            try
+            using (WebApp.Start<Program>(url: baseAddress))
             {
-                // Set up server configuration
-                HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
-                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
+                Console.WriteLine("Listening at " + baseAddress);
 
-                // Register default route
-                config.Routes.MapHttpRoute(
-                    name: "DefaultApi",
-                    routeTemplate: "api/{controller}/{id}",
-                    defaults: new { id = RouteParameter.Optional }
-                );
-
-                // Create server
-                server = new HttpSelfHostServer(config);
-
-                // Start listening
-                server.OpenAsync().Wait();
-                Console.WriteLine("Listening on " + _baseAddress);
-
-                // Run HttpClient issuing requests
                 RunClient();
 
                 Console.WriteLine("Hit ENTER to exit...");
                 Console.ReadLine();
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("Could not start server: {0}", e.GetBaseException().Message);
-                Console.WriteLine("Hit ENTER to exit...");
-                Console.ReadLine();
-            }
-            finally
-            {
-                if (server != null)
-                {
-                    // Stop listening
-                    server.CloseAsync().Wait();
-                }
-            }
+        }
+
+        public void Configuration(IAppBuilder appBuilder)
+        {
+            var config = new HttpConfiguration();
+
+            config.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "api/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
+
+            appBuilder.UseWebApi(config);
         }
 
         /// <summary>
@@ -66,7 +47,7 @@ namespace HttpRangeRequestSample
         static void RunClient()
         {
             HttpClient client = new HttpClient();
-            client.BaseAddress = new Uri(_baseAddress, "/api/range");
+            client.BaseAddress = new Uri(baseAddress + "/api/range");
 
             // Get the full content without any ranges
             using (HttpResponseMessage response = client.GetAsync("").Result)
