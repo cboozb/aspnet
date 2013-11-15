@@ -1,5 +1,6 @@
 ﻿// Copyright (c) Microsoft Open Technologies, Inc. All rights reserved. See License.txt in the project root for license information.
 
+using System.Collections.Generic;
 using System.Web.Http.Routing;
 
 namespace RoutingConstraints.Server
@@ -21,7 +22,7 @@ namespace RoutingConstraints.Server
             private set;
         }
 
-        public override HttpRouteValueDictionary Constraints
+        public override IDictionary<string, object> Constraints
         {
             get
             {
