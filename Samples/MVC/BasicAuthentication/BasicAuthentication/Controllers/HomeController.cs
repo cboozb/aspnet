@@ -5,7 +5,7 @@ using BasicAuthentication.Models.Home;
 
 namespace BasicAuthentication.Controllers
 {
-    [AspNetIdentityBasicAuthentication] // Enable authentication via an ASP.NET Identity user name and password
+    [IdentityBasicAuthentication] // Enable authentication via an ASP.NET Identity user name and password
     [Authorize] // Require some form of authentication
     public class HomeController : Controller
     {

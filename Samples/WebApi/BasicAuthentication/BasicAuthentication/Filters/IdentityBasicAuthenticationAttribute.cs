@@ -1,5 +1,7 @@
 ﻿using System.Security.Claims;
 using System.Security.Principal;
+using System.Threading;
+using System.Threading.Tasks;
 using BasicAuthentication.Data;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
@@ -8,11 +10,12 @@ namespace BasicAuthentication.Filters
 {
     public class IdentityBasicAuthenticationAttribute : BasicAuthenticationAttribute
     {
-        protected override IPrincipal Authenticate(string userName, string password)
+        protected override async Task<IPrincipal> AuthenticateAsync(string userName, string password, CancellationToken cancellationToken)
         {
             UserManager<IdentityUser> userManager = CreateUserManager();
 
-            IdentityUser user = userManager.Find(userName, password);
+            cancellationToken.ThrowIfCancellationRequested(); // Unfortunately, UserManager doesn't support CancellationTokens.
+            IdentityUser user = await userManager.FindAsync(userName, password);
 
             if (user == null)
             {
@@ -21,7 +24,8 @@ namespace BasicAuthentication.Filters
             }
 
             // Create a ClaimsIdentity with all the claims for this user.
-            ClaimsIdentity identity = userManager.ClaimsIdentityFactory.CreateAsync(userManager, user, "Basic").Result;
+            cancellationToken.ThrowIfCancellationRequested(); // Unfortunately, IClaimsIdenityFactory doesn't support CancellationTokens.
+            ClaimsIdentity identity = await userManager.ClaimsIdentityFactory.CreateAsync(userManager, user, "Basic");
             return new ClaimsPrincipal(identity);
         }
 
