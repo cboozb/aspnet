@@ -9,16 +9,6 @@ namespace ActionResults.Controllers
 {
     static class ApiControllerExtensions
     {
-        public static OkHtmlResult Html(this ApiController controller, string content)
-        {
-            if (controller == null)
-            {
-                throw new ArgumentNullException("controller");
-            }
-
-            return new OkHtmlResult(content, Encoding.UTF8, controller.Request);
-        }
-
         public static OkTextPlainResult Text(this ApiController controller, string content)
         {
             return Text(controller, content, Encoding.UTF8);
