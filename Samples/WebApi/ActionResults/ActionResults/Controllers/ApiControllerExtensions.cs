@@ -21,7 +21,7 @@ namespace ActionResults.Controllers
                 throw new ArgumentNullException("controller");
             }
 
-            return new OkTextPlainResult(content, encoding, controller.Request);
+            return new OkTextPlainResult(content, encoding, controller);
         }
 
         public static OkFileDownloadResult Download(this ApiController controller, string path, string contentType)
@@ -37,15 +37,7 @@ namespace ActionResults.Controllers
                 throw new ArgumentNullException("controller");
             }
 
-            return new OkFileDownloadResult(MapPath(path), contentType, downloadFileName, controller.Request);
-        }
-
-        private static string MapPath(string path)
-        {
-            // The following code is for demonstration purposes only and is not fully robust for production usage.
-            // HttpContext.Current is not always available after asynchronous calls complete.
-            // Also, this call is host-specific and will need to be modified for other hosts such as OWIN.
-            return HttpContext.Current.Server.MapPath(path);
+            return new OkFileDownloadResult(path, contentType, downloadFileName, controller);
         }
     }
 }

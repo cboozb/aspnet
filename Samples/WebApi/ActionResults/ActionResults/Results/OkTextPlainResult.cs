@@ -10,7 +10,9 @@ namespace ActionResults.Results
 {
     public class OkTextPlainResult : IHttpActionResult
     {
-        public OkTextPlainResult(string content, Encoding encoding, HttpRequestMessage request)
+        private readonly ApiController _controller;
+
+        public OkTextPlainResult(string content, Encoding encoding, ApiController controller)
         {
             if (content == null)
             {
@@ -22,21 +24,24 @@ namespace ActionResults.Results
                 throw new ArgumentNullException("encoding");
             }
 
-            if (request == null)
+            if (controller == null)
             {
-                throw new ArgumentNullException("request");
+                throw new ArgumentNullException("controller");
             }
 
             Content = content;
             Encoding = encoding;
-            Request = request;
+            _controller = controller;
         }
 
         public string Content { get; private set; }
 
         public Encoding Encoding { get; private set; }
 
-        public HttpRequestMessage Request { get; private set; }
+        public HttpRequestMessage Request
+        {
+            get { return _controller.Request; }
+        }
 
         public Task<HttpResponseMessage> ExecuteAsync(CancellationToken cancellationToken)
         {
