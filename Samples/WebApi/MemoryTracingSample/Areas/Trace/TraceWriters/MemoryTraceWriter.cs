@@ -51,9 +51,12 @@ namespace ROOT_PROJECT_NAMESPACE.Areas.Trace.TraceWriters
                 throw new ArgumentOutOfRangeException("level");
             }
 
-            TraceRecord traceRecord = new TraceRecord(request, category, level);
-            traceAction(traceRecord);
-            _traceStore.AddTrace(traceRecord);
+            if (request != null && request.RequestUri != null)
+            {
+                TraceRecord traceRecord = new TraceRecord(request, category, level);
+                traceAction(traceRecord);
+                _traceStore.AddTrace(traceRecord);
+            }
         }
     }
 }

@@ -80,6 +80,11 @@ namespace ROOT_PROJECT_NAMESPACE.Areas.Trace.Controllers
 
         private static string PathFromUri(string uri)
         {
+            if (String.IsNullOrEmpty(uri))
+            {
+                return String.Empty;
+            }
+
             string baseUri = new Uri(uri).PathAndQuery;
             if (baseUri.StartsWith("/"))
             {

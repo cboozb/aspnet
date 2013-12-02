@@ -88,12 +88,30 @@ deploy your application and monitor its trace history remotely.  But
 if you do, be sure to secure the TraceController against access by
 unauthorized users.
 
+Disabling other tracers
+-----------------------
+If the URL+"/Trace" view does not show any traces, it is likely you
+have another tracer registered.   It must be disabled for this
+memory trace writer to work.
+
+For example, the standard MVC4 application has this line in Area_Start\WebApi.Config:
+
+      config.EnableSystemDiagnosticsTracing();
+
+You must comment out that line after installing the memory trace writer.
+
 Diabling memory tracing
 ------------------------
 If you wish to disable the in-memory trace writer but don't want
 to uninstall the Nuget package, simply comment out the code in
 TraceAreaRegistration.RegisterArea method.
 
+Installing into an MVC5 application
+-----------------------------------
+The package will also work in MVC 5 applications, but a manual edit is required.
+
+After installing, open the Areas\Trace\Views\web.config file and change
+all version numbers for Razor from 2.0.0.0 to 3.0.0.0.
 
 Uninstalling the Nuget package
 ------------------------------
