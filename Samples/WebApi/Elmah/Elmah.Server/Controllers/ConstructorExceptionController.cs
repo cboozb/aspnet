@@ -10,6 +10,7 @@ namespace Elmah.Server.Controllers
             throw new InvalidOperationException("This exception was thrown in a controller constructor.");
         }
 
+        // GET /constructor
         [Route("constructor")]
         public void Get()
         {

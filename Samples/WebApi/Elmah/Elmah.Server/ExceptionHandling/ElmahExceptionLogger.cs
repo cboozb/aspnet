@@ -41,6 +41,11 @@ namespace Elmah.Server.ExceptionHandling
 
         private static HttpContextBase GetHttpContextBase(HttpRequestMessage request)
         {
+            if (request == null)
+            {
+                return null;
+            }
+
             object value;
 
             if (!request.Properties.TryGetValue(HttpContextBaseKey, out value))

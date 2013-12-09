@@ -9,12 +9,14 @@ namespace Elmah.Server.Controllers
 {
     public class ExceptionController : ApiController
     {
+        // GET /action
         [Route("action")]
         public void GetActionException()
         {
             throw new InvalidOperationException("This exception was thrown in an action method.");
         }
 
+        // GET /content
         [Route("content")]
         public IHttpActionResult GetContentWriteException()
         {
@@ -27,7 +29,6 @@ namespace Elmah.Server.Controllers
 
         private class ThrowingHttpContent : HttpContent
         {
-
             protected override Task SerializeToStreamAsync(Stream stream, TransportContext context)
             {
                 throw new InvalidOperationException("This exception was thrown while writing content.");
