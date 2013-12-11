@@ -11,6 +11,7 @@ using Microsoft.Data.OData;
 using Microsoft.Data.OData.Query;
 using ODataService.Models;
 using ODataService.Extensions;
+using System.Data.Entity;
 
 namespace ODataService.Controllers
 {
@@ -72,7 +73,7 @@ namespace ODataService.Controllers
             update.ID = key; // ignore the key in the entity use the key in the URL.
 
             _db.Products.Attach(update);
-            _db.Entry(update).State = System.Data.EntityState.Modified;
+            _db.Entry(update).State = EntityState.Modified;
             _db.SaveChanges();
             return Request.CreateResponse(HttpStatusCode.NoContent);
         }

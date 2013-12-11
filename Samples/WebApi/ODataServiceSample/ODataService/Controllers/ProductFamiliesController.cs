@@ -1,6 +1,7 @@
 ﻿using Microsoft.Data.OData;
 using ODataService.Models;
 using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -112,7 +113,7 @@ namespace ODataService.Controllers
             update.ID = key; // ignore the key in the entity use the key in the URL.
 
             _db.ProductFamilies.Attach(update);
-            _db.Entry(update).State = System.Data.EntityState.Modified;
+            _db.Entry(update).State = EntityState.Modified;
             _db.SaveChanges();
             return update;
         }
