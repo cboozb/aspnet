@@ -10,33 +10,22 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.OData;
+using ODataVersioningSample.V2.Models;
 
 namespace ODataVersioningSample.V1.Controller
 {
     public class ProductsV1Controller : EntitySetController<Product, int>
     {
-        private ProductsV2Controller _controller;
-        private DbProductsContext _db = new DbProductsContext();
-
-        protected override void Initialize(System.Web.Http.Controllers.HttpControllerContext controllerContext)
-        {
-            base.Initialize(controllerContext);
-
-            _controller = new ProductsV2Controller();
-            _controller.Request = Request;
-            _controller.Configuration = Configuration;
-            _controller.ControllerContext = ControllerContext;
-            _controller.Url = Url;
-        }
+        private ProductRepository _repository = new ProductRepository(new DbProductsContext());
 
         public override IQueryable<Product> Get()
         {
-            return _controller.Get().Project().To<Product>();
+            return _repository.Get().Project().To<Product>();
         }
 
         public override HttpResponseMessage Get([FromODataUri] int key)
         {
-            var v2Product = _controller.GetProductImpl((long)key);
+            var v2Product = _repository.GetByID((long)key, Request);
 
             return Request.CreateResponse(
                 HttpStatusCode.Created,
@@ -45,7 +34,7 @@ namespace ODataVersioningSample.V1.Controller
 
         protected override Product CreateEntity(Product entity)
         {
-            var v2Product = _controller.CreateEntityImpl(Mapper.Map<V2VM.Product>(entity));
+            var v2Product = _repository.Create(Mapper.Map<V2VM.Product>(entity));
             return Mapper.Map<Product>(v2Product);
         }
 
@@ -60,19 +49,19 @@ namespace ODataVersioningSample.V1.Controller
                     v2Patch.TrySetPropertyValue(name, value);
                 }
             }
-            var v2Product = _controller.PatchEntityImpl((long)key, v2Patch);
+            var v2Product = _repository.Patch((long)key, v2Patch, Request);
             return Mapper.Map<Product>(v2Product);
         }
 
         protected override Product UpdateEntity(int key, Product update)
         {
-            var v2Product = _controller.UpdateEntityImpl((long)key, Mapper.Map<V2VM.Product>(update));
+            var v2Product = _repository.Update((long)key, Mapper.Map<V2VM.Product>(update), Request);
             return Mapper.Map<Product>(v2Product);
         }
 
         public override void Delete([FromODataUri] int key)
         {
-            _controller.Delete((long)key);
+            _repository.Delete((long)key, Request);
         }
 
         protected override int GetKey(Product entity)
