@@ -83,10 +83,12 @@ namespace BasicAuthentication.Filters
             }
             else
             {
+                // A correct implementation should verify that Realm does not contain a quote character unless properly
+                // escaped (precededed by a backslash that is not itself escaped).
                 challenge = "Basic realm=\"" + Realm + "\"";
             }
 
-            filterContext.Result = new AddChallengeOnUnauthorizedResult(challenge, filterContext.Result);
+            filterContext.ChallengeWith(challenge);
         }
 
         private static Tuple<string, string> ExtractUserNameAndPassword(string authorizationParameter)
@@ -102,10 +104,10 @@ namespace BasicAuthentication.Filters
                 return null;
             }
 
-            // The current HTTP specification says characters here are ISO-8859-1.
-            // However, the draft specification for the next version of HTTP indicates this encoding is infrequently
+            // The currently approved HTTP 1.1 specification says characters here are ISO-8859-1.
+            // However, the current draft updated specification for HTTP 1.1 indicates this encoding is infrequently
             // used in practice and defines behavior only for ASCII.
-            Encoding encoding = Encoding.GetEncoding("iso-8859-1");
+            Encoding encoding = Encoding.ASCII;
             // Make a writable copy of the encoding to enable setting a decoder fallback.
             encoding = (Encoding)encoding.Clone();
             // Fail on invalid bytes rather than silently replacing and continuing.

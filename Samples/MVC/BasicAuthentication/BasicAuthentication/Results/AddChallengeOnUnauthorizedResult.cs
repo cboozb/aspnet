@@ -2,7 +2,7 @@
 using System.Web;
 using System.Web.Mvc;
 
-namespace BasicAuthentication.Filters
+namespace BasicAuthentication.Results
 {
     public class AddChallengeOnUnauthorizedResult : ActionResult
     {
