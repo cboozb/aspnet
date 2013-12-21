@@ -7,7 +7,7 @@
 <body>
     <h1>Movies</h1>
 
-    Query Options: <input  id="query"/>
+    Query Options: <input id="query" />
     <button onclick="runQueryClicked()">Run Query</button>
     <p id="currentPageDisplay">Current Page: <span data-bind="text: currentPage()"></span></p>
     <img src="Assets/previous.png" id="previousButton" onclick="previousButtonClicked()" data-bind="hidden: previousPages().length == 0" />
@@ -48,8 +48,7 @@
             </tr>
         </tbody>
     </table>
-
-    <script src="Scripts/jquery-1.9.1.min.js"></script>
+    <script src="Scripts/jquery-1.10.2.min.js"></script>
     <script src="Scripts/knockout-2.2.1.js"></script>
     <script src="Scripts/paging.js"></script>
 </body>

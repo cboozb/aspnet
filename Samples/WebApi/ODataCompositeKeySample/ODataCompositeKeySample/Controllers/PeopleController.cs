@@ -6,8 +6,8 @@ using System.Web.Http;
 using System.Web.Http.OData;
 using System.Web.Http.OData.Routing;
 using Microsoft.Data.OData.Query;
-using ODataCompositeKeySample.Models;
 using ODataCompositeKeySample.Extensions;
+using ODataCompositeKeySample.Models;
 
 namespace ODataCompositeKeySample.Controllers
 {
@@ -47,7 +47,9 @@ namespace ODataCompositeKeySample.Controllers
             {
                 return Request.CreateResponse(HttpStatusCode.NotFound);
             }
+
             delta.Patch(person);
+
             person.FirstName = firstName;
             person.LastName = lastName;
             _repo.UpdateOrAdd(person);
@@ -60,14 +62,18 @@ namespace ODataCompositeKeySample.Controllers
             _repo.UpdateOrAdd(person);
 
             HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, person);
+
             var path = Request.GetODataPath();
             string key = string.Format(
                 "{0}={1},{2}={3}",
                 "FirstName", ODataUriUtils.ConvertToUriLiteral(person.FirstName, Microsoft.Data.OData.ODataVersion.V3),
                 "LastName", ODataUriUtils.ConvertToUriLiteral(person.LastName, Microsoft.Data.OData.ODataVersion.V3));
-            response.Headers.Location = new Uri(Url.ODataLink(
-                new EntitySetPathSegment(path.EntitySet.Name),
-                new KeyValuePathSegment(key)));
+
+            response.Headers.Location = new Uri(
+                Url.ODataLink(
+                    new EntitySetPathSegment(path.EntitySet.Name),
+                    new KeyValuePathSegment(key)));
+
             return response;
         }
 

@@ -1,98 +1,148 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
+using System.Web.Http.ModelBinding;
 using System.Web.Http.OData;
+using System.Web.Http.OData.Routing;
 using ODataPagingSample.Models;
 
 namespace ODataPagingSample.Controllers
 {
-    // An implementation of EntitySetController for exposing the Movies entity set using Entity Framework
-    // The only action that's needed for this sample is Get(), but other methods are implemented as a demonstration
-    public class MoviesController : EntitySetController<Movie, int>
+    public class MoviesController : ODataController
     {
-        MoviesDb _db = new MoviesDb();
+        private MoviesDb db = new MoviesDb();
 
-        // The [Queryable] attribute allows this entity set to be queried using the OData syntax
-        // The PageSize controls the maximum page size the server will send back to the client
-        // Change the PageSize value to control the number of movies that show up on each page
-        [Queryable(PageSize=10)]
-        public override IQueryable<Movie> Get()
+        // GET: odata/Movies1
+        [Queryable(PageSize = 10)]
+        public IQueryable<Movie> GetMovies()
         {
-            return _db.Movies;
+            return db.Movies;
         }
 
-        protected override int GetKey(Movie entity)
+        // GET: odata/Movies1(5)
+        [Queryable]
+        public SingleResult<Movie> GetMovie([FromODataUri] int key)
         {
-            return entity.ID;
+            return SingleResult.Create(db.Movies.Where(movie => movie.ID == key));
         }
 
-        protected override Movie GetEntityByKey(int key)
+        // PUT: odata/Movies1(5)
+        public IHttpActionResult Put([FromODataUri] int key, Movie movie)
         {
-            return _db.Movies.Find(key);
-        }
-
-        protected override Movie CreateEntity(Movie entity)
-        {
-            Movie createdEntity = _db.Movies.Add(entity);
-            _db.SaveChanges();
-            return createdEntity;
-        }
-
-        protected override Movie UpdateEntity(int key, Movie update)
-        {
-            if (GetEntityByKey(key) == null)
+            if (!ModelState.IsValid)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                return BadRequest(ModelState);
             }
 
-            if (key != update.ID)
+            if (key != movie.ID)
             {
-                throw new HttpResponseException(Request.CreateErrorResponse(HttpStatusCode.BadRequest, "Invalid update: ID does not match."));
+                return BadRequest();
             }
 
-            Movie updatedEntity = _db.Movies.Attach(update);
-            _db.Entry(update).State = EntityState.Modified;
-            _db.SaveChanges();
-            return updatedEntity;
+            db.Entry(movie).State = EntityState.Modified;
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MovieExists(key))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return Updated(movie);
         }
 
-        protected override Movie PatchEntity(int key, Delta<Movie> patch)
+        // POST: odata/Movies1
+        public IHttpActionResult Post(Movie movie)
         {
-            Movie entityToPatch = GetEntityByKey(key);
-            if (entityToPatch == null)
+            if (!ModelState.IsValid)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                return BadRequest(ModelState);
             }
 
-            patch.Patch(entityToPatch);
-            entityToPatch.ID = key;
-            _db.Entry(entityToPatch).State = EntityState.Modified;
-            _db.SaveChanges();
-            return entityToPatch;
+            db.Movies.Add(movie);
+            db.SaveChanges();
+
+            return Created(movie);
         }
 
-        public override void Delete([FromODataUri] int key)
+        // PATCH: odata/Movies1(5)
+        [AcceptVerbs("PATCH", "MERGE")]
+        public IHttpActionResult Patch([FromODataUri] int key, Delta<Movie> patch)
         {
-            Movie entityToDelete = GetEntityByKey(key);
-            if (entityToDelete == null)
+            if (!ModelState.IsValid)
             {
-                throw new HttpResponseException(HttpStatusCode.NotFound);
+                return BadRequest(ModelState);
             }
 
-            _db.Movies.Remove(entityToDelete);
-            _db.SaveChanges();
+            Movie movie = db.Movies.Find(key);
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            patch.Patch(movie);
+
+            try
+            {
+                db.SaveChanges();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!MovieExists(key))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return Updated(movie);
+        }
+
+        // DELETE: odata/Movies1(5)
+        public IHttpActionResult Delete([FromODataUri] int key)
+        {
+            Movie movie = db.Movies.Find(key);
+            if (movie == null)
+            {
+                return NotFound();
+            }
+
+            db.Movies.Remove(movie);
+            db.SaveChanges();
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         protected override void Dispose(bool disposing)
         {
             if (disposing)
             {
-                _db.Dispose();
+                db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private bool MovieExists(int key)
+        {
+            return db.Movies.Count(e => e.ID == key) > 0;
         }
     }
 }

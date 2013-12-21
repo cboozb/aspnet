@@ -1,5 +1,4 @@
-﻿
-namespace ODataBatchSample.Models
+﻿namespace ODataBatchSample.Models
 {
     public class Customer
     {

@@ -1,14 +1,12 @@
-﻿using ODataActionsSample.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.OData;
 using System.Web.Http.OData.Query;
+using ODataActionsSample.Models;
 
 namespace ODataActionsSample.Controllers
 {
@@ -95,8 +93,8 @@ namespace ODataActionsSample.Controllers
             if (!ModelState.IsValid)
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
-            } 
-            
+            }
+
             var movie = GetEntityByKey(key);
             if (movie == null)
             {
@@ -126,7 +124,7 @@ namespace ODataActionsSample.Controllers
             }
 
             // Client passes a list of movie IDs to check out.
-            var movieIDs = parameters["MovieIDs"] as ICollection<int>;
+            var movieIDs = new HashSet<int>(parameters["MovieIDs"] as IEnumerable<int>);
 
             // Try to check out each movie in the list.
             var results = new List<Movie>();
@@ -134,7 +132,7 @@ namespace ODataActionsSample.Controllers
             {
                 if (TryCheckoutMovie(movie))
                 {
-                    results.Add(movie);                    
+                    results.Add(movie);
                 }
             }
 

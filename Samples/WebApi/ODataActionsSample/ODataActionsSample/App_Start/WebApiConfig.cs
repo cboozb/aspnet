@@ -1,14 +1,13 @@
-﻿using Microsoft.Data.Edm;
-using Microsoft.Data.OData;
-using Microsoft.Data.OData.Query;
-using ODataActionsSample.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Web.Http;
 using System.Web.Http.OData.Builder;
 using System.Web.Http.OData.Routing;
 using System.Web.Http.OData.Routing.Conventions;
+using Microsoft.Data.Edm;
+using Microsoft.Data.OData;
+using Microsoft.Data.OData.Query;
+using ODataActionsSample.Models;
 
 namespace ODataActionsSample
 {

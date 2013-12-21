@@ -3,7 +3,6 @@ using System.Net;
 using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.OData;
-
 using ODataBatchSample.Models;
 
 namespace ODataBatchSample.Controllers

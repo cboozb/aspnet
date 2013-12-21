@@ -10,9 +10,9 @@ using Owin;
 
 namespace ExternalEdmModel
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             Database.SetInitializer<CustomersContext>(new CustomersContextInitializer());
 
@@ -20,7 +20,10 @@ namespace ExternalEdmModel
             using (WebApp.Start(serviceUrl, Configuration))
             {
                 Console.WriteLine("Server listening at {0}", serviceUrl);
+
                 QueryTheService(serviceUrl).Wait();
+
+                Console.WriteLine("Press Any Key to Exit ...");
                 Console.ReadKey();
             }
         }
@@ -34,14 +37,19 @@ namespace ExternalEdmModel
         private static async Task SendQuery(string serviceUrl, string query, string queryDescription)
         {
             Console.WriteLine("Executing {0}...", queryDescription);
+
             HttpClient client = new HttpClient();
+
             HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, serviceUrl + query);
+
             HttpResponseMessage response = await client.SendAsync(request);
+
             Console.WriteLine("\r\nResult:");
             if (!response.IsSuccessStatusCode)
             {
                 Console.WriteLine(response.StatusCode);
             }
+
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
@@ -52,8 +60,10 @@ namespace ExternalEdmModel
             {
                 model = context.GetEdmModel();
             }
+
             HttpConfiguration configuration = new HttpConfiguration();
             configuration.Routes.MapODataRoute("odata", "odata", model);
+
             builder.UseWebApi(configuration);
         }
     }

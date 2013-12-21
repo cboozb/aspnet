@@ -1,9 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
-using System.Linq;
-using System.Web;
 
 namespace ODataActionsSample.Models
 {
@@ -30,7 +27,7 @@ namespace ODataActionsSample.Models
         public DbSet<Movie> Movies { get; set; }
     }
 
-    public class MoviesInitializer : DropCreateDatabaseIfModelChanges<MoviesContext>
+    public class MoviesInitializer : DropCreateDatabaseAlways<MoviesContext>
     {
         protected override void Seed(MoviesContext context)
         {

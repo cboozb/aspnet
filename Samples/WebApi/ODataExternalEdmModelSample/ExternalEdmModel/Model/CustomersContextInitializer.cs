@@ -19,10 +19,12 @@ namespace ExternalEdmModel.Model
                     Total = j * 10
                 }).ToList()
             }).ToList();
+
             foreach (Customer customer in customers)
             {
                 context.Customers.Add(customer);
             }
+
             base.Seed(context);
         }
     }

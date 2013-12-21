@@ -1,13 +1,8 @@
-﻿using ODataActionsSample.Models;
-using System;
-using System.Collections.Generic;
-using System.Data.Entity.Infrastructure;
-using System.Linq;
+﻿using System.Data.Entity.Infrastructure;
 using System.Net;
-using System.Net.Http;
 using System.Web.Http;
 using System.Web.Http.OData;
-using System.Web.Http.OData.Routing;
+using ODataActionsSample.Models;
 
 namespace ODataActionsSample.Controllers
 {

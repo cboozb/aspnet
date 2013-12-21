@@ -9,6 +9,7 @@ namespace ExternalEdmModel.Model
     public class CustomersContext : DbContext
     {
         public DbSet<Customer> Customers { get; set; }
+
         public DbSet<Order> Orders { get; set; }
 
         public IEdmModel GetEdmModel()
@@ -19,13 +20,14 @@ namespace ExternalEdmModel.Model
                 {
                     System.Data.Entity.Infrastructure.EdmxWriter.WriteEdmx(this, writer);
                 }
+
                 stream.Position = 0;
+
                 using (XmlReader reader = XmlReader.Create(stream))
                 {
                     return EdmxReader.Parse(reader);
                 }
             }
         }
-
     }
 }
