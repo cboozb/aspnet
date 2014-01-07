@@ -17,7 +17,7 @@ namespace TwitterSample
     /// </remarks>
     class Program
     {
-        private static string _address = "http://api.twitter.com/1/statuses/user_timeline.json?include_entities=true&include_rts=true&screen_name=scottgu&count=20";
+        private static string _address = "https://api.twitter.com/1.1/statuses/user_timeline.json?include_rts=true&screen_name=scottgu&count=20";
 
         private static async void RunClient()
         {
