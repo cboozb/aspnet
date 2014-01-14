@@ -8,7 +8,7 @@ namespace RoutingConstraints.Server
     /// <summary>
     /// Provides an attribute route that's restricted to a specific version of the api.
     /// </summary>
-    internal class VersionedRoute : RouteProviderAttribute
+    internal class VersionedRoute : RouteFactoryAttribute
     {
         public VersionedRoute(string template, int allowedVersion)
             : base(template)

@@ -40,7 +40,7 @@ namespace RoutingConstraints.Client
                 Console.WriteLine();
 
                 Console.WriteLine("Getting data for v1...");
-                client.DefaultRequestHeaders.Add("x-api-version", "1");
+                client.DefaultRequestHeaders.Add("api-version", "1");
                 response = await client.GetAsync(uriBuilder.Uri);
                 response.EnsureSuccessStatusCode();
 
@@ -49,8 +49,8 @@ namespace RoutingConstraints.Client
 
 
                 Console.WriteLine("Getting data for v2...");
-                client.DefaultRequestHeaders.Remove("x-api-version");
-                client.DefaultRequestHeaders.Add("x-api-version", "2");
+                client.DefaultRequestHeaders.Remove("api-version");
+                client.DefaultRequestHeaders.Add("api-version", "2");
                 response = await client.GetAsync(uriBuilder.Uri);
                 response.EnsureSuccessStatusCode();
 

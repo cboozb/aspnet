@@ -13,7 +13,7 @@ namespace RoutingConstraints.Server
     /// </summary>
     internal class VersionConstraint : IHttpRouteConstraint
     {
-        public const string VersionHeaderName = "x-api-version";
+        public const string VersionHeaderName = "api-version";
 
         private const int DefaultVersion = 1;
 
