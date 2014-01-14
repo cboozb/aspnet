@@ -12,7 +12,7 @@ namespace CustomActionSelector.Server
         public static bool IsCurrentUserBetaTester(this HttpRequestMessage request)
         {
             IEnumerable<string> headers;
-            if (request.Headers.TryGetValues("x-beta-tester", out headers))
+            if (request.Headers.TryGetValues("beta-tester", out headers))
             {
                 bool isBetaTester;
                 if (headers.Count() == 1 && Boolean.TryParse(headers.First(), out isBetaTester))

@@ -35,7 +35,7 @@ namespace CustomActionSelector.Client
             using (var client = new HttpClient())
             using (var betaClient = new HttpClient())
             {
-                betaClient.DefaultRequestHeaders.Add("x-beta-tester", Boolean.TrueString);
+                betaClient.DefaultRequestHeaders.Add("beta-tester", Boolean.TrueString);
 
                 Console.WriteLine("Getting all data for a normal user");
                 var response = await client.GetAsync(uriBuilder.Uri);
