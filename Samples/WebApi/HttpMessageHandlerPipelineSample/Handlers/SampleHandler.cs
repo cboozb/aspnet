@@ -24,15 +24,15 @@ namespace HttpMessageHandlerPipelineSample
             _indentation = new String(' ', indent);
         }
 
-        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             Console.WriteLine("{0}{1} request path", _indentation, _text);
-            return base.SendAsync(request, cancellationToken).ContinueWith(
-                task =>
-                {
-                    Console.WriteLine("{0}{1} response path", _indentation, _text);
-                    return task.Result;
-                });
+
+            HttpResponseMessage response = await base.SendAsync(request, cancellationToken);
+
+            Console.WriteLine("{0}{1} response path", _indentation, _text);
+
+            return response;
         }
     }
 }

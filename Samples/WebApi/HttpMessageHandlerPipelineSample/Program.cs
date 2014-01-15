@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Net.Http;
-using System.ServiceModel;
+using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.SelfHost;
+using Microsoft.Owin.Hosting;
+using Owin;
 
 namespace HttpMessageHandlerPipelineSample
 {
@@ -21,48 +22,30 @@ namespace HttpMessageHandlerPipelineSample
     /// </summary>
     class Program
     {
-        static readonly Uri _baseAddress = new Uri("http://localhost:50231/");
-        static readonly Uri _address = new Uri(_baseAddress, "/api/sample");
+        static readonly string _baseAddress = "http://localhost:50231";
+        static readonly Uri _address = new Uri(_baseAddress + "/api/sample");
 
         static void Main(string[] args)
         {
-            HttpSelfHostServer server = null;
+            IDisposable server = null;
             try
             {
-                // Set up server configuration
-                HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
-                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
+                server = WebApp.Start<Program>(url: _baseAddress);
 
-                config.Routes.MapHttpRoute(
-                    name: "DefaultApi",
-                    routeTemplate: "api/{controller}/{id}",
-                    defaults: new { id = RouteParameter.Optional }
-                );
-
-                // Add our message handlers for the server
-                config.MessageHandlers.Add(new SampleHandler("Server A", 2));
-                config.MessageHandlers.Add(new SampleHandler("Server B", 4));
-                config.MessageHandlers.Add(new SampleHandler("Server C", 6));
-
-                // Create server
-                server = new HttpSelfHostServer(config);
-
-                // Start listening
-                server.OpenAsync().Wait();
                 Console.WriteLine("Listening on " + _baseAddress);
 
                 // Run HttpClient issuing requests in various combinations
-                RunHttpClient();
+                RunHttpClientAsync().Wait();
 
-                RunHttpClientWithMultipleDelegatingHandlers();
+                RunHttpClientWithMultipleDelegatingHandlersAsync().Wait();
 
-                RunHttpClientWithHttpClientHandler();
+                RunHttpClientWithHttpClientHandler().Wait();
 
-                RunHttpClientWithHttpClientHandlerAndMultipleDelegatingHandlers();
+                RunHttpClientWithHttpClientHandlerAndMultipleDelegatingHandlersAsync().Wait();
 
-                RunHttpClientWithWebRequestHandler();
+                RunHttpClientWithWebRequestHandlerAsync().Wait();
 
-                RunHttpClientWithWebReqeustHandlerAndMultipleDelegatingHandlers();
+                RunHttpClientWithWebReqeustHandlerAndMultipleDelegatingHandlersAsync().Wait();
 
                 Console.WriteLine("Hit ENTER to exit...");
                 Console.ReadLine();
@@ -79,15 +62,33 @@ namespace HttpMessageHandlerPipelineSample
                 if (server != null)
                 {
                     // Stop listening
-                    server.CloseAsync().Wait();
+                    server.Dispose();
                 }
             }
+        }
+
+        public void Configuration(IAppBuilder appBuilder)
+        {
+            var config = new HttpConfiguration();
+
+            config.Routes.MapHttpRoute(
+                    name: "DefaultApi",
+                    routeTemplate: "api/{controller}/{id}",
+                    defaults: new { id = RouteParameter.Optional }
+                );
+
+            // Add our message handlers for the server
+            config.MessageHandlers.Add(new SampleHandler("Server A", 2));
+            config.MessageHandlers.Add(new SampleHandler("Server B", 4));
+            config.MessageHandlers.Add(new SampleHandler("Server C", 6));
+
+            appBuilder.UseWebApi(config);
         }
 
         /// <summary>
         /// Basic use of HttpClient
         /// </summary>
-        static void RunHttpClient()
+        static async Task RunHttpClientAsync()
         {
             Console.WriteLine("Issue request using a basic HttpClient.");
 
@@ -96,29 +97,14 @@ namespace HttpMessageHandlerPipelineSample
             client.Timeout = TimeSpan.FromSeconds(10);
 
             // Issue a request
-            client.GetAsync(_address).ContinueWith(
-                getTask =>
-                {
-                    if (getTask.IsCanceled)
-                    {
-                        Console.WriteLine("Request was canceled");
-                    }
-                    else if (getTask.IsFaulted)
-                    {
-                        Console.WriteLine("Request failed: {0}", getTask.Exception);
-                    }
-                    else
-                    {
-                        HttpResponseMessage response = getTask.Result;
-                        Console.WriteLine("Request completed with status code {0}", response.StatusCode);
-                    }
-                });
+            HttpResponseMessage response = await client.GetAsync(_address);
+            Console.WriteLine("Request completed with status code {0}", response.StatusCode);
         }
 
         /// <summary>
         /// HttpClient using HttpClientHandler
         /// </summary>
-        static void RunHttpClientWithHttpClientHandler()
+        static async Task RunHttpClientWithHttpClientHandler()
         {
             Console.WriteLine("Issue request using an HttpClient with HttpClientHandler.");
 
@@ -130,29 +116,14 @@ namespace HttpMessageHandlerPipelineSample
             HttpClient client = new HttpClient(clientHandler);
 
             // Issue a request
-            client.GetAsync(_address).ContinueWith(
-                getTask =>
-                {
-                    if (getTask.IsCanceled)
-                    {
-                        Console.WriteLine("Request was canceled");
-                    }
-                    else if (getTask.IsFaulted)
-                    {
-                        Console.WriteLine("Request failed: {0}", getTask.Exception);
-                    }
-                    else
-                    {
-                        HttpResponseMessage response = getTask.Result;
-                        Console.WriteLine("Request completed with status code {0}", response.StatusCode);
-                    }
-                });
+            HttpResponseMessage response = await client.GetAsync(_address);
+            Console.WriteLine("Request completed with status code {0}", response.StatusCode);
         }
 
         /// <summary>
         /// HttpClient using WebRequestHandler
         /// </summary>
-        static void RunHttpClientWithWebRequestHandler()
+        static async Task RunHttpClientWithWebRequestHandlerAsync()
         {
             Console.WriteLine("Issue request using an HttpClient with WebRequestHandler.");
 
@@ -165,23 +136,8 @@ namespace HttpMessageHandlerPipelineSample
             HttpClient client = new HttpClient(webRequestHandler);
 
             // Issue a request
-            client.GetAsync(_address).ContinueWith(
-                getTask =>
-                {
-                    if (getTask.IsCanceled)
-                    {
-                        Console.WriteLine("Request was canceled");
-                    }
-                    else if (getTask.IsFaulted)
-                    {
-                        Console.WriteLine("Request failed: {0}", getTask.Exception);
-                    }
-                    else
-                    {
-                        HttpResponseMessage response = getTask.Result;
-                        Console.WriteLine("Request completed with status code {0}", response.StatusCode);
-                    }
-                });
+            HttpResponseMessage response = await client.GetAsync(_address);
+            Console.WriteLine("Request completed with status code {0}", response.StatusCode);
         }
 
         /// <summary>
@@ -189,7 +145,7 @@ namespace HttpMessageHandlerPipelineSample
         /// that each request and response will go through these three before hitting the
         /// network.
         /// </summary>
-        static void RunHttpClientWithMultipleDelegatingHandlers()
+        static async Task RunHttpClientWithMultipleDelegatingHandlersAsync()
         {
             Console.WriteLine("Issue request using an HttpClient with multiple delegating handlers in the pipeline.");
 
@@ -199,23 +155,8 @@ namespace HttpMessageHandlerPipelineSample
                 new SampleHandler("Client B", 4),
                 new SampleHandler("Client C", 6));
 
-            client.GetAsync(_address).ContinueWith(
-                getTask =>
-                {
-                    if (getTask.IsCanceled)
-                    {
-                        Console.WriteLine("Request was canceled");
-                    }
-                    else if (getTask.IsFaulted)
-                    {
-                        Console.WriteLine("Request failed: {0}", getTask.Exception);
-                    }
-                    else
-                    {
-                        HttpResponseMessage response = getTask.Result;
-                        Console.WriteLine("Request completed with status code {0}", response.StatusCode);
-                    }
-                });
+            HttpResponseMessage response = await client.GetAsync(_address);
+            Console.WriteLine("Request completed with status code {0}", response.StatusCode);
         }
 
         /// <summary>
@@ -223,7 +164,7 @@ namespace HttpMessageHandlerPipelineSample
         /// that each request and response will go through these three before hitting the
         /// network.
         /// </summary>
-        static void RunHttpClientWithHttpClientHandlerAndMultipleDelegatingHandlers()
+        static async Task RunHttpClientWithHttpClientHandlerAndMultipleDelegatingHandlersAsync()
         {
             Console.WriteLine("Issue request using an HttpClient with HttpClientHandler and multiple delegating handlers in the pipeline.");
 
@@ -238,23 +179,8 @@ namespace HttpMessageHandlerPipelineSample
                 new SampleHandler("Client B", 4),
                 new SampleHandler("Client C", 6));
 
-            client.GetAsync(_address).ContinueWith(
-                getTask =>
-                {
-                    if (getTask.IsCanceled)
-                    {
-                        Console.WriteLine("Request was canceled");
-                    }
-                    else if (getTask.IsFaulted)
-                    {
-                        Console.WriteLine("Request failed: {0}", getTask.Exception);
-                    }
-                    else
-                    {
-                        HttpResponseMessage response = getTask.Result;
-                        Console.WriteLine("Request completed with status code {0}", response.StatusCode);
-                    }
-                });
+            HttpResponseMessage response = await client.GetAsync(_address);
+            Console.WriteLine("Request completed with status code {0}", response.StatusCode);
         }
 
         /// <summary>
@@ -262,7 +188,7 @@ namespace HttpMessageHandlerPipelineSample
         /// that each request and response will go through these three before hitting the
         /// network.
         /// </summary>
-        static void RunHttpClientWithWebReqeustHandlerAndMultipleDelegatingHandlers()
+        static async Task RunHttpClientWithWebReqeustHandlerAndMultipleDelegatingHandlersAsync()
         {
             Console.WriteLine("Issue request using an HttpClient with WebRequestHandler and multiple delegating handlers in the pipeline.");
 
@@ -278,23 +204,8 @@ namespace HttpMessageHandlerPipelineSample
                 new SampleHandler("Client B", 4),
                 new SampleHandler("Client C", 6));
 
-            client.GetAsync(_address).ContinueWith(
-                getTask =>
-                {
-                    if (getTask.IsCanceled)
-                    {
-                        Console.WriteLine("Request was canceled");
-                    }
-                    else if (getTask.IsFaulted)
-                    {
-                        Console.WriteLine("Request failed: {0}", getTask.Exception);
-                    }
-                    else
-                    {
-                        HttpResponseMessage response = getTask.Result;
-                        Console.WriteLine("Request completed with status code {0}", response.StatusCode);
-                    }
-                });
+            HttpResponseMessage response = await client.GetAsync(_address);
+            Console.WriteLine("Request completed with status code {0}", response.StatusCode);
         }
     }
 }
