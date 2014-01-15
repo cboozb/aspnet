@@ -35,7 +35,7 @@ namespace Client
                     getResponse.EnsureSuccessStatusCode();
                     string result = getResponse.Content.ReadAsStringAsync().Result;
                     Console.WriteLine("Received response formatted using the plain/text media type formatter: {0}", result);
-                    Console.WriteLine("Content headers: {0}", getResponse.Content.Headers);
+                    Console.WriteLine("Content headers: \n{0}", getResponse.Content.Headers);
                 });
 
             // Issue PUT request of string content
