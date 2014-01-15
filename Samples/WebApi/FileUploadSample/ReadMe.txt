@@ -9,9 +9,6 @@ The FileUploadController reads the contents of an HTML file upload asynchronousl
 or more body parts to a local file. It then responds with a result containing information about
 the uploaded file (or files).
 
-For a detailed description of this sample, please see
-http://blogs.msdn.com/b/henrikn/archive/2012/03/01/file-upload-and-asp-net-web-api.aspx
-
 This sample is provided as part of the ASP.NET Web Stack sample repository at
 http://aspnet.codeplex.com/
 

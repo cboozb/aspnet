@@ -3,9 +3,9 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Handlers;
-using System.ServiceModel;
 using System.Web.Http;
-using System.Web.Http.SelfHost;
+using Microsoft.Owin.Hosting;
+using Owin;
 
 namespace FileUploadSample
 {
@@ -16,34 +16,18 @@ namespace FileUploadSample
     {
         const int BufferSize = 1024;
 
-        static readonly Uri _baseAddress = new Uri("http://localhost:50231/");
+        static readonly string _baseAddress = "http://localhost:50231/";
         static readonly string _filename = "Sample.xml";
 
         static void Main(string[] args)
         {
-            HttpSelfHostServer server = null;
+            IDisposable server = null;
+
             try
             {
+                server = WebApp.Start<Program>(url: _baseAddress);
+
                 // Set up server configuration
-                HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
-                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
-
-                config.Routes.MapHttpRoute(
-                    name: "DefaultApi",
-                    routeTemplate: "api/{controller}/{id}",
-                    defaults: new { id = RouteParameter.Optional }
-                );
-
-                // Set parameters for uploading large files
-                config.MaxReceivedMessageSize = 16L * 1024 * 1024 * 1024;
-                config.ReceiveTimeout = TimeSpan.FromMinutes(20);
-                config.TransferMode = TransferMode.StreamedRequest;
-
-                // Create server
-                server = new HttpSelfHostServer(config);
-
-                // Start listening
-                server.OpenAsync().Wait();
                 Console.WriteLine("Listening on " + _baseAddress);
 
                 // Run HttpClient issuing requests
@@ -64,9 +48,22 @@ namespace FileUploadSample
                 if (server != null)
                 {
                     // Stop listening
-                    server.CloseAsync().Wait();
+                    server.Dispose();
                 }
             }
+        }
+
+        public void Configuration(IAppBuilder appBuilder)
+        {
+            var config = new HttpConfiguration();
+
+            config.Routes.MapHttpRoute(
+                    name: "DefaultApi",
+                    routeTemplate: "api/{controller}/{id}",
+                    defaults: new { id = RouteParameter.Optional }
+                );
+
+            appBuilder.UseWebApi(config);
         }
 
         /// <summary>
@@ -97,7 +94,7 @@ namespace FileUploadSample
                 formData.Add(content, "filename", _filename);
 
                 // Post the MIME multipart form data upload with the file
-                Uri address = new Uri(_baseAddress, "/api/fileupload");
+                Uri address = new Uri(_baseAddress + "api/fileupload");
                 HttpResponseMessage response = await client.PostAsync(address, formData);
 
                 FileResult result = await response.Content.ReadAsAsync<FileResult>();
