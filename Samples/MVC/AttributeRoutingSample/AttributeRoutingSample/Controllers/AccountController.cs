@@ -1,20 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Web;
 using System.Web.Mvc;
+using AttributeRoutingSample.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
 using Microsoft.Owin.Security;
-using AttributeRoutingSample.Models;
 
 namespace AttributeRoutingSample.Controllers
 {
     /// <summary>
-    /// This controller does not use attribute routing. Conventional routing and
-    /// attribute routign based controller/actions can work side-by-side.
+    /// This controller does not use attribute routing. Conventional routing and attribute routing
+    /// based controllers can be used as part of the same application.
     /// </summary>
     [Authorize]
     public class AccountController : Controller

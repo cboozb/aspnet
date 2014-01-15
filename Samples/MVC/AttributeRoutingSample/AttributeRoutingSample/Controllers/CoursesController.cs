@@ -12,17 +12,29 @@ using AttributeRoutingSample.Models;
 namespace AttributeRoutingSample.Controllers
 {
     /// <summary>
-    /// This controller demonstrates the following:
-    /// - Mixing conventional and attribute routing in a single controller
-    /// - The 'Professor' action uses attribute routing while rest of the actions
-    ///   are accessible by conventional routes.
+    /// This controller mixes conventional and attribute routing in a single controller. The 'Professor'
+    /// action uses attribute routing while rest of the actions are accessible by conventional routes.
     /// 
-    /// NOTE:
-    /// - Conventional routes can never access attributed controller/actions
+    /// The comments by each action detail example URLs that could reach the action.
+    /// 
+    /// NOTE: Conventional routes can never access attributed controller/actions
     /// </summary>
     public class CoursesController : Controller
     {
         private SchoolContext db = new SchoolContext();
+
+        // GET: /Courses/Details/5/Professor
+        [Route("Courses/Details/{id}/Professor")]
+        public async Task<ActionResult> Professor(int id)
+        {
+            Course course = await db.Courses.Include(c => c.Professor).Where(c => c.Id == id).FirstOrDefaultAsync();
+            if (course == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(course.Professor);
+        }
 
         // GET: /Courses/
         public async Task<ActionResult> Index()
@@ -43,18 +55,6 @@ namespace AttributeRoutingSample.Controllers
                 return HttpNotFound();
             }
             return View(course);
-        }
-
-        [Route("Courses/Details/{id}/Professor")]
-        public async Task<ActionResult> Professor(int id)
-        {
-            Course course = await db.Courses.Include(c => c.Professor).Where(c => c.Id == id).FirstOrDefaultAsync();
-            if (course == null)
-            {
-                return HttpNotFound();
-            }
-
-            return View(course.Professor);
         }
 
         // GET: /Courses/Create

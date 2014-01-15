@@ -1,20 +1,33 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
+﻿
 using System.Data.Entity;
-using System.Linq;
 using System.Threading.Tasks;
-using System.Net;
-using System.Web;
 using System.Web.Mvc;
 using AttributeRoutingSample.Models;
 
 namespace AttributeRoutingSample.Controllers
 {
     /// <summary>
-    /// This controller demonstrates the following:
-    /// - Name for the route attributes defined at controller and action levels. This name can be used to 
-    ///   generate links just like how you can with conventional routes
+    /// This controller uses routes defined on actions with a route defined at the controller-level.
+    /// 
+    /// Routes can be defined at the controller level by placing the [Route] attribute on the controller
+    /// class. Any route specified in this way should include {action} as a parameter, so that it's clear
+    /// which action is to be invoked. If a request matches multiple actions, it will return an HTTP 404.
+    /// 
+    /// In this example, the [Route] attribute on the controller class will match a URL pattern like 
+    /// '/Students/Edit/5'. The 'Students' prefix is prepended to the template. The {id:int} parameter 
+    /// forces the required id parameter to have an integer value. This route can only match the Edit, 
+    /// Details, and Delete actions on this controller.
+    /// 
+    /// The [Route] attribute defined on the controller class also provides a Name so that it can used to
+    /// generate URLs via the Html.RouteLink method. In attribute routing, actions and controllers generally
+    /// are configured to match multiple URL patterns using the Name property allows you to have control
+    /// over which routes are used to generate links.
+    /// 
+    /// 
+    /// Routes defined on actions override any routes that are defined on the controller. For instance,
+    /// the Index action has two [Route] attribute which will match '/Students' and '/Students/Index'.
+    /// These routes replace the route defined at the controller level. '/Students/Index/5' will not match 
+    /// this action. Note that the [RoutePrefix] defined at the controller level still applies.
     /// </summary>
     [RoutePrefix("Students")]
     [Route("{action}/{id:int}", Name = "StudentsRoute")]
