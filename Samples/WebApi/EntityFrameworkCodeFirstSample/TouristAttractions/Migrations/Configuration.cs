@@ -1,7 +1,7 @@
 namespace TouristAttractions.Migrations
 {
     using System.Data.Entity.Migrations;
-    using System.Data.Spatial;
+    using System.Data.Entity.Spatial;
     using TouristAttractions.Models;
 
     internal sealed class Configuration : DbMigrationsConfiguration<TourismContext>

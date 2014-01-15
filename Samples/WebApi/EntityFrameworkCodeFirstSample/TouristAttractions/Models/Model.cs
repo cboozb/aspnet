@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Data.Spatial;
+using System.Data.Entity.Spatial;
 
 namespace TouristAttractions.Models
 {

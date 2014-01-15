@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
-using System.Data.Spatial;
+using System.Data.Entity.Spatial;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -49,7 +49,7 @@ namespace TouristAttractions.Controllers
         }
 
         // PUT api/Attractions/5
-        public HttpResponseMessage PutTouristAttraction(int id, TouristAttraction touristattraction)
+        public IHttpActionResult PutTouristAttraction(int id, TouristAttraction touristattraction)
         {
             if (ModelState.IsValid && id == touristattraction.TouristAttractionId)
             {
@@ -61,42 +61,41 @@ namespace TouristAttractions.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    return Request.CreateResponse(HttpStatusCode.NotFound);
+                    return NotFound();
                 }
 
-                return Request.CreateResponse(HttpStatusCode.OK);
+                return Ok();
             }
             else
             {
-                return Request.CreateResponse(HttpStatusCode.BadRequest);
+                return BadRequest();
             }
         }
 
         // POST api/Attractions
-        public HttpResponseMessage PostTouristAttraction(TouristAttraction touristattraction)
+        public IHttpActionResult PostTouristAttraction(TouristAttraction touristattraction)
         {
             if (ModelState.IsValid)
             {
                 db.TouristAttractions.Add(touristattraction);
                 db.SaveChanges();
 
-                HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, touristattraction);
-                response.Headers.Location = new Uri(Url.Link("DefaultApi", new { id = touristattraction.TouristAttractionId }));
-                return response;
+                Uri location = new Uri(Url.Link("DefaultApi", new { id = touristattraction.TouristAttractionId }));
+                return Created(location, touristattraction);
             }
             else
             {
-                return Request.CreateResponse(HttpStatusCode.BadRequest);
+                return BadRequest();
             }
         }
 
         // DELETE api/Attractions/5
-        public HttpResponseMessage DeleteTouristAttraction(int id)
+        public IHttpActionResult DeleteTouristAttraction(int id)
         {
             TouristAttraction touristattraction = db.TouristAttractions.Find(id);
             if (touristattraction == null)
             {
-                return Request.CreateResponse(HttpStatusCode.NotFound);
+                return NotFound();
             }
 
             db.TouristAttractions.Remove(touristattraction);
@@ -107,10 +106,10 @@ namespace TouristAttractions.Controllers
             }
             catch (DbUpdateConcurrencyException)
             {
-                return Request.CreateResponse(HttpStatusCode.NotFound);
+                return NotFound();
             }
 
-            return Request.CreateResponse(HttpStatusCode.OK, touristattraction);
+            return Ok(touristattraction);
         }
 
         protected override void Dispose(bool disposing)
