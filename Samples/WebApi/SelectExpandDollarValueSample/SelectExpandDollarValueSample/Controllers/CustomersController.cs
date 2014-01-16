@@ -21,9 +21,10 @@ namespace SelectExpandDollarValueSample.Controllers
         }
 
         [Queryable(PageSize = 10, MaxExpansionDepth = 2)]
-        public async Task<IHttpActionResult> Get([FromODataUri] int key)
+        public Task<IHttpActionResult> Get([FromODataUri] int key)
         {
-            return Ok(SingleResult.Create<Customer>(context.Customers.Where(customer => customer.Id == key)));
+            return Task.FromResult((IHttpActionResult)Ok(SingleResult.Create<Customer>(context.Customers.Where(
+                customer => customer.Id == key))));
         }
 
         public async Task<IHttpActionResult> GetName(int key)
