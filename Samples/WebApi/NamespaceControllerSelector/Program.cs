@@ -1,39 +1,24 @@
 ﻿using System;
 using System.Net.Http;
-using System.ServiceModel;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
-using System.Web.Http.SelfHost;
+using Microsoft.Owin.Hosting;
+using Owin;
 
 namespace NamespaceControllerSelectorSample
 {
     class Program
     {
-        static readonly Uri _baseAddress = new Uri("http://localhost:50231/");
+        static readonly string _baseAddress = "http://localhost:50231/";
 
         static void Main(string[] args)
         {
-            HttpSelfHostServer server = null;
+            IDisposable server = null;
+
             try
             {
-                // Set up server configuration
-                HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
-                config.HostNameComparisonMode = HostNameComparisonMode.Exact;
+                server = WebApp.Start<Program>(url: _baseAddress);
 
-                // Register default route
-                config.Routes.MapHttpRoute(
-                    name: "DefaultApi",
-                    routeTemplate: "api/{namespace}/{controller}/{id}",
-                    defaults: new { id = RouteParameter.Optional }
-                );
-
-                config.Services.Replace(typeof(IHttpControllerSelector), new NamespaceHttpControllerSelector(config));
-
-                // Create server
-                server = new HttpSelfHostServer(config);
-
-                // Start listening
-                server.OpenAsync().Wait();
                 Console.WriteLine("Listening on " + _baseAddress);
 
                 // Run HttpClient issuing requests
@@ -53,15 +38,33 @@ namespace NamespaceControllerSelectorSample
                 if (server != null)
                 {
                     // Stop listening
-                    server.CloseAsync().Wait();
+                    server.Dispose();
                 }
             }
+        }
+
+        public void Configuration(IAppBuilder appBuilder)
+        {
+            var config = new HttpConfiguration();
+
+            // Register default route
+            config.Routes.MapHttpRoute(
+                name: "DefaultApi",
+                routeTemplate: "api/{namespace}/{controller}/{id}",
+                defaults: new { id = RouteParameter.Optional }
+            );
+
+            // Replace the default controller selector with a custom one
+            // which considers namespace information to select controllers.
+            config.Services.Replace(typeof(IHttpControllerSelector), new NamespaceHttpControllerSelector(config));
+
+            appBuilder.UseWebApi(config);
         }
 
         static void RunClient()
         {
             HttpClient client = new HttpClient();
-            client.BaseAddress = _baseAddress;
+            client.BaseAddress = new Uri(_baseAddress);
 
             using (HttpResponseMessage response = client.GetAsync("api/v1/values").Result)
             {
