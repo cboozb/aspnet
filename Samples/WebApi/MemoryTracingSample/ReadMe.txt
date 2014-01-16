@@ -2,7 +2,7 @@
 -------------------
 
 This sample project creates a Nuget package that will install a custom
-in-memory trace writer into ASP.NET MVC4 Web API applications.  
+in-memory trace writer into ASP.NET MVC Web API applications.  
 
 This in-memory trace writer provides a visual history of the Web API framework 
 operations performed for each HTTP request and can be used to debug and
@@ -26,15 +26,14 @@ ready to be installed into any other target Web API project.
 Installing the Nuget package
 ----------------------------
 Once you have built this Nuget package, you can install it into an
-ASP.NET MVC4 Web API application.  Installing this Nuget package adds
+ASP.NET MVC Web API application.  Installing this Nuget package adds
 source code for the in-memory trace writer to that target application. 
 
 To install the Nuget package built by this sample:
 
-  (1) Create or open an ASP.NET MVC4 Web API application where
+  (1) Create or open an ASP.NET MVC Web API application where
       you would like to install the in-memory trace writer.
-      (File | New | Project | Web | 
-	   ASP.NET MVC 4 Web Application | Web API)
+      (File | New | Project | Web | ASP.NET Web Application | Web API)
 
   (2) Open the Nuget package manager UI in Visual Studio
       (Right-click project | Manage Nuget Packages)
@@ -60,7 +59,7 @@ There is no binary associated with this package.
 
 The source code you see under the Areas\Trace folder of this sample project
 is written to the Areas\Trace folder of the target project and takes advantage
-of MVC4 Areas to self-register at app start-up.
+of MVC Areas to self-register at app start-up.
 
 You are free to modify the code installed by the Nuget package into the
 target application.  Any changes you make will not be deleted when you
@@ -69,7 +68,7 @@ uninstall the package.
 
 Using the MemoryTracing package
 -------------------------------
-Once you have installed the Nuget package into an MVC4 Web API application,
+Once you have installed the Nuget package into an MVC Web API application,
 you can run that application.  No other setup is required.
 
 The installed code will automatically register itself and capture to memory
@@ -94,7 +93,7 @@ If the URL+"/Trace" view does not show any traces, it is likely you
 have another tracer registered.   It must be disabled for this
 memory trace writer to work.
 
-For example, the standard MVC4 application has this line in Area_Start\WebApi.Config:
+For example, the standard MVC application has this line in Area_Start\WebApi.Config:
 
       config.EnableSystemDiagnosticsTracing();
 
@@ -105,13 +104,6 @@ Diabling memory tracing
 If you wish to disable the in-memory trace writer but don't want
 to uninstall the Nuget package, simply comment out the code in
 TraceAreaRegistration.RegisterArea method.
-
-Installing into an MVC5 application
------------------------------------
-The package will also work in MVC 5 applications, but a manual edit is required.
-
-After installing, open the Areas\Trace\Views\web.config file and change
-all version numbers for Razor from 2.0.0.0 to 3.0.0.0.
 
 Uninstalling the Nuget package
 ------------------------------
@@ -124,7 +116,6 @@ you have modified under Areas\Trace will not be removed.
                  the packages this sample package depends on.
 				 Answer "No" or you they will be removed from
 				 your project and require re-installation.
-
 
 
 How this sample project works
