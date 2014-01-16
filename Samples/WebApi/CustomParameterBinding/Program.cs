@@ -2,12 +2,12 @@
 using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Security.Principal;
-using System.ServiceModel;
 using System.Text;
 using System.Web.Http;
 using System.Web.Http.Controllers;
-using System.Web.Http.SelfHost;
 using CustomParameterBindingSample.Models;
+using Microsoft.Owin.Hosting;
+using Owin;
 
 namespace CustomParameterBindingSample
 {
@@ -17,26 +17,16 @@ namespace CustomParameterBindingSample
     /// </summary>
     class Program
     {
-        static readonly Uri _baseAddress = new Uri("http://localhost:50231/");
+        static readonly string _baseAddress = "http://localhost:50231/";
 
         static void Main(string[] args)
         {
-            HttpSelfHostConfiguration config = new HttpSelfHostConfiguration(_baseAddress);
-            config.HostNameComparisonMode = HostNameComparisonMode.Exact;
+            IDisposable server = null;
 
-            config.Routes.MapHttpRoute("Default", "{controller}/{action}", new { controller = "Home" });
-
-            // Register an action to create custom ParameterBinding
-            config.ParameterBindingRules.Insert(0, GetCustomParameterBinding);
-
-            HttpSelfHostServer server = null;
             try
             {
-                // create the server 
-                server = new HttpSelfHostServer(config);
+                server = WebApp.Start<Program>(url: _baseAddress);
 
-                // Start listening
-                server.OpenAsync().Wait();
                 Console.WriteLine("Listening on " + _baseAddress + "...\n");
 
                 // RunClient
@@ -54,16 +44,28 @@ namespace CustomParameterBindingSample
                 if (server != null)
                 {
                     // Stop listening
-                    server.CloseAsync().Wait();
+                    server.Dispose();
                 }
             }
+        }
+
+        public void Configuration(IAppBuilder appBuilder)
+        {
+            var config = new HttpConfiguration();
+
+            config.Routes.MapHttpRoute("Default", "{controller}/{action}", new { controller = "Home" });
+
+            // Register an action to create custom ParameterBinding
+            config.ParameterBindingRules.Insert(0, GetCustomParameterBinding);
+
+            appBuilder.UseWebApi(config);
         }
 
         private static void RunClient()
         {
             // start the client
             HttpClient client = new HttpClient();
-            client.BaseAddress = _baseAddress;
+            client.BaseAddress = new Uri(_baseAddress);
             HttpResponseMessage response;
 
             // How to bind a parameter not coming from request
