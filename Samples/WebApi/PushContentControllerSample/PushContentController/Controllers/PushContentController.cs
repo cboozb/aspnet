@@ -23,35 +23,49 @@ namespace PushContentController.Controllers
         private static readonly Lazy<Timer> _timer = new Lazy<Timer>(() => new Timer(TimerCallback, null, 0, 1000));
         private static readonly ConcurrentDictionary<StreamWriter, StreamWriter> _outputs = new ConcurrentDictionary<StreamWriter, StreamWriter>();
 
-        public HttpResponseMessage GetUpdates(HttpRequestMessage request)
+        public HttpResponseMessage GetUpdates(CancellationToken cancellationToken)
         {
+            HttpResponseMessage response = new HttpResponseMessage();
+            response.Content = new PushStreamContent((responseStream, httpContent, context) =>
+            {
+                StreamWriter responseStreamWriter = new StreamWriter(responseStream);
+
+                // Register a callback which gets triggered when a client disconnects
+                cancellationToken.Register(CancellationRequested, responseStreamWriter);
+
+                _outputs.TryAdd(responseStreamWriter, responseStreamWriter);
+
+            }, "text/plain");
+
             Timer t = _timer.Value;
-            request.Headers.AcceptEncoding.Clear();
-            HttpResponseMessage response = request.CreateResponse();
-            response.Content = new PushStreamContent(OnStreamAvailable, "text/plain");
+
             return response;
         }
 
-        private static void OnStreamAvailable(Stream stream, HttpContent headers, TransportContext context)
+        private void CancellationRequested(object state)
         {
-            StreamWriter sWriter = new StreamWriter(stream);
-            _outputs.TryAdd(sWriter, sWriter);
+            StreamWriter responseStreamWriter = state as StreamWriter;
+
+            if (responseStreamWriter != null)
+            {
+                _outputs.TryRemove(responseStreamWriter, out responseStreamWriter);
+            }
         }
 
+        // Runs every second after the first request to this controller and
+        // writes to the response streams of all currently active requests
         private static void TimerCallback(object state)
         {
             foreach (var kvp in _outputs.ToArray())
             {
+                StreamWriter responseStreamWriter = kvp.Value;
+
                 try
                 {
-                    kvp.Value.Write(DateTime.Now);
-                    kvp.Value.Flush();
+                    responseStreamWriter.Write(DateTime.Now);
+                    responseStreamWriter.Flush();
                 }
-                catch
-                {
-                    StreamWriter sWriter;
-                    _outputs.TryRemove(kvp.Value, out sWriter);
-                }
+                catch { }
             }
         }
     }

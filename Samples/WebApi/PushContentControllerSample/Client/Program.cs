@@ -10,84 +10,49 @@ namespace Client
     /// This sample client reads a never-ending HTTP response sent from the
     /// <see cref="PushContentController"/> and prints the output to the console.
     /// </summary>
-    /// <remarks>This sample is written using Tasks for .NET 4 but would 
-    /// benefit greatly from using the async and await keywords in .NET 4.5</remarks>
     class Program
     {
         static readonly Uri _address = new Uri("http://localhost:50232/api/pushcontent");
 
-        static void RunClient()
+        static async Task RunClientAsync()
         {
             HttpClient client = new HttpClient();
 
-            // Issue GET request 
-            HttpRequestMessage request = new HttpRequestMessage
+            // Here we are using HttpCompletionOption.ResponseHeadersRead to only read headers
+            // as by default HttpClient would buffer the response content. Since in this scenario
+            // we want to get the individual updates from the server and print a friendly message
+            // on the console, we want to read the response stream overselves, otherwise the 'GetAsync'
+            // call would return only after all the response content is buffered, which could eventually
+            // cause OutOfMemoryException.  
+            HttpResponseMessage response = await client.GetAsync(_address, HttpCompletionOption.ResponseHeadersRead);
+
+            response.EnsureSuccessStatusCode();
+
+            // Close the response stream here as we have explicitly said to HttpClient to read
+            // the response stream ourselves.
+            using (Stream responseStream = await response.Content.ReadAsStreamAsync())
             {
-                Method = HttpMethod.Get,
-                RequestUri = _address,
-            };
-
-            client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead).ContinueWith(
-                (getTask) =>
-                {
-                    if (getTask.IsCanceled)
-                    {
-                        return;
-                    }
-                    if (getTask.IsFaulted)
-                    {
-                        throw getTask.Exception;
-                    }
-                    HttpResponseMessage response = getTask.Result;
-
-                    // Get response stream
-                    response.Content.ReadAsStreamAsync().ContinueWith(
-                        (streamTask) =>
-                        {
-                            if (streamTask.IsCanceled)
-                            {
-                                return;
-                            }
-                            if (streamTask.IsFaulted)
-                            {
-                                throw streamTask.Exception;
-                            }
-
-                            // Read response stream
-                            byte[] readBuffer = new byte[512];
-                            ReadResponseStream(streamTask.Result, readBuffer);
-                        });
-                });
+                // Read response stream
+                await ReadResponseStreamAsync(responseStream);
+            }
         }
 
-        private static void ReadResponseStream(Stream rspStream, byte[] readBuffer)
+        private static async Task ReadResponseStreamAsync(Stream responseStream)
         {
-            Task.Factory.FromAsync<byte[], int, int, int>(rspStream.BeginRead, rspStream.EndRead, readBuffer, 0, readBuffer.Length, state: null).ContinueWith(
-                (readTask) =>
-                {
-                    if (readTask.IsCanceled)
-                    {
-                        return;
-                    }
-                    if (readTask.IsFaulted)
-                    {
-                        throw readTask.Exception;
-                    }
+            byte[] readBuffer = new byte[512];
 
-                    int bytesRead = readTask.Result;
-                    string content = Encoding.UTF8.GetString(readBuffer, 0, bytesRead);
-                    Console.WriteLine("Received: {0}", content);
+            int bytesRead;
+            while ((bytesRead = await responseStream.ReadAsync(readBuffer, 0, readBuffer.Length)) != 0)
+            {
+                string content = Encoding.UTF8.GetString(readBuffer, 0, bytesRead);
 
-                    if (bytesRead != 0)
-                    {
-                        ReadResponseStream(rspStream, readBuffer);
-                    }
-                });
+                Console.WriteLine("Received: {0}", content);
+            }
         }
 
         static void Main(string[] args)
         {
-            RunClient();
+            RunClientAsync().Wait();
 
             Console.WriteLine("Hit ENTER to exit...");
             Console.ReadLine();
