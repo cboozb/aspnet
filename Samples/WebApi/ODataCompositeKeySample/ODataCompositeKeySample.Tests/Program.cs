@@ -14,6 +14,8 @@ namespace ODataCompositeKeySample.Tests
             PostPerson();
             PatchPerson();
             DeletePerson();
+            Console.WriteLine("Pres any key to continue...");
+            Console.ReadKey();
         }
 
         private static Container GetPeople()
