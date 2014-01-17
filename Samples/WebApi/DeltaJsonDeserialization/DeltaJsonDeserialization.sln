@@ -1,8 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
-MinimumVisualStudioVersion = 10.0.40219.1
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeltaJsonDeserialization.Server", "DeltaJsonDeserialization.Server\DeltaJsonDeserialization.Server.csproj", "{CEF2668E-24F9-4836-B069-832A9B477F6B}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DeltaJsonDeserialization.Client", "DeltaJsonDeserialization.Client\DeltaJsonDeserialization.Client.csproj", "{4DEE0C4B-FA32-401A-AA60-4BFC9E614E2A}"
@@ -10,6 +8,12 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{1DF6C828-5DB5-45FA-A468-4C5077AAD9E3}"
 	ProjectSection(SolutionItems) = preProject
 		ReadMe.txt = ReadMe.txt
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{27EF84EF-CA58-48E9-8338-EFA29272388B}"
+	ProjectSection(SolutionItems) = preProject
+		.nuget\nuget.config = .nuget\nuget.config
+		.nuget\NuGet.targets = .nuget\NuGet.targets
 	EndProjectSection
 EndProject
 Global
