@@ -1,12 +1,7 @@
 ﻿using Account.Client;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using Todo.Client;
-using Windows.UI.Xaml.Controls;
 
 namespace Todo.WindowsStore
 {

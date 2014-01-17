@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -26,7 +20,10 @@ namespace Account.Client
             int retries = 0;
             while (response != null && response.StatusCode == HttpStatusCode.Unauthorized && retries < MaxRetries)
             {
-                if (!await HandleUnauthorizedAsync(request, response, cancellationToken)) break;
+                if (!await HandleUnauthorizedAsync(request, response, cancellationToken))
+                {
+                    break;
+                }
                 response.Dispose();
                 response = await base.SendAsync(request, cancellationToken);
                 retries++;

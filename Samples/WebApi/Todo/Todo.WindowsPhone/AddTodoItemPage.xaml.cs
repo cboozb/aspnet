@@ -1,15 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
+﻿using Microsoft.Phone.Controls;
+using System;
+using System.Net.Http.Formatting;
 using System.Windows.Navigation;
-using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
 using Todo.Client;
-using WebApi.Client;
 using Todo.Client.Models;
+using WebApi.Client;
 
 namespace Todo.WindowsPhone
 {
@@ -60,8 +55,9 @@ namespace Todo.WindowsPhone
 
         public static Uri GetNavigationUri(int todoListId)
         {
-            string uri = String.Format("/AddTodoItemPage.xaml?{0}={1}", TodoListId, todoListId);
-            return new Uri(uri, UriKind.Relative);
+            HttpValueCollection values = new HttpValueCollection();
+            values.Add(TodoListId, todoListId.ToString());
+            return new Uri("/AddTodoItemPage.xaml?" + values.ToString(), UriKind.Relative);
         }
     }
 }

@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
+﻿using Account.Client;
 using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using Account.Client;
+using System;
+using System.Linq;
+using System.Windows;
+using System.Windows.Navigation;
 using WebApi.Client;
 
 namespace Todo.WindowsPhone

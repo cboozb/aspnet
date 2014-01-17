@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Net.Http.Formatting;
 using System.Threading.Tasks;
+using WebApi.Client;
 using Windows.Security.Authentication.Web;
 
 namespace Todo.WindowsPhone
@@ -19,31 +21,16 @@ namespace Todo.WindowsPhone
             if (authenticationResult.ResponseStatus == WebAuthenticationStatus.Success)
             {
                 Uri responseDataUri = new Uri(authenticationResult.ResponseData);
-                string fragment = responseDataUri.Fragment;
-                if (fragment != null && fragment.Length > 0)
-                {
-                    loginExternalResult.AccessToken = GetAccessTokenFromFragment(fragment);
-                }
+                loginExternalResult.AccessToken = GetAccessTokenFromFragment(responseDataUri);
             }
             return loginExternalResult;
         }
 
-        static string GetAccessTokenFromFragment(string fragment)
+        static string GetAccessTokenFromFragment(Uri uri)
         {
-            if (fragment != null)
-            {
-                fragment = fragment.TrimStart('#');
-                string[] values = fragment.Split('&');
-                foreach (string value in values)
-                {
-                    string[] nameValuePair = value.Split('=');
-                    if (nameValuePair.Length == 2 && nameValuePair[0].Equals("access_token", StringComparison.OrdinalIgnoreCase))
-                    {
-                        return Uri.UnescapeDataString(nameValuePair[1]);
-                    }
-                }
-            }
-            return null;
+            HttpValueCollection httpValues = uri.ParseFragment();
+            string[] accessTokens = httpValues.GetValues("access_token");
+            return accessTokens.Length > 0 ? accessTokens[0] : null;
         }
     }
 }

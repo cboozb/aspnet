@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
+﻿using Account.Client;
 using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using Account.Client;
-using System.Threading.Tasks;
+using System;
+using System.Collections.Generic;
+using System.Windows;
+using System.Windows.Navigation;
 using WebApi.Client;
 
 namespace Todo.WindowsPhone
@@ -114,10 +109,7 @@ namespace Todo.WindowsPhone
                     }
                     else
                     {
-                        string provider = Uri.EscapeDataString(userInfo.LoginProvider);
-                        string username = Uri.EscapeDataString(userInfo.UserName);
-                        string externalLoginUri = Uri.EscapeDataString(account.ProviderUri);
-                        this.NavigationService.Navigate(new Uri(String.Format("/RegisterExternalPage.xaml?provider={0}&username={1}&externalLoginUri={2}", provider, username, externalLoginUri), UriKind.Relative));
+                        this.NavigationService.Navigate(RegisterExternalPage.GetNavigationUri(userInfo.LoginProvider, userInfo.UserName, account.ProviderUri));
                     }
                 }
                 else

@@ -1,8 +1,8 @@
-﻿using System.Web.Http;
-using System.Web.Http.OData.Builder;
-using Microsoft.Data.Edm;
+﻿using Microsoft.Data.Edm;
 using Microsoft.Owin.Security.OAuth;
 using Newtonsoft.Json.Serialization;
+using System.Web.Http;
+using System.Web.Http.OData.Builder;
 using Todo.Web.Models;
 
 namespace Todo.Web

@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
 using WebApi.Client;
 
@@ -33,7 +31,7 @@ namespace Account.Client
 
         public HttpClient HttpClient { get; set; }
 
-        async Task<HttpResult<AccessTokenResponse>> GetTokenAsync(IEnumerable<KeyValuePair<string, string>> values)
+        private async Task<HttpResult<AccessTokenResponse>> GetTokenAsync(IEnumerable<KeyValuePair<string, string>> values)
         {
             try
             {
@@ -135,7 +133,7 @@ namespace Account.Client
             return result;
         }
 
-        void AddAllErrors(HttpResult result, ErrorResponse errorResponse)
+        private static void AddAllErrors(HttpResult result, ErrorResponse errorResponse)
         {
             if (errorResponse != null)
             {

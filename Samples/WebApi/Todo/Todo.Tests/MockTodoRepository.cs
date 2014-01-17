@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using Autofac;
+using Autofac.Integration.WebApi;
+using Moq;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Web.Http.Dependencies;
-using Autofac;
-using Autofac.Integration.WebApi;
-using Moq;
 using Todo.Web.Controllers;
 using Todo.Web.Models;
 

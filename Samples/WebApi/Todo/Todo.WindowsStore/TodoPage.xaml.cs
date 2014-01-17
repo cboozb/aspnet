@@ -1,29 +1,15 @@
-﻿using Todo.WindowsStore.Common;
-using Account.Client;
+﻿using Account.Client;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+using System.Threading.Tasks;
+using Todo.Client;
+using Todo.Client.Models;
+using Todo.WindowsStore.Common;
+using Todo.WindowsStore.Models;
+using WebApi.Client;
+using Windows.UI.ApplicationSettings;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Windows.UI.ApplicationSettings;
-using Windows.Security.Authentication.Web;
-using Windows.Security.Credentials;
-using System.Threading.Tasks;
-using Windows.UI.Popups;
-using Todo.Client;
-using WebApi.Client;
-using Todo.WindowsStore.Models;
-using Todo.Client.Models;
-using Windows.UI;
 
 // The Basic Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234237
 

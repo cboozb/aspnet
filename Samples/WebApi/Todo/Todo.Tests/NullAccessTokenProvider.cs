@@ -1,5 +1,5 @@
-﻿using System.Threading.Tasks;
-using Account.Client;
+﻿using Account.Client;
+using System.Threading.Tasks;
 
 namespace Todo.Tests
 {

@@ -1,11 +1,7 @@
 ﻿using Account.Client;
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using WebApi.Client;
-using Windows.Security.Authentication.Web;
 using Windows.Security.Credentials;
 using Windows.UI.ApplicationSettings;
 using Windows.UI.Popups;

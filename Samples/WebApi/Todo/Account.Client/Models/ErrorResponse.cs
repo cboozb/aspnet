@@ -14,15 +14,15 @@ namespace Account.Client
         public string Message { get; set; }
         public Dictionary<string, string[]> ModelState { get { return modelState; } }
 
+        public string[] ErrorMessages { get { return GetErrors(""); } }
+        public bool HasErrors { get { return AllErrors.Length > 0 || Message != null; } }
+
         public string[] GetErrors(string key)
         {
             string[] errors;
             return ModelState.TryGetValue(key, out errors) ? errors : new string[0];
         }
 
-        public string[] ErrorMessages { get { return GetErrors(""); } }
-        public bool HasErrors { get { return AllErrors.Length > 0 || Message != null; } }
-        
         public string[] AllErrors
         {
             get

@@ -1,20 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
+﻿using Account.Client;
 using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using Account.Client;
+using System;
+using System.Collections.Generic;
+using System.Net.Http.Formatting;
+using System.Windows;
+using System.Windows.Navigation;
 using WebApi.Client;
 
 namespace Todo.WindowsPhone
 {
     public partial class RegisterExternalPage : PhoneApplicationPage
     {
-        public const string UserName = "username";
+        public const string Username = "username";
         public const string Provider = "provider";
         public const string ExternalLoginUri = "externalLoginUri";
 
@@ -29,7 +26,7 @@ namespace Todo.WindowsPhone
 
         protected override void OnNavigatedTo(NavigationEventArgs e)
         {
-            this.username = this.NavigationContext.QueryString[UserName];
+            this.username = this.NavigationContext.QueryString[Username];
             this.provider = this.NavigationContext.QueryString[Provider];
             this.externalLoginUri = this.NavigationContext.QueryString[ExternalLoginUri];
 
@@ -78,6 +75,15 @@ namespace Todo.WindowsPhone
         void ClearErrors()
         {
             ErrorList.Items.Clear();
+        }
+
+        public static Uri GetNavigationUri(string provider, string username, string externalLoginUri)
+        {
+            HttpValueCollection httpValues = new HttpValueCollection();
+            httpValues.Add(Provider, provider);
+            httpValues.Add(Username, username);
+            httpValues.Add(ExternalLoginUri, externalLoginUri);
+            return new Uri("/RegisterExternalPage.xaml?" + httpValues.ToString(), UriKind.Relative);
         }
     }
 }

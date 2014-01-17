@@ -1,10 +1,6 @@
-﻿using Microsoft.Owin.Security.Cookies;
-using Microsoft.Owin.Security;
-using Owin;
+﻿using Microsoft.Owin.Security;
+using Microsoft.Owin.Security.Cookies;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 namespace Owin
 {

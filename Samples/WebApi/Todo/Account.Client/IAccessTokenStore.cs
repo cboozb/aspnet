@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace Account.Client
+﻿namespace Account.Client
 {
     public interface IAccessTokenStore
     {

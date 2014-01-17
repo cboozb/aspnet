@@ -9,7 +9,6 @@ using System.Web.Http;
 using Todo.Client;
 using Todo.Client.Models;
 using Todo.Web;
-using Todo.Web.Controllers;
 using WebApi.Client;
 
 namespace Todo.Tests

@@ -1,13 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Navigation;
+﻿using Account.Client;
 using Microsoft.Phone.Controls;
-using Microsoft.Phone.Shell;
-using Account.Client;
+using System;
+using System.Windows;
+using System.Windows.Navigation;
 using WebApi.Client;
 
 namespace Todo.WindowsPhone
@@ -59,10 +54,7 @@ namespace Todo.WindowsPhone
             }
             else
             {
-                string accountDetailsPageUri = "/AccountDetailsPage.xaml"
-                    + "?accountName=" + Uri.EscapeDataString(account.Provider)
-                    + "&username=" + Uri.EscapeDataString(account.ProviderKey);
-                this.NavigationService.Navigate(new Uri(accountDetailsPageUri, UriKind.Relative));
+                this.NavigationService.Navigate(AccountDetailsPage.GetNavigationUri(account));
             }
 
         }
