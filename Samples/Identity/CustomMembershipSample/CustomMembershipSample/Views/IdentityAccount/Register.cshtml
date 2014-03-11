@@ -50,9 +50,34 @@
                 @Html.ValidationMessageFor(m => m.ConfirmPassword)
             </div>
 
+            <div class="editor-label">
+                @Html.LabelFor(m => m.City)
+            </div>
+            <div class="editor-field">
+                @Html.TextBoxFor(m => m.City)
+                @Html.ValidationMessageFor(m => m.City)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(m => m.State)
+            </div>
+            <div class="editor-field">
+                @Html.TextBoxFor(m => m.State)
+                @Html.ValidationMessageFor(m => m.State)
+            </div>
+
+            <div class="editor-label">
+                @Html.LabelFor(m => m.Country)
+            </div>
+            <div class="editor-field">
+                @Html.TextBoxFor(m => m.Country)
+                @Html.ValidationMessageFor(m => m.Country)
+            </div>
+
             <p>
                 <input type="submit" value="Register" />
             </p>
+
         </fieldset>
     </div>
 }

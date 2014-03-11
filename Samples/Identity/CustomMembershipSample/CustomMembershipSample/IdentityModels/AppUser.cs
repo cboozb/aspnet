@@ -9,9 +9,11 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace CustomMembershipSample.IdentityModels
 {
+    // Define user class that extends from Identity
     public class AppUser : IdentityUser<int, AppLogin, AppUserRole, AppClaim>
     {
         public AppUser()
@@ -43,6 +45,7 @@ namespace CustomMembershipSample.IdentityModels
             }
         }
 
+        // Map to existing username 
         public override string UserName
         {
             get
@@ -112,15 +115,18 @@ namespace CustomMembershipSample.IdentityModels
         public string City { get; set; }
         public string State { get; set; }
         public string Country { get; set; }
-        public Nullable<int> UserId { get; set; }
+
+        public int UserId { get; set; }
 
         public virtual AppUser AppUser { get; set; }
     }
 
+    // Custom password hasher class. This is to reuse exisitng hashed credentials
     public class AppPasswordHasher : PasswordHasher
     {
         public AppDbContext DbContext { get; set; }
 
+        // Custom hashing used before migrating to Identity
         public static string GetMD5Hash(string value)
         {
             MD5 md5Hasher = MD5.Create();
@@ -133,6 +139,8 @@ namespace CustomMembershipSample.IdentityModels
             return sBuilder.ToString();
         }
 
+        // Verify if the password is hashed using MD5. If yes, rehash using ASP.NET Identity Crypto which is more secure
+        // this is invoked when old users try to login. Eventually all the old the password are rehashed to a more secure hash
         public override PasswordVerificationResult VerifyHashedPassword(string hashedPassword, string providedPassword)
         {
             if (String.Equals(hashedPassword, GetMD5Hash(providedPassword), StringComparison.InvariantCultureIgnoreCase))
@@ -141,15 +149,20 @@ namespace CustomMembershipSample.IdentityModels
                 return PasswordVerificationResult.Success;
             }
 
-            return base.VerifyHashedPassword(hashedPassword,providedPassword);
+            return base.VerifyHashedPassword(hashedPassword, providedPassword);
         }
 
+        // Rehash password using ASP.NET Identity Crypto
+        // Store it back into database
         private void ReHashPassword(string hashedPassword, string providedPassword)
         {
 
             var user = DbContext.Users.Where(x => x.PasswordHash == hashedPassword).FirstOrDefault();
 
             user.PasswordHash = base.HashPassword(providedPassword);
+
+            // Update SecurityStamp with new Guid to nullify any previous cookies
+            user.SecurityStamp = Guid.NewGuid().ToString();
 
             DbContext.SaveChanges();
         }

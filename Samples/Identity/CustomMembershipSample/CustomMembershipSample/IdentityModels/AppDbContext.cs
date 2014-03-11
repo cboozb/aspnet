@@ -11,6 +11,7 @@ using System.Web;
 
 namespace CustomMembershipSample.IdentityModels
 {
+    // Extend DbContext for Identity to get pre defined mapping and properties
     public class AppDbContext : IdentityDbContext<AppUser, AppRole, int, AppLogin, AppUserRole, AppClaim>
     {
         public static AppDbContext Create()
@@ -24,12 +25,18 @@ namespace CustomMembershipSample.IdentityModels
             Database.Log = (str) => { Debug.WriteLine(str); };
         }
 
+        // Custom mapping for properties. Mapping will be different based on 
+        // existing custom database
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
+            // Map users to existing AppUsers table
             modelBuilder.Entity<AppUser>().ToTable("AppUsers");
 
+            // Ignore columns that are not needed
+            // You might want to include them if you want to use features like
+            // Two factor authentication, email confirmation etc
             var entity = modelBuilder.Entity<AppUser>();
             entity.HasKey(x => x.Id);
             entity.Ignore(x => x.Password);
@@ -42,6 +49,7 @@ namespace CustomMembershipSample.IdentityModels
             entity.Property(x => x.PasswordHash).HasColumnName("Password");
 
             entity.HasMany(u => u.Roles).WithRequired().HasForeignKey(ur => ur.UserId);
+            entity.HasMany(u => u.Addresses).WithRequired(x=>x.AppUser).HasForeignKey(ur => ur.UserId);
         }
 
         public DbSet<Address> Addresses { get; set; }

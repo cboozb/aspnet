@@ -140,11 +140,21 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="App_Start\IdentityConfig.cs" />
+    <Compile Include="App_Start\Startup.Auth.cs" />
     <Compile Include="Controllers\AccountController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\IdentityAccountController.cs" />
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="IdentityModels\AppDbContext.cs" />
+    <Compile Include="IdentityModels\AppUser.cs" />
+    <Compile Include="Migrations\201403112154587_initial.cs" />
+    <Compile Include="Migrations\201403112154587_initial.Designer.cs">
+      <DependentUpon>201403112154587_initial.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\AccountModels.cs" />
     <Compile Include="Models\Address.cs">
       <DependentUpon>AppDbModel.tt</DependentUpon>
@@ -232,6 +242,7 @@
     <Content Include="Content\themes\base\minified\jquery.ui.slider.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.tabs.min.css" />
     <Content Include="Content\themes\base\minified\jquery.ui.theme.min.css" />
+    <Content Include="Create_Missing_Tables.sql" />
     <Content Include="Global.asax" />
     <EntityDeploy Include="Models\AppDbModel.edmx">
       <Generator>EntityModelCodeGenerator</Generator>
@@ -298,6 +309,11 @@
     <Content Include="packages.config">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201403112154587_initial.resx">
+      <DependentUpon>201403112154587_initial.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

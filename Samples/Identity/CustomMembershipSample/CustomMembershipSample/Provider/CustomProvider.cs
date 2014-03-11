@@ -9,6 +9,7 @@ using System.Web.Security;
 
 namespace CustomMembershipSample.Provider
 {
+    // Custom membership provider that works with an existing database to create and manage users
     public class CustomProvider : MembershipProvider
     {
         AppDbEntities entities = new AppDbEntities();
