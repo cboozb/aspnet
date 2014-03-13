@@ -1,8 +1,5 @@
-﻿using System;
-using System.Diagnostics.Contracts;
+﻿using System.Diagnostics.Contracts;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Web.OData;
 using System.Web.OData.Extensions;
 using System.Web.OData.Query;
@@ -14,18 +11,22 @@ namespace ODataUntypedSample.Controllers
 {
     public class ProductsController : ODataController
     {
-        private static IQueryable Products = Enumerable.Range(0, 10).Select(i =>
-            new
+        private static IQueryable<IEdmEntityObject> Products = Enumerable.Range(0, 10).Select(i =>
             {
-                Id = i,
-                Name = "Product " + i,
-                Price = i + 0.01,
-                Category =
-                    new
-                    {
-                        Id = i % 5,
-                        Name = "Category " + (i % 5)
-                    }
+                IEdmEntityType productType = (IEdmEntityType)ODataUntypedSample.Model.FindType("NS.Product");
+                IEdmEntityTypeReference categoryType = (IEdmEntityTypeReference)productType.FindProperty("Category").Type;
+
+                EdmEntityObject product = new EdmEntityObject(productType);
+                product.TrySetPropertyValue("Id", i);
+                product.TrySetPropertyValue("Name", "Product " + i);
+                product.TrySetPropertyValue("Price", i + 0.01);
+
+                EdmEntityObject category = new EdmEntityObject(categoryType);
+                category.TrySetPropertyValue("Id", i % 5);
+                category.TrySetPropertyValue("Name", "Category " + (i % 5));
+                product.TrySetPropertyValue("Category", category);
+
+                return product;
             }).AsQueryable();
 
         public EdmEntityObjectCollection Get()
@@ -44,38 +45,34 @@ namespace ODataUntypedSample.Controllers
 
             // Apply the query option on the IQueryable here.
 
-            return new EdmEntityObjectCollection(
-                new EdmCollectionTypeReference(collectionType),
-                Products.Cast<object>().Select(product => ConvertProductToEdmEntityObject(product, entityType)).ToList());
+            return new EdmEntityObjectCollection(new EdmCollectionTypeReference(collectionType), Products.ToList());
         }
 
         public IEdmEntityObject GetProduct(int key)
         {
-            // Get Edm type from request.
-            ODataPath path = Request.ODataProperties().Path;
-            IEdmType edmType = path.EdmType;
-            Contract.Assert(edmType.TypeKind == EdmTypeKind.Entity);
+            object id;
+            IEdmEntityObject product = Products.Single(p => HasId(p, key));
 
-            Func<dynamic, bool> predict = p => p.Id == key;
-            object product = Products.Cast<object>().Single(p => predict(p));
-
-            return ConvertProductToEdmEntityObject(product, (IEdmEntityType)edmType);
+            return product;
         }
 
         public IEdmEntityObject GetCategoryFromProduct(int key)
         {
-            // Get Edm type from request.
-            ODataPath path = Request.ODataProperties().Path;
-            IEdmType edmType = path.EdmType;
-            Contract.Assert(edmType.TypeKind == EdmTypeKind.Entity);
+            object id;
+            IEdmEntityObject product = Products.Single(p => HasId(p, key));
 
-            Func<dynamic, bool> predict = p => p.Id == key;
-            object category = ((dynamic)Products.Cast<object>().Single(p => predict(p))).Category;
-
-            return ConvertCategoryToEdmEntityObject(category, (IEdmEntityType)edmType);
+            object category;
+            if (product.TryGetPropertyValue("Category", out category))
+            {
+                return (IEdmEntityObject)category;
+            }
+            else
+            {
+                return null;
+            }
         }
 
-        public HttpResponseMessage Post(IEdmEntityObject entity)
+        public IEdmEntityObject Post(IEdmEntityObject entity)
         {
             // Get Edm type from request.
             ODataPath path = Request.ODataProperties().Path;
@@ -86,30 +83,13 @@ namespace ODataUntypedSample.Controllers
 
             // Do something with the entity object here.
 
-            return Request.CreateResponse(HttpStatusCode.Created, entity);
+            return entity;
         }
 
-        private IEdmEntityObject ConvertProductToEdmEntityObject(dynamic product, IEdmEntityType entityType)
+        private bool HasId(IEdmEntityObject product, int key)
         {
-            EdmEntityObject entityObject = new EdmEntityObject(entityType);
-            entityObject.TrySetPropertyValue("Id", product.Id);
-            entityObject.TrySetPropertyValue("Name", product.Name);
-            entityObject.TrySetPropertyValue("Price", product.Price);
-
-            EdmEntityObject category = new EdmEntityObject((IEdmEntityType)entityType.FindProperty("Category").DeclaringType);
-            category.TrySetPropertyValue("Id", product.Category.Id);
-            category.TrySetPropertyValue("Name", product.Category.Name);
-
-            entityObject.TrySetPropertyValue("Category", category);
-            return entityObject;
-        }
-
-        private IEdmEntityObject ConvertCategoryToEdmEntityObject(dynamic category, IEdmEntityType entityType)
-        {
-            EdmEntityObject entityObject = new EdmEntityObject(entityType);
-            entityObject.TrySetPropertyValue("Id", category.Id);
-            entityObject.TrySetPropertyValue("Name", category.Name);
-            return entityObject;
+            object id;
+            return product.TryGetPropertyValue("Id", out id) && (int)id == key;
         }
     }
 }

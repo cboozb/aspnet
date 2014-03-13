@@ -15,6 +15,7 @@ namespace ODataUntypedSample
     {
         private static HttpClient client = new HttpClient();
         private const string ServiceUrl = "http://localhost:12345";
+        public static IEdmModel Model = GetEdmModel();
 
         public static void Main(string[] args)
         {
@@ -32,7 +33,7 @@ namespace ODataUntypedSample
         public static void Configuration(IAppBuilder builder)
         {
             HttpConfiguration configuration = new HttpConfiguration();
-            configuration.Routes.MapODataServiceRoute("odata", "odata", GetEdmModel());
+            configuration.Routes.MapODataServiceRoute("odata", "odata", Model);
             builder.UseWebApi(configuration);
         }
 
