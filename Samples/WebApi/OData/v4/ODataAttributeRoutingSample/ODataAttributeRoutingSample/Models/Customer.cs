@@ -8,6 +8,6 @@ namespace ODataAttributeRoutingSample.Models
 
         public string Name { get; set; }
 
-        public IEnumerable<Order> Orders { get; set; }
+        public IList<Order> Orders { get; set; }
     }
 }

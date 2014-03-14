@@ -21,13 +21,8 @@ namespace ODataAttributeRoutingSample.Controllers
                         Id = i * 10 + j,
                         Price = (j + 1) * 1.11
                     }
-                )
-            });
-
-        public IEnumerable<Customer> Get()
-        {
-            return Customers;
-        }
+                ).ToList()
+            }).ToList();
 
         [ODataRoute("GetCustomersWithNameContaining(ContainedString={str})")]
         public IEnumerable<Customer> GetSpecialCustomers([FromODataUri]string str)
@@ -43,15 +38,31 @@ namespace ODataAttributeRoutingSample.Controllers
             return order;
         }
 
+        [ODataRoute("Customers({customerId})/Orders/$ref")]
+        public Order AddOrderToCustomer(int customerId, [FromBody]Order order)
+        {
+            Customer customer = Customers.Single(c => c.Id == customerId);
+            Order oldOrder = customer.Orders.SingleOrDefault(o => o.Id == order.Id);
+
+            if (oldOrder != null)
+            {
+                customer.Orders.Remove(oldOrder);
+            }
+
+            customer.Orders.Add(order);
+            return order;
+        }
+
         [HttpGet]
         [ODataRoute("Customers({customerId})/Default.DeleteOrderFromCustomer(OrderId={id})")]
         public IEnumerable<Order> DeleteOrder(int customerId, int id)
         {
             Customer customer = Customers.Single(c => c.Id == customerId);
-            customer.Orders = customer.Orders.Where(o => o.Id != id);
+            customer.Orders = customer.Orders.Where(o => o.Id != id).ToList();
             return customer.Orders;
         }
 
+        [HttpGet]
         [ODataRoute("Customers")]
         public IEnumerable<Customer> WhateverName()
         {

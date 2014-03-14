@@ -70,10 +70,13 @@ namespace ODataAttributeRoutingSample
             Console.WriteLine("\n2. Call bound action to update order price.");
             CallBoundActionToUpdateOrderPrice(1, 10, 1.23);
 
-            Console.WriteLine("\n3. Call bound function to delete order from customer and return the rest orders.");
+            Console.WriteLine("\n3. Add an order to the customer.");
+            AddOrderToCustomer(3, 33, 99.99);
+
+            Console.WriteLine("\n4. Call bound function to delete order from customer and return the rest orders.");
             CallBoundFunctionToDeleteOrderFromCustomer(3, 31);
 
-            Console.WriteLine("\n4. Get all customers with attribute routing.");
+            Console.WriteLine("\n5. Get all customers with attribute routing.");
             GetAllCustomersWithAttriubteRouting();
         }
 
@@ -92,6 +95,17 @@ namespace ODataAttributeRoutingSample
                     "/Customers({0})/Orders({1})/Default.UpdateOrderPrice",
                     customerId, orderId),
                 new StringContent(String.Format("{{\"Price\":\"{0}\"}}", price), Encoding.Default, "application/json")).Result;
+
+            PrintResponse(response);
+        }
+
+        public static void AddOrderToCustomer(int customerId, int orderId, double price)
+        {
+            HttpResponseMessage response = client.PostAsync(ServiceUrl +
+                String.Format(
+                    "/Customers({0})/Orders/$ref",
+                    customerId, orderId),
+                new StringContent(String.Format("{{\"Id\":{0},\"Price\":\"{1}\"}}", orderId, price), Encoding.Default, "application/json")).Result;
 
             PrintResponse(response);
         }
