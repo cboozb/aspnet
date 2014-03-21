@@ -84,59 +84,29 @@ namespace PrimaryKeysConfigTest.Models
         
         }
 
-        public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options)
+        public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options, IOwinContext context)
         {
-            var manager = new ApplicationUserManager(new CustomUserStore(options.Context.GetDbContext() as ApplicationDbContext));
+            var manager = new ApplicationUserManager(new CustomUserStore(context.Get<ApplicationDbContext>()));
             //var manager = new ApplicationUserManager(new AzureStore<ApplicationUser>());
             manager.UserValidator = new UserValidator<ApplicationUser,int>(manager)
             {
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
             };
-            manager.PasswordValidator = new MinimumLengthValidator(6);
+            manager.PasswordValidator = new PasswordValidator()
+            {
+                RequiredLength = 6,
+                RequireNonLetterOrDigit = true
+            };
             var dataProtectionProvider = options.DataProtectionProvider;
             if (dataProtectionProvider != null)
             {
-                manager.PasswordResetTokens = new DataProtectorTokenProvider(dataProtectionProvider.Create("PasswordReset"));
-                manager.UserConfirmationTokens = new DataProtectorTokenProvider(dataProtectionProvider.Create("ConfirmUser"));
+                manager.UserTokenProvider = new DataProtectorTokenProvider<ApplicationUser,int>(dataProtectionProvider.Create("PasswordReset"));
             }
             return manager;
         }
     }
 
-    public static class OwinExtensions
-    {
-        public static IAppBuilder UseDbContextFactory(this IAppBuilder app, Func<DbContext> createCallback)
-        {
-            if (app == null)
-            {
-                throw new ArgumentNullException("app");
-            }
-            if (createCallback == null)
-            {
-                throw new ArgumentNullException("createCallback");
-            }
-
-            app.Use(typeof(IdentityFactoryMiddleware<DbContext, IdentityFactoryOptions<DbContext>>),
-                new IdentityFactoryOptions<DbContext>()
-                {
-                    Provider = new IdentityFactoryProvider<DbContext>()
-                    {
-                        OnCreate = (options) => createCallback()
-                    }
-                });
-            return app;
-        }
-
-        public static DbContext GetDbContext(this IOwinContext context)
-        {
-            if (context == null)
-            {
-                throw new ArgumentNullException("context");
-            }
-            return context.Get<DbContext>();
-        }
-    }
 }
 
 #region Helpers

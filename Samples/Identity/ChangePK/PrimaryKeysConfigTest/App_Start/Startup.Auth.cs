@@ -18,17 +18,10 @@ namespace PrimaryKeysConfigTest
         // For more information on configuring authentication, please visit http://go.microsoft.com/fwlink/?LinkId=301883
         public void ConfigureAuth(IAppBuilder app)
         {
-            app.UseDbContextFactory(ApplicationDbContext.Create);
+            app.CreatePerOwinContext<ApplicationDbContext>(ApplicationDbContext.Create);
 
             // Configure the UserManager
-            app.UseUserManagerFactory(new IdentityFactoryOptions<ApplicationUserManager>()
-            {
-                DataProtectionProvider = app.GetDataProtectionProvider(),
-                Provider = new IdentityFactoryProvider<ApplicationUserManager>()
-                {
-                    OnCreate = ApplicationUserManager.Create
-                }
-            });
+            app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
 
             // Enable the application to use a cookie to store information for the signed in user
             // and to use a cookie to temporarily store information about a user logging in with a third party login provider

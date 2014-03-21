@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using Owin;
 using System;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace PrimaryKeysConfigTest.Account
                 // The ideally approach is to send an email link to the user and confirm it. 
                 // THIS FLOW IS FOR DEMO PURPOSES ONLY
 
-                 var code = manager.GetConfirmationToken<ApplicationUser,int>(user.Id);
+                 var code = manager.GenerateEmailConfirmationToken<ApplicationUser,int>(user.Id);
                  Response.Redirect(IdentityHelper.GetUserConfirmationRedirectUrl(code, user.Id.ToString()));
 
                 IdentityHelper.RedirectToReturnUrl(Request.QueryString["ReturnUrl"], Response);

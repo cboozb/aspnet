@@ -1,4 +1,6 @@
 using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
+
 using System;
 using System.Web;
 using System.Web.UI;
@@ -20,7 +22,7 @@ namespace PrimaryKeysConfigTest.Account
                 // Validate the user password
                 var manager = Context.GetOwinContext().GetUserManager<ApplicationUserManager>();
                 ApplicationUser user = manager.FindByName(Email.Text);
-                if (user == null || !manager.IsConfirmed(user.Id))
+                if (user == null || !manager.IsEmailConfirmed<ApplicationUser,int>(user.Id))
                 {
                     FailureText.Text = "The user either does not exist or is not confirmed.";
                     ErrorMessage.Visible = true;
@@ -31,7 +33,7 @@ namespace PrimaryKeysConfigTest.Account
                 // The ideally approach is to send an email link to the user and confirm it. 
                 // THIS FLOW IS FOR DEMO PURPOSES ONLY
 
-                 var code = manager.GetPasswordResetToken<ApplicationUser,int>(user.Id);
+                 var code = manager.GeneratePasswordResetToken<ApplicationUser,int>(user.Id);
                  Response.Redirect(IdentityHelper.GetResetPasswordRedirectUrl(code));
             }
         }

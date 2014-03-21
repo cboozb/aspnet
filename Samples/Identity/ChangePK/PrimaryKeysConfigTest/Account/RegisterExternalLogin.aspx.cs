@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.Owin;
 using Microsoft.Owin.Security;
 using Owin;
 using System;
@@ -106,7 +107,7 @@ namespace PrimaryKeysConfigTest.Account
                     IdentityHelper.SignIn(manager, user, isPersistent: false);
 
                     // To enable account confirmation: see FWLINK:
-                     var code = manager.GetConfirmationToken(user.Id);
+                     var code = manager.GenerateEmailConfirmationToken(user.Id);
                      Response.Redirect(IdentityHelper.GetUserConfirmationRedirectUrl(code, user.Id.ToString()));
 
                     IdentityHelper.RedirectToReturnUrl(Request.QueryString["ReturnUrl"], Response);
