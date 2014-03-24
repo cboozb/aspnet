@@ -45,6 +45,10 @@ namespace CustomMembershipSample.IdentityModels
             entity.Ignore(x => x.PhoneNumber);
             entity.Ignore(x => x.PhoneNumberConfirmed);
             entity.Ignore(x => x.TwoFactorEnabled);
+            entity.Ignore(x => x.LockoutEnabled);
+            entity.Ignore(x => x.LockoutEndDateUtc);
+            entity.Ignore(x => x.AccessFailedCount);
+
             entity.Property(x => x.UserName).HasColumnName("Username");
             entity.Property(x => x.PasswordHash).HasColumnName("Password");
 
