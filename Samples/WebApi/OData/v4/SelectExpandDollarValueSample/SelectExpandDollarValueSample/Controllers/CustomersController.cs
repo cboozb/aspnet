@@ -1,15 +1,11 @@
-﻿using Microsoft.Data.OData;
-using SelectExpandDollarValueSample.Model;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
 using System.Web.Http;
-using System.Web.Http.OData;
+using System.Web.OData;
+using SelectExpandDollarValueSample.Model;
 
 namespace SelectExpandDollarValueSample.Controllers
 {
-    // ODataNullValue handle returning a 404 response instead of a 200 with a null value when the raw value
-    // of a property is null.
-    [ODataNullValue]
     public class CustomersController : ODataController
     {
         ShoppingContext context = new ShoppingContext();
