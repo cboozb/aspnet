@@ -47,6 +47,11 @@ namespace ODataService.Controllers
         [ODataRoute("ProductFamilies")]
         public async Task<IHttpActionResult> CreateProductFamily(ProductFamily productFamily)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             db.ProductFamilies.Add(productFamily);
             await db.SaveChangesAsync();
 
@@ -87,6 +92,11 @@ namespace ODataService.Controllers
         [AcceptVerbs("PATCH")]
         public async Task<IHttpActionResult> Patch(int key, Delta<ProductFamily> productFamily)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var update = await db.ProductFamilies.FindAsync(key);
             if (update == null)
             {
@@ -117,6 +127,11 @@ namespace ODataService.Controllers
         /// </summary>
         public async Task<IHttpActionResult> Put([FromODataUri] int key, ProductFamily family)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (key != family.Id)
             {
                 return BadRequest();
@@ -162,6 +177,11 @@ namespace ODataService.Controllers
         /// </summary>
         public async Task<IHttpActionResult> PostToProducts([FromODataUri] int key, Product product)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var family = await db.ProductFamilies.FindAsync(key);
             if (family == null)
             {
@@ -272,6 +292,11 @@ namespace ODataService.Controllers
         [HttpPost]
         public async Task<IHttpActionResult> CreateProduct([FromODataUri] int key, ODataActionParameters parameters)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             var productFamily = db.ProductFamilies.SingleOrDefault(p => p.Id == key);
             var productName = parameters["Name"].ToString();
 
@@ -287,7 +312,6 @@ namespace ODataService.Controllers
             await db.SaveChangesAsync();
 
             return Ok(product.Id);
-
         }
 
         protected override void Dispose(bool disposing)

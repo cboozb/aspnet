@@ -129,19 +129,13 @@ namespace ODataClient
             Put_Product_link_Family();
             Delete_Product_link_Family();
             
-
             Post_ProductFamily_link_Products();
-            //// The following method fails due to a known issue. I'll revisit this later with more details.
-            // Delete_ProductFamily_link_Products();
+            Delete_ProductFamily_link_Products();
 
             Put_ProductFamily_link_Supplier();
-
-            //// The following method fails. I'll revisit this later with more details.
-            // Invoke_Action();
+            Invoke_Action();
         }
 
-
-        #region Product
         private static void Get_Products()
         {
             var container = new Container();
@@ -203,9 +197,7 @@ namespace ODataClient
             container.SetLink(product, "Family", null);
             container.SaveChanges();
         }
-        #endregion
 
-        #region ProductFamily
         private static void Get_ProductFamilies()
         {
             var container = new Container();
@@ -381,22 +373,16 @@ namespace ODataClient
 
         }
 
-        #endregion
-
-        #region Actions
         private static void Invoke_Action()
         {
             var container = new Container();
             Console.WriteLine("\n\t<< invoke action >>");
-            string uri = container.BaseUri.AbsoluteUri + "ProductFamilies(1)/CreateProduct";
+            string uri = container.BaseUri.AbsoluteUri + "ProductFamilies(1)/ODataService.Models.CreateProduct";
             var results = container.Execute<int>(new Uri(uri), "POST", true, new BodyOperationParameter("Name", "New Product"));
             var result = results.Single();
             Console.WriteLine("\t" + @"action CreateProduct({{ ""Name"": ""New Product"" }}) returned {0}", result);
         }
 
-        #endregion
-
-        #region Misc
         private static void PrintOptions()
         {
             Console.WriteLine("Available commands:");
@@ -424,6 +410,5 @@ namespace ODataClient
         {
             Console.WriteLine("command not recognized, enter '?' for options");
         }
-        #endregion
     }
 }

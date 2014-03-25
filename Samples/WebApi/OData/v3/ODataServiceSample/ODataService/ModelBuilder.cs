@@ -23,7 +23,7 @@ namespace ODataService
             // build the model by convention
             return GetImplicitEdmModel();
             // or build the model by hand
-            //return GetExplicitEdmModel();
+            // return GetExplicitEdmModel();
         }
 
         /// <summary>
@@ -35,6 +35,18 @@ namespace ODataService
             ODataModelBuilder modelBuilder = new ODataModelBuilder();
 
             var products = modelBuilder.EntitySet<Product>("Products");
+
+            products.HasIdLink(
+                entityContext => 
+                    {
+                        object id;
+                        entityContext.EdmObject.TryGetPropertyValue("ID", out id);
+                        return entityContext.Url.ODataLink(
+                            new EntitySetPathSegment(entityContext.EntitySet.Name),
+                            new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V3)));
+                    },
+                followsConventions: true);
+
             products.HasEditLink(
                 entityContext => 
                     {
@@ -47,6 +59,18 @@ namespace ODataService
                 followsConventions: true);
 
             var suppliers = modelBuilder.EntitySet<Supplier>("Suppliers");
+
+            suppliers.HasIdLink(
+                entityContext =>
+                {
+                    object id;
+                    entityContext.EdmObject.TryGetPropertyValue("ID", out id);
+                    return entityContext.Url.ODataLink(
+                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V3)));
+                },
+                followsConventions: true);
+
             suppliers.HasEditLink(
                 entityContext =>
                 {
@@ -59,6 +83,18 @@ namespace ODataService
                 followsConventions: true);
 
             var families = modelBuilder.EntitySet<ProductFamily>("ProductFamilies");
+
+            families.HasIdLink(
+                entityContext =>
+                {
+                    object id;
+                    entityContext.EdmObject.TryGetPropertyValue("ID", out id);
+                    return entityContext.Url.ODataLink(
+                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V3)));
+                },
+                followsConventions: true);
+
             families.HasEditLink(
                 entityContext =>
                 {
@@ -142,7 +178,7 @@ namespace ODataService
                     },
                 followsConventions: true);
 
-            ActionConfiguration createProduct = product.Action("CreateProduct");
+            ActionConfiguration createProduct = productFamily.Action("CreateProduct");
             createProduct.Parameter<string>("Name");
             createProduct.Returns<int>();
 

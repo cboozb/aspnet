@@ -60,10 +60,16 @@ namespace ODataService.Controllers
         /// </summary>
         public async Task<IHttpActionResult> Put([FromODataUri] int key, Product update)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             if (key != update.Id)
             {
                 return BadRequest();
             }
+
             db.Entry(update).State = EntityState.Modified;
             try
             {
@@ -89,6 +95,11 @@ namespace ODataService.Controllers
         /// </summary>
         public async Task<IHttpActionResult> Post(Product product)
         {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
             db.Products.Add(product);
             await db.SaveChangesAsync();
 
@@ -210,7 +221,7 @@ namespace ODataService.Controllers
                 default:
                     return Content(HttpStatusCode.NotImplemented, ODataErrors.CreatingLinkNotSupported(navigationProperty));
             }
-            db.SaveChanges();
+            await db.SaveChangesAsync();
             return StatusCode(HttpStatusCode.NoContent);
         }
 
@@ -223,7 +234,8 @@ namespace ODataService.Controllers
         /// <returns>The related ProductFamily</returns>
         public async Task<IHttpActionResult> GetFamily([FromODataUri] int key)
         {
-            return Ok(await db.Products.Where(p => p.Id == key).Select(p => p.Family).SingleOrDefaultAsync());
+            var family = await db.Products.Where(p => p.Id == key).Select(p => p.Family).SingleOrDefaultAsync();
+            return Ok(family);
         }
 
         protected override void Dispose(bool disposing)

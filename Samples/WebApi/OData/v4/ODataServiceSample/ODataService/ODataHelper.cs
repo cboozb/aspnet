@@ -15,39 +15,8 @@ namespace ODataService
     public static class ODataHelper
     {
         /// <summary>
-        /// Helper method to get the odata path for an arbitrary odata uri.
-        /// </summary>
-        /// <param name="request">The request instance in current context</param>
-        /// <param name="uri">OData uri</param>
-        /// <returns>The parsed odata path</returns>
-        public static ODataPath CreateODataPath(this HttpRequestMessage request, Uri uri)
-        {
-            if (uri == null)
-            {
-                throw new ArgumentNullException("uri");
-            }
-
-            var newRequest = new HttpRequestMessage(HttpMethod.Get, uri);
-            var route = request.GetRouteData().Route;
-
-            var newRoute = new HttpRoute(
-                route.RouteTemplate,
-                new HttpRouteValueDictionary(route.Defaults),
-                new HttpRouteValueDictionary(route.Constraints),
-                new HttpRouteValueDictionary(route.DataTokens),
-                route.Handler);
-            var routeData = newRoute.GetRouteData(request.GetConfiguration().VirtualPathRoot, newRequest);
-            if (routeData == null)
-            {
-                throw new InvalidOperationException("The link is not a valid odata link.");
-            }
-
-            return newRequest.ODataProperties().Path;
-        }
-
-        /// <summary>
         /// Helper method to get the key value from a uri.
-        /// Usually used by $link action to extract the key value from the url in body.
+        /// Usually used by $ref action to extract the key value from the url in body.
         /// </summary>
         /// <typeparam name="TKey">The type of the key</typeparam>
         /// <param name="request">The request instance in current context</param>
@@ -61,7 +30,8 @@ namespace ODataService
             }
 
             //get the odata path Ex: ~/entityset/key/navigation/$ref
-            var odataPath = request.CreateODataPath(uri);
+            var odataPath = request.ODataProperties().PathHandler.Parse(request.ODataProperties().Model, uri.LocalPath);
+
             var keySegment = odataPath.Segments.OfType<KeyValuePathSegment>().FirstOrDefault();
             if (keySegment == null)
             {

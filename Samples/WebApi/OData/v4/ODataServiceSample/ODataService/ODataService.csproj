@@ -75,7 +75,6 @@
   <ItemGroup>
     <Compile Include="Controllers\SupplierController.cs" />
     <Compile Include="Controllers\ProductFamiliesController.cs" />
-    <Compile Include="Extensions\ModelValidationFilterAttribute.cs" />
     <Compile Include="ModelBuilder.cs" />
     <Compile Include="Controllers\ProductsController.cs" />
     <Compile Include="Models\Address.cs" />
