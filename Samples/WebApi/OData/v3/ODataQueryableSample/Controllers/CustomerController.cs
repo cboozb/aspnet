@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Web.Http;
+using System.Web.Http.OData;
 using System.Web.Http.OData.Query;
 using ODataQueryableSample.Models;
 
@@ -9,9 +8,9 @@ namespace ODataQueryableSample.Controllers
 {
     /// <summary>
     /// This sample customer controller demonstrates how to create an action which supports
-    /// OData style queries using the [Queryable] attribute.
+    /// OData style queries using the [EnableQuery] attribute.
     /// </summary>
-    public class CustomerController : ApiController
+    public class CustomerController : ODataController
     {
         private static List<Customer> CustomerList = new List<Customer>
         {  
@@ -34,8 +33,7 @@ namespace ODataQueryableSample.Controllers
             new Customer { Id = 22, Name = "Middle", BirthTime = new DateTime(2003, 3, 3) }, 
             new Customer { Id = 3, Name = "NewLow", BirthTime = new DateTime(2004, 4, 4) },
         };
-
-        [Queryable(AllowedArithmeticOperators=AllowedArithmeticOperators.Add)]
+        [EnableQuery(AllowedArithmeticOperators = AllowedArithmeticOperators.Add)]
         public IEnumerable<Customer> Get()
         {
             return CustomerList;

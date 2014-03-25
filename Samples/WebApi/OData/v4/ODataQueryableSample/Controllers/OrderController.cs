@@ -1,11 +1,11 @@
-﻿using Microsoft.Data.OData;
-using Microsoft.Data.OData.Query.SemanticAst;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Web.Http.OData;
-using System.Web.Http.OData.Query;
-using System.Web.Http.OData.Query.Validators;
+using System.Web.OData;
+using System.Web.OData.Query;
+using System.Web.OData.Query.Validators;
+using Microsoft.OData.Core;
 using ODataQueryableSample.Models;
+using Microsoft.OData.Core.UriParser.Semantic;
 
 namespace ODataQueryableSample.Controllers
 {

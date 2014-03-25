@@ -1,7 +1,6 @@
 ﻿using Microsoft.Owin.Hosting;
 using System;
 using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace ODataQueryableSample
 {
@@ -168,7 +167,7 @@ namespace ODataQueryableSample
             Console.WriteLine("\nExpand the orders of a customer: " + response.Content.ReadAsStringAsync().Result);
 
             // select and expand combined
-            response = client.GetAsync("/odata/customer/?$expand=Orders&$select=Name,Orders/Name,Orders/Quantity").Result;
+            response = client.GetAsync("/odata/customer/?$select=Name&$expand=Orders($select=Name,Quantity)").Result;
             response.EnsureSuccessStatusCode();
             Console.WriteLine("\nSelect and expand combined: " + response.Content.ReadAsStringAsync().Result);
         }
