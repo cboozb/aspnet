@@ -1,8 +1,8 @@
 ﻿using System.Web.Http;
-using System.Web.Http.OData.Builder;
-using System.Web.Http.OData.Extensions;
-using System.Web.Http.OData.Routing;
-using System.Web.Http.OData.Routing.Conventions;
+using System.Web.OData.Builder;
+using System.Web.OData.Extensions;
+using System.Web.OData.Routing;
+using System.Web.OData.Routing.Conventions;
 using ODataCompositeKeySample.Models;
 using ODataCompositeKeySample.Extensions;
 
@@ -25,7 +25,7 @@ namespace ODataCompositeKeySample
             var conventions = ODataRoutingConventions.CreateDefault();
             conventions.Insert(0, new CompositeKeyRoutingConvention());
 
-            config.Routes.MapODataRoute(
+            config.Routes.MapODataServiceRoute(
                 routeName: "OData",
                 routePrefix: null,
                 model: mb.GetEdmModel(),

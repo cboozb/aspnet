@@ -4,12 +4,13 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Http.OData;
-using System.Web.Http.OData.Extensions;
-using System.Web.Http.OData.Routing;
-using Microsoft.Data.OData.Query;
+using System.Web.OData;
+using System.Web.OData.Extensions;
+using System.Web.OData.Routing;
+using Microsoft.OData.Core.UriParser;
 using ODataCompositeKeySample.Extensions;
 using ODataCompositeKeySample.Models;
+using Microsoft.OData.Core;
 
 namespace ODataCompositeKeySample.Controllers
 {
@@ -70,8 +71,8 @@ namespace ODataCompositeKeySample.Controllers
             var path = Request.ODataProperties().Path;
             string key = string.Format(
                 "{0}={1},{2}={3}",
-                "FirstName", ODataUriUtils.ConvertToUriLiteral(person.FirstName, Microsoft.Data.OData.ODataVersion.V3),
-                "LastName", ODataUriUtils.ConvertToUriLiteral(person.LastName, Microsoft.Data.OData.ODataVersion.V3));
+                "FirstName", ODataUriUtils.ConvertToUriLiteral(person.FirstName, ODataVersion.V4),
+                "LastName", ODataUriUtils.ConvertToUriLiteral(person.LastName, ODataVersion.V4));
 
             response.Headers.Location = new Uri(
                 Url.CreateODataLink(
