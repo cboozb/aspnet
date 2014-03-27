@@ -18,21 +18,21 @@ namespace ODataPagingSample.Controllers
     {
         private MoviesDb db = new MoviesDb();
 
-        // GET: odata/Movies1
-        [Queryable(PageSize = 10)]
+        // GET: odata/Movies
+        [EnableQuery(PageSize = 10)]
         public IQueryable<Movie> GetMovies()
         {
             return db.Movies;
         }
 
-        // GET: odata/Movies1(5)
-        [Queryable]
+        // GET: odata/Movies(5)
+        [EnableQuery]
         public SingleResult<Movie> GetMovie([FromODataUri] int key)
         {
             return SingleResult.Create(db.Movies.Where(movie => movie.ID == key));
         }
 
-        // PUT: odata/Movies1(5)
+        // PUT: odata/Movies(5)
         public IHttpActionResult Put([FromODataUri] int key, Movie movie)
         {
             if (!ModelState.IsValid)
@@ -66,7 +66,7 @@ namespace ODataPagingSample.Controllers
             return Updated(movie);
         }
 
-        // POST: odata/Movies1
+        // POST: odata/Movies
         public IHttpActionResult Post(Movie movie)
         {
             if (!ModelState.IsValid)
@@ -80,7 +80,7 @@ namespace ODataPagingSample.Controllers
             return Created(movie);
         }
 
-        // PATCH: odata/Movies1(5)
+        // PATCH: odata/Movies(5)
         [AcceptVerbs("PATCH", "MERGE")]
         public IHttpActionResult Patch([FromODataUri] int key, Delta<Movie> patch)
         {
@@ -116,7 +116,7 @@ namespace ODataPagingSample.Controllers
             return Updated(movie);
         }
 
-        // DELETE: odata/Movies1(5)
+        // DELETE: odata/Movies(5)
         public IHttpActionResult Delete([FromODataUri] int key)
         {
             Movie movie = db.Movies.Find(key);
