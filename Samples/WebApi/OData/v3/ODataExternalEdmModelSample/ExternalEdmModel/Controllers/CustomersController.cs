@@ -10,7 +10,7 @@ namespace ExternalEdmModel.Controllers
     {
         CustomersContext context = new CustomersContext();
 
-        [Queryable(PageSize = 5)]
+        [EnableQuery(PageSize = 5)]
         public async Task<IHttpActionResult> Get()
         {
             return Ok(context.Customers);
