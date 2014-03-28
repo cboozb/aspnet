@@ -8,7 +8,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Http.OData;
+using System.Web.OData;
 using System.Data.Entity;
 using ODataVersioningSample.V2.Models;
 using ODataVersioningSample.Extensions;

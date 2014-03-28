@@ -9,7 +9,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
-using System.Web.Http.OData;
+using System.Web.OData;
 using ODataVersioningSample.V2.Models;
 
 namespace ODataVersioningSample.V1.Controller

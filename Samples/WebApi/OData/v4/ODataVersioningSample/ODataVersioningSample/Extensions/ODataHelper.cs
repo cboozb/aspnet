@@ -4,11 +4,12 @@ using System.Net.Http;
 using System.Text;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
-using System.Web.Http.OData;
-using System.Web.Http.OData.Extensions;
-using System.Web.Http.OData.Routing;
+using System.Web.OData;
+using System.Web.OData.Extensions;
+using System.Web.OData.Routing;
 using System.Web.Http.Routing;
-using Microsoft.Data.OData.Query;
+using Microsoft.OData.Core;
+using Microsoft.OData.Core.UriParser;
 
 namespace ODataVersioningSample.Extensions
 {
@@ -71,7 +72,7 @@ namespace ODataVersioningSample.Extensions
                 throw new InvalidOperationException("The link does not contain a key.");
             }
 
-            var value = ODataUriUtils.ConvertFromUriLiteral(keySegment.Value, Microsoft.Data.OData.ODataVersion.V3);
+            var value = ODataUriUtils.ConvertFromUriLiteral(keySegment.Value, ODataVersion.V4);
             return (TKey)value;
         }
 

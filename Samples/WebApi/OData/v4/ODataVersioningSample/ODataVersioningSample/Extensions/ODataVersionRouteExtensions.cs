@@ -1,8 +1,8 @@
-﻿using Microsoft.Data.Edm;
+﻿using Microsoft.OData.Edm;
 using ODataVersioningSample.Extensions;
 using System.Collections.Generic;
-using System.Web.Http.OData.Routing;
-using System.Web.Http.OData.Routing.Conventions;
+using System.Web.OData.Routing;
+using System.Web.OData.Routing.Conventions;
 using System.Web.Http.Routing;
 
 namespace System.Web.Http

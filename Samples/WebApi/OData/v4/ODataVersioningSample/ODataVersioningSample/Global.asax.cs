@@ -1,9 +1,9 @@
-﻿using System.Web.Http.OData.Extensions;
-using Microsoft.Data.Edm;
+﻿using Microsoft.OData.Edm;
 using ODataVersioningSample.Extensions;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
-using System.Web.Http.OData.Builder;
+using System.Web.OData.Builder;
+using System.Web.OData.Extensions;
 
 namespace ODataVersioningSample
 {
