@@ -16,13 +16,7 @@ namespace SingleSignOutSample
         // Configure the UserManager
         public void ConfigureAuth(IAppBuilder app)
         {
-            app.UseUserManagerFactory(new IdentityFactoryOptions<ApplicationUserManager>
-            {
-                DataProtectionProvider = app.GetDataProtectionProvider(),
-                Provider = new IdentityFactoryProvider<ApplicationUserManager> {
-                    OnCreate = ApplicationUserManager.Create
-                }
-            });
+            app.CreatePerOwinContext<ApplicationUserManager>(ApplicationUserManager.Create);
 
             // Enable the application to use a cookie to store information for the signed in user
             app.UseCookieAuthentication(new CookieAuthenticationOptions
