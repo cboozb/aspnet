@@ -288,7 +288,6 @@ namespace ODataService.Controllers
         /// </summary>
         /// <param name="key">Bound key</param>
         /// <param name="parameters"></param>
-        /// <returns></returns>
         [HttpPost]
         public async Task<IHttpActionResult> CreateProduct([FromODataUri] int key, ODataActionParameters parameters)
         {

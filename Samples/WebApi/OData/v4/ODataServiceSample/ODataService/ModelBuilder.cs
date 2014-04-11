@@ -18,7 +18,6 @@ namespace ODataService
         /// <summary>
         /// Get the EdmModel
         /// </summary>
-        /// <returns></returns>
         public static IEdmModel GetEdmModel()
         {
             // build the model by convention
@@ -49,7 +48,6 @@ namespace ODataService
         /// <summary>
         /// Generates a model explicitly.
         /// </summary>
-        /// <returns></returns>
         static IEdmModel GetExplicitEdmModel()
         {
             ODataModelBuilder modelBuilder = new ODataModelBuilder();
