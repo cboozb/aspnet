@@ -1,11 +1,10 @@
-﻿using System.Web.Http.Metadata;
-using Microsoft.OData.Core;
-using Microsoft.OData.Core.UriParser;
-using Microsoft.OData.Edm;
-using System;
+﻿using System;
 using System.Web.OData.Builder;
 using System.Web.OData.Extensions;
 using System.Web.OData.Routing;
+using Microsoft.OData.Core;
+using Microsoft.OData.Core.UriParser;
+using Microsoft.OData.Edm;
 using ODataService.Models;
 
 namespace ODataService
