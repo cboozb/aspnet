@@ -24,8 +24,8 @@ namespace ODataSxSServiceV2
                 pathHandler: new DefaultODataPathHandler(),
                 routingConventions: conventions);
 
-            var contraint = new ODataVersionRouteConstraint(new { v = "2" });
-            odataRoute.Constraints.Add("VersionContraintV2", contraint);
+            var constraint = new ODataVersionRouteConstraint(new { v = "2" });
+            odataRoute.Constraints.Add("VersionConstraintV2", contraint);
 
             odataRoute.MapODataRouteAttributes(config);
         }
