@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.21005.1
+VisualStudioVersion = 12.0.30110.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ODataBatchSample", "ODataBatchSample\ODataBatchSample.csproj", "{407AE80D-44C2-4116-9B93-07BE8166C236}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ODataBatchSample.Server", "ODataBatchSample\ODataBatchSample.Server.csproj", "{407AE80D-44C2-4116-9B93-07BE8166C236}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ODataBatchSample.Client", "ODataBatchSample.Client\ODataBatchSample.Client.csproj", "{C362E338-DD57-4824-90CB-237948F8D03A}"
 EndProject
