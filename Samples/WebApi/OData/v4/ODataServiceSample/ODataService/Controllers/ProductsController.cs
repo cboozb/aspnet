@@ -50,7 +50,7 @@ namespace ODataService.Controllers
         /// <param name="key">The key of the Product required</param>
         /// <returns>The Product</returns>
         [EnableQuery]
-        public SingleResult Get([FromODataUri] int key)
+        public SingleResult<Product> Get([FromODataUri] int key)
         {
             return SingleResult.Create(db.Products.Where(p => p.Id == key));
         }
