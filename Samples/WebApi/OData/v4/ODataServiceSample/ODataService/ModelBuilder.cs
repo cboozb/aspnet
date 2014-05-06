@@ -59,7 +59,7 @@ namespace ODataService
                     object id;
                     entityContext.EdmObject.TryGetPropertyValue("Id", out id);
                     return entityContext.Url.CreateODataLink(
-                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new EntitySetPathSegment(entityContext.NavigationSource.Name),
                         new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)));
                 },
                 followsConventions: true);
@@ -70,7 +70,7 @@ namespace ODataService
                     object id;
                     entityContext.EdmObject.TryGetPropertyValue("Id", out id);
                     return entityContext.Url.CreateODataLink(
-                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new EntitySetPathSegment(entityContext.NavigationSource.Name),
                         new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)));
                 },
                 followsConventions: true);
@@ -83,7 +83,7 @@ namespace ODataService
                     object id;
                     entityContext.EdmObject.TryGetPropertyValue("Id", out id);
                     return entityContext.Url.CreateODataLink(
-                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new EntitySetPathSegment(entityContext.NavigationSource.Name),
                         new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)));
                 },
                 followsConventions: true);
@@ -94,7 +94,7 @@ namespace ODataService
                     object id;
                     entityContext.EdmObject.TryGetPropertyValue("Id", out id);
                     return entityContext.Url.CreateODataLink(
-                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new EntitySetPathSegment(entityContext.NavigationSource.Name),
                         new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)));
                 },
                 followsConventions: true);
@@ -107,7 +107,7 @@ namespace ODataService
                     object id;
                     entityContext.EdmObject.TryGetPropertyValue("Id", out id);
                     return entityContext.Url.CreateODataLink(
-                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new EntitySetPathSegment(entityContext.NavigationSource.Name),
                         new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)));
                 },
                 followsConventions: true);
@@ -118,7 +118,7 @@ namespace ODataService
                     object id;
                     entityContext.EdmObject.TryGetPropertyValue("Id", out id);
                     return entityContext.Url.CreateODataLink(
-                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new EntitySetPathSegment(entityContext.NavigationSource.Name),
                         new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)));
                 },
                 followsConventions: true);
@@ -163,7 +163,7 @@ namespace ODataService
                     object id;
                     entityContext.EdmObject.TryGetPropertyValue("Id", out id);
                     return new Uri(entityContext.Url.CreateODataLink(
-                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new EntitySetPathSegment(entityContext.NavigationSource.Name),
                         new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)),
                         new NavigationPathSegment(navigationProperty.Name)));
                 },
@@ -176,7 +176,7 @@ namespace ODataService
                     object id;
                     entityContext.EdmObject.TryGetPropertyValue("Id", out id);
                     return new Uri(entityContext.Url.CreateODataLink(
-                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new EntitySetPathSegment(entityContext.NavigationSource.Name),
                         new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)),
                         new NavigationPathSegment(navigationProperty.Name)));
                 },
@@ -189,7 +189,7 @@ namespace ODataService
                     object id;
                     entityContext.EdmObject.TryGetPropertyValue("Id", out id);
                     return new Uri(entityContext.Url.CreateODataLink(
-                        new EntitySetPathSegment(entityContext.EntitySet.Name),
+                        new EntitySetPathSegment(entityContext.NavigationSource.Name),
                         new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)),
                         new NavigationPathSegment(navigationProperty.Name)));
                 },
