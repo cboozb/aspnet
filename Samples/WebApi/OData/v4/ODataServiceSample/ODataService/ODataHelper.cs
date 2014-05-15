@@ -1,6 +1,7 @@
 ﻿using Microsoft.OData.Core;
 using Microsoft.OData.Core.UriParser;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
 using System.Web.Http.Routing;
@@ -30,7 +31,8 @@ namespace ODataService
             }
 
             //get the odata path Ex: ~/entityset/key/navigation/$ref
-            var odataPath = request.ODataProperties().PathHandler.Parse(request.ODataProperties().Model, uri.LocalPath);
+            var serviceRoot = GetServiceRoot(request);
+            var odataPath = request.ODataProperties().PathHandler.Parse(request.ODataProperties().Model, serviceRoot, uri.LocalPath);
 
             var keySegment = odataPath.Segments.OfType<KeyValuePathSegment>().FirstOrDefault();
             if (keySegment == null)
@@ -40,6 +42,12 @@ namespace ODataService
 
             var value = ODataUriUtils.ConvertFromUriLiteral(keySegment.Value, ODataVersion.V4);
             return (TKey)value;
+        }
+
+        private static string GetServiceRoot(HttpRequestMessage request)
+        {
+            var urlHelper = request.GetUrlHelper() ?? new UrlHelper(request);
+            return urlHelper.CreateODataLink(request.ODataProperties().RouteName, request.ODataProperties().PathHandler, new List<ODataPathSegment>());
         }
     }
 }
