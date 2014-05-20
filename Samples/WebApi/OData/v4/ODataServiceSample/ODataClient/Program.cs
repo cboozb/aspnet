@@ -1,8 +1,6 @@
 ﻿using Microsoft.OData.Client;
 using System;
 using System.Linq;
-using ODataClient.Default;
-using ODataClient.ODataService.Models;
 
 namespace ODataClient
 {

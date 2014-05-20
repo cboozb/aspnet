@@ -31,11 +31,10 @@ namespace ODataService.SelfHost
 
             // Enables OData support by adding an OData route and enabling querying support for OData.
             // Action selector and odata media type formatters will be registered in per-controller configuration only
-            config.Routes.MapODataServiceRoute(
+            config.MapODataServiceRoute(
                 routeName: "OData",
                 routePrefix: null,
-                model: ModelBuilder.GetEdmModel())
-                .MapODataRouteAttributes(config);
+                model: ModelBuilder.GetEdmModel());
 
             appBuilder.UseWebApi(config);
             

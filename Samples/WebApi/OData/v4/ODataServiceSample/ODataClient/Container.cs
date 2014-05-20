@@ -4,7 +4,7 @@ using Microsoft.OData.Edm.Csdl;
 using System;
 using System.Xml;
 
-namespace ODataClient.Default
+namespace ODataClient
 {
     /// <summary>
     /// Create an override for the generated Container (i.e. container) for the ODataService.Sample

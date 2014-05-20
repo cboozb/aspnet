@@ -117,9 +117,10 @@ namespace ODataService
                 {
                     object id;
                     entityContext.EdmObject.TryGetPropertyValue("Id", out id);
-                    return entityContext.Url.CreateODataLink(
-                        new EntitySetPathSegment(entityContext.NavigationSource.Name),
-                        new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)));
+                    return new Uri(entityContext.Url.CreateODataLink(
+                                    new EntitySetPathSegment(entityContext.NavigationSource.Name),
+                                    new KeyValuePathSegment(ODataUriUtils.ConvertToUriLiteral(id, ODataVersion.V4)))
+                                    );
                 },
                 followsConventions: true);
 
