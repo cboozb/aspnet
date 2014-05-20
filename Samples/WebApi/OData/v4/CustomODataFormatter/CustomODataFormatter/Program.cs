@@ -41,7 +41,7 @@ namespace CustomODataFormatter
         {
             // Configure Web API for self-host. 
             HttpConfiguration config = new HttpConfiguration();
-            config.Routes.MapODataServiceRoute("odata", "odata", GetEdmModel());
+            config.MapODataServiceRoute("odata", "odata", GetEdmModel());
 
             // create the formatters with the custom serializer provider and use them in the configuration.
             var odataFormatters = ODataMediaTypeFormatters.Create(new CustomODataSerializerProvider(), new DefaultODataDeserializerProvider());
