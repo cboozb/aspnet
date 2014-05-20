@@ -155,7 +155,7 @@ namespace ODataClient
             }
 
             Console.WriteLine("\n\tGet products with name starting with 'Microsoft Office'");
-            foreach (var product in container.Products.Where(p => p.Name.StartsWith("Microsfot Office")))
+            foreach (var product in container.Products.Where(p => p.Name.StartsWith("Microsoft Office")))
             {
                 Console.WriteLine("\t{0}-{1}", product.Id, product.Name);
             }
@@ -305,7 +305,7 @@ namespace ODataClient
         {
             var container = new Container();
             Console.WriteLine("\n\t<< delete productfamily..products >>");
-            var product = container.Products.OrderBy(p => p.Id).First(); // OrderBy need to avoid Take throw.
+            var product = container.Products.OrderBy(p => p.Id).First(); 
             var family = container.ProductFamilies.OrderBy(pf => pf.Id).First();
 
             Console.WriteLine("\tUnassociating \n\tProduct: Id={0}, Name={1} \n\tTo\n\tProudctFamily: Id={2}, Name={3}",
