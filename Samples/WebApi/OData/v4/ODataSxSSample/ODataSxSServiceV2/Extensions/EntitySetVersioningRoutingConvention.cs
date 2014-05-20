@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using System.Web.OData.Routing;
 using System.Web.OData.Routing.Conventions;
 
 namespace ODataSxSServiceV2.Extensions
@@ -16,7 +17,7 @@ namespace ODataSxSServiceV2.Extensions
 
         public string SelectAction(System.Web.OData.Routing.ODataPath odataPath, System.Web.Http.Controllers.HttpControllerContext controllerContext, ILookup<string, System.Web.Http.Controllers.HttpActionDescriptor> actionMap)
         {
-            return _entitySetRoutingConvention.SelectAction(odataPath, controllerContext, actionMap);
+            return (string) null;
         }
 
         /// <summary>

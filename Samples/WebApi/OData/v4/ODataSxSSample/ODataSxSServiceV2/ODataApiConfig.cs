@@ -14,20 +14,19 @@ namespace ODataSxSServiceV2
         {
             Database.SetInitializer(new DatabaseInitialize());
 
-            var conventions = ODataRoutingConventions.CreateDefault();
-            conventions.Insert(0, new EntitySetVersioningRoutingConvention("V2"));
+            var model = ModelBuilder.GetEdmModel();
+            var conventions = ODataRoutingConventions.CreateDefaultWithAttributeRouting(config, model);
+            conventions.Add(new EntitySetVersioningRoutingConvention("V2"));
 
-            var odataRoute = config.Routes.MapODataServiceRoute(
+            var odataRoute = config.MapODataServiceRoute(
                 routeName: "odataV2",
                 routePrefix: "odata",
-                model: ModelBuilder.GetEdmModel(),
+                model: model,
                 pathHandler: new DefaultODataPathHandler(),
                 routingConventions: conventions);
 
             var constraint = new ODataVersionRouteConstraint(new { v = "2" });
-            odataRoute.Constraints.Add("VersionConstraintV2", contraint);
-
-            odataRoute.MapODataRouteAttributes(config);
+            odataRoute.Constraints.Add("VersionConstraintV2", constraint);
         }
     }
 }
