@@ -5,8 +5,8 @@ This sample shows how to introduce OData queries in ASP.NET Web API using either
 or by using the ODataQueryOptions action parameter which allows the action to manually inspect the query
 before it is being executed. 
 
-The CustomerController shows using [EnableQuery] attribute and the OrderController shows how to use the 
-ODataQueryOptions parameter. The ResponseController is similar to the CustomerController but instead 
+The CustomersController shows using [EnableQuery] attribute and the OrdersController shows how to use the 
+ODataQueryOptions parameter. The ResponseController is similar to the CustomersController but instead 
 of the GET action returning IEnumerable<Customer> it returns an HttpResponseMessage. This allows us 
 to add extra header fields, manipulate the status code, etc. while still using query functionality.
 

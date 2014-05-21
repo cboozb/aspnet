@@ -33,6 +33,7 @@ namespace ODataQueryableSample.Controllers
             new Customer { Id = 22, Name = "Middle", BirthTime = new DateTime(2003, 3, 3) }, 
             new Customer { Id = 3, Name = "NewLow", BirthTime = new DateTime(2004, 4, 4) },
         };
+
         [EnableQuery(AllowedArithmeticOperators = AllowedArithmeticOperators.Add)]
         public IEnumerable<Customer> Get()
         {

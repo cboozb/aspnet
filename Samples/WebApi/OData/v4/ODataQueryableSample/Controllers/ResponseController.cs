@@ -15,7 +15,7 @@ namespace ODataQueryableSample.Controllers
     /// This sample customer controller demonstrates how to create an action which supports
     /// OData style queries using the [EnableQuery] attribute. The difference in this controller
     /// is that we return an HttpResponseMessage instead of <see cref="IEnumerable{T}"/> as is 
-    /// the case in the <see cref="CustomerController"/>. This allows up to add extra header
+    /// the case in the <see cref="CustomersController"/>. This allows up to add extra header
     /// fields, manipulate the status code, etc.
     /// </summary>
     public class ResponseController : ODataController
@@ -54,7 +54,7 @@ namespace ODataQueryableSample.Controllers
         }
 
         [HttpDelete]
-        [ODataRoute("response({key})/Orders({relatedKey})/$ref")]
+        [ODataRoute("Response({key})/Orders({relatedKey})/$ref")]
         public HttpResponseMessage DeleteOrdersFromCustomer(int key, int relatedKey)
         {
             var customer = CustomerList.Single(c => c.Id == key);

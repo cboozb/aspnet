@@ -13,7 +13,6 @@ namespace ODataQueryableSample
         {
             // Set up server configuration
             var config = new HttpConfiguration();
-            config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
             config.MapODataServiceRoute(routeName: "OData", routePrefix: "odata", model: GetEdmModel());
             appBuilder.UseWebApi(config);
         }
@@ -21,9 +20,9 @@ namespace ODataQueryableSample
         private IEdmModel GetEdmModel()
         {
             var modelBuilder = new ODataConventionModelBuilder();
-            modelBuilder.EntitySet<Customer>("customer");
-            modelBuilder.EntitySet<Order>("order");
-            modelBuilder.EntitySet<Customer>("response");
+            modelBuilder.EntitySet<Customer>("Customers");
+            modelBuilder.EntitySet<Order>("Orders");
+            modelBuilder.EntitySet<Customer>("Response");
             return modelBuilder.GetEdmModel();
         }
     }

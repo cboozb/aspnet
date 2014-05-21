@@ -14,7 +14,7 @@ namespace ODataQueryableSample.Controllers
     /// This sample customer controller demonstrates how to create an action which supports
     /// OData style queries using the [EnableQuery] attribute.
     /// </summary>
-    public class CustomerController : ODataController
+    public class CustomersController : ODataController
     {
         private static List<Customer> CustomerList = new List<Customer>
         {  
