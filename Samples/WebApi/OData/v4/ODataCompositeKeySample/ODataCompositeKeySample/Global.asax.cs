@@ -16,7 +16,6 @@ namespace ODataCompositeKeySample
         protected void Application_Start()
         {
             var config = GlobalConfiguration.Configuration;
-            config.AddODataQueryFilter();
 
             var mb = new ODataConventionModelBuilder(config);
             mb.EntitySet<Person>("People");
@@ -25,7 +24,7 @@ namespace ODataCompositeKeySample
             var conventions = ODataRoutingConventions.CreateDefault();
             conventions.Insert(0, new CompositeKeyRoutingConvention());
 
-            config.Routes.MapODataServiceRoute(
+            config.MapODataServiceRoute(
                 routeName: "OData",
                 routePrefix: null,
                 model: mb.GetEdmModel(),

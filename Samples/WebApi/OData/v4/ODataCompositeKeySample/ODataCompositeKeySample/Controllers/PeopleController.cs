@@ -1,16 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using System.Web.OData;
-using System.Web.OData.Extensions;
-using System.Web.OData.Routing;
-using Microsoft.OData.Core.UriParser;
 using ODataCompositeKeySample.Extensions;
 using ODataCompositeKeySample.Models;
-using Microsoft.OData.Core;
 
 namespace ODataCompositeKeySample.Controllers
 {
@@ -44,7 +38,7 @@ namespace ODataCompositeKeySample.Controllers
             return Updated(person);
         }
 
-        [AcceptVerbs("PATCH", "MERGE")]
+        [AcceptVerbs("PATCH")]
         public IHttpActionResult PatchPerson([FromODataUri] string firstName, [FromODataUri] string lastName, Delta<Person> delta)
         {
             var person = _repo.Get(firstName, lastName);
@@ -65,20 +59,6 @@ namespace ODataCompositeKeySample.Controllers
         public IHttpActionResult PostPerson(Person person)
         {
             _repo.UpdateOrAdd(person);
-
-            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.Created, person);
-
-            var path = Request.ODataProperties().Path;
-            string key = string.Format(
-                "{0}={1},{2}={3}",
-                "FirstName", ODataUriUtils.ConvertToUriLiteral(person.FirstName, ODataVersion.V4),
-                "LastName", ODataUriUtils.ConvertToUriLiteral(person.LastName, ODataVersion.V4));
-
-            response.Headers.Location = new Uri(
-                Url.CreateODataLink(
-                    new EntitySetPathSegment(path.EntitySet.Name),
-                    new KeyValuePathSegment(key)));
-
             return Created(person);
         }
 
