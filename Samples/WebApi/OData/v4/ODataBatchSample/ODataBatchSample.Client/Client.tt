@@ -2074,7 +2074,7 @@ namespace <#= fullNamespace #>
         /// </summary>
         [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "1.0.0")]
         public <#= fixedContainerName #>(global::System.Uri serviceRoot) : 
-                base(serviceRoot, global::Microsoft.OData.Service.Common.DataServiceProtocolVersion.V4)
+                base(serviceRoot, global::Microsoft.OData.Client.ODataProtocolVersion.V4)
         {
 <#+
     }
@@ -2307,7 +2307,7 @@ namespace <#= fullNamespace #>
         }
 #>
     /// </KeyProperties>
-    [global::Microsoft.OData.Service.Common.DataServiceKeyAttribute("<#= string.Join("\", \"", keyProperties) #>")]
+    [global::Microsoft.OData.Client.Key("<#= string.Join("\", \"", keyProperties) #>")]
 <#+
     }
 
@@ -2637,7 +2637,7 @@ Namespace <#= fullNamespace #>
         '''</summary>
         <Global.System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.OData.Client.Design.T4", "1.0.0")>  _
         Public Sub New(ByVal serviceRoot As Global.System.Uri)
-            MyBase.New(serviceRoot, Global.Microsoft.OData.Service.Common.DataServiceProtocolVersion.V4)
+            MyBase.New(serviceRoot, Global.Microsoft.OData.Client.ODataProtocolVersion.V4)
 <#+
     }
 
@@ -2867,7 +2867,7 @@ Namespace <#= fullNamespace #>
 		} 
 #>
     '''</KeyProperties>
-    <Global.Microsoft.OData.Service.Common.DataServiceKeyAttribute("<#= string.Join("\", \"", keyProperties) #>")>  _
+    <Global.Microsoft.OData.Client.Key("<#= string.Join("\", \"", keyProperties) #>")>  _
 <#+
     }
 

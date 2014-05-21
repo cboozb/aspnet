@@ -12,7 +12,7 @@ namespace ODataBatchSample
     {
         public static void Register(HttpConfiguration config)
         {
-            config.Routes.MapODataServiceRoute("odata", "odata", GetModel(), new DefaultODataBatchHandler(GlobalConfiguration.DefaultServer));
+            config.MapODataServiceRoute("odata", "odata", GetModel(), new DefaultODataBatchHandler(GlobalConfiguration.DefaultServer));
         }
 
         private static IEdmModel GetModel()
