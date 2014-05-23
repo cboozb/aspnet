@@ -13,7 +13,8 @@ namespace ODataQueryableSample
         {
             // Set up server configuration
             var config = new HttpConfiguration();
-            config.Routes.MapODataServiceRoute(routeName: "OData", routePrefix: "odata", model: GetEdmModel());
+            config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
+            config.MapODataServiceRoute(routeName: "OData", routePrefix: "odata", model: GetEdmModel());
             appBuilder.UseWebApi(config);
         }
 

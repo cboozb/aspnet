@@ -9,8 +9,16 @@ namespace ODataQueryableSample.Models
 
         public string Name { get; set; }
 
+        public Gender Gender { get; set; }
+
         public DateTimeOffset BirthTime { get; set; }
 
-        public IEnumerable<Order> Orders { get; set; }
+        public List<Order> Orders { get; set; }
+    }
+
+    public enum Gender
+    {
+        Male,
+        Female
     }
 }

@@ -36,6 +36,9 @@ namespace FunctionSample
                 // Sample 5: return a value from a services level function
                 ExecuteSample("Sample 5: Get the sales tax rate.",
                     baseAddress + "odata/GetSalesTaxRate(state='CA')").Wait(1000);
+                //Sample 6: call function with parameter alias
+                ExecuteSample("Sample 6: call function with parameter alias.",
+                    baseAddress + "odata/GetSalesTaxRate(state=@p1)?@p1='ND'").Wait(1000);
 
                 Comment("Press and key to exit.");
                 Console.ReadKey();

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Web.Http;
 using System.Web.OData;
 using System.Web.OData.Query;
+using System.Web.OData.Routing;
 using ODataQueryableSample.Models;
 
 namespace ODataQueryableSample.Controllers
@@ -21,7 +24,7 @@ namespace ODataQueryableSample.Controllers
         {  
             new Customer { 
                 Id = 11, Name = "Lowest", BirthTime = new DateTime(2001, 1, 1),
-                Orders = new Order[] 
+                Orders = new List<Order>
                 { 
                     new Order { Id = 0 , Quantity = 10 },  
                     new Order { Id = 1 , Quantity = 50 } 
@@ -29,7 +32,7 @@ namespace ODataQueryableSample.Controllers
             }, 
             new Customer { 
                 Id = 33, Name = "Highest", BirthTime = new DateTime(2002, 2, 2),
-                Orders = new Order[] 
+                Orders = new List<Order>
                 { 
                     new Order { Id = 2 , Quantity = 10 }, 
                     new Order { Id = 3 , Quantity = 5 } 
@@ -47,6 +50,21 @@ namespace ODataQueryableSample.Controllers
             response.Headers.Add("Sample-Header", "Sample-Value");
 
             // Return our response. Query composition will still happen on the CustomerList given the Queryable attribute
+            return response;
+        }
+
+        [HttpDelete]
+        [ODataRoute("response({key})/Orders({relatedKey})/$ref")]
+        public HttpResponseMessage DeleteOrdersFromCustomer(int key, int relatedKey)
+        {
+            var customer = CustomerList.Single(c => c.Id == key);
+            var order = customer.Orders.Single(o => o.Id == relatedKey);
+
+            customer.Orders.Remove(order);
+
+            HttpResponseMessage response = Request.CreateResponse(HttpStatusCode.NoContent);
+            response.Headers.Add("Delete-Ref", "true");
+
             return response;
         }
     }

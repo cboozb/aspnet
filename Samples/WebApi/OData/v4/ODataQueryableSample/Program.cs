@@ -110,6 +110,11 @@ namespace ODataQueryableSample
             response.EnsureSuccessStatusCode();
             Console.WriteLine("\nFilter with year call: " + response.Content.ReadAsStringAsync().Result);
 
+            // filter by expression using parameter alias
+            response = client.GetAsync("/odata/customer/?$filter=@p1&@p1=year(BirthTime) eq 2001").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nfilter by expression using parameter alias: " + response.Content.ReadAsStringAsync().Result);
+
             // filter with expression using multiplication is not allowed
             response = client.GetAsync("/odata/customer/?$filter=Id mul 2 eq 6").Result;
             Console.WriteLine("\nFilter with multiplication in the expression is not allowed: " + response.Content.ReadAsStringAsync().Result);
@@ -170,6 +175,28 @@ namespace ODataQueryableSample
             response = client.GetAsync("/odata/customer/?$select=Name&$expand=Orders($select=Name,Quantity)").Result;
             response.EnsureSuccessStatusCode();
             Console.WriteLine("\nSelect and expand combined: " + response.Content.ReadAsStringAsync().Result);
+
+            // filter and orderby using parameter alias
+            response = client.GetAsync(
+                    "/odata/customer/?$filter=Gender eq @p1&$expand=Orders($orderby=@p2)&@p1=ODataQueryableSample.Models.Gender'Female'&@p2=Origin/City").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nFilter and orderby using parameter alias: " + response.Content.ReadAsStringAsync().Result);
+
+            // filter using unspecified parameter alias
+            response = client.GetAsync(
+                    "/odata/customer/?$filter=Gender eq @p1").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nFilter using unspecified parameter alias: " + response.Content.ReadAsStringAsync().Result);
+
+            // delete an order of a customer by specifying relative $id
+            response = client.DeleteAsync("/odata/customer(11)/Orders/$ref?$id=../../order(0)").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nDelete an order of a customer: " + response.Content.ReadAsStringAsync().Result);
+
+            // delete an order of a customer by specifying absolute $id
+            response = client.DeleteAsync(string.Format("/odata/customer(11)/Orders/$ref?$id={0}odata/order(1)", client.BaseAddress)).Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nDelete an order of a customer: " + response.Content.ReadAsStringAsync().Result);
         }
 
         /// <summary>
@@ -210,6 +237,12 @@ namespace ODataQueryableSample
             response.EnsureSuccessStatusCode();
             Console.WriteLine("\nHTTP response headers:\n{0}", response.Headers);
             Console.WriteLine("\nFilter with All Order/Quantity ge 10: " + response.Content.ReadAsStringAsync().Result);
+
+            // delete order from customer
+            response = client.DeleteAsync("/odata/response(11)/Orders/$ref?$id=../../order(0)").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nHTTP response headers:\n{0}", response.Headers);
+            Console.WriteLine("\nDelete order from customer: " + response.Content.ReadAsStringAsync().Result);
         }
     }
 }
