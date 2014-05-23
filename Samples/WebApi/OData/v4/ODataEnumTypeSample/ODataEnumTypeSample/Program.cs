@@ -49,9 +49,7 @@ namespace ODataEnumTypeSample
         {
             HttpConfiguration config = new HttpConfiguration();
             config.IncludeErrorDetailPolicy = IncludeErrorDetailPolicy.Always;
-
-            config.Routes.MapODataServiceRoute(routeName: "OData", routePrefix: "odata", model: ODataModels.GetModel())
-                .MapODataRouteAttributes(config);
+            config.MapODataServiceRoute(routeName: "OData", routePrefix: "odata", model: ODataModels.GetModel());
             builder.UseWebApi(config);
         }
 

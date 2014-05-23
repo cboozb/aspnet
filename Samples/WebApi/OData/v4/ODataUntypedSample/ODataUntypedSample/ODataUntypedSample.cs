@@ -33,7 +33,7 @@ namespace ODataUntypedSample
         public static void Configuration(IAppBuilder builder)
         {
             HttpConfiguration configuration = new HttpConfiguration();
-            configuration.Routes.MapODataServiceRoute("odata", "odata", Model);
+            configuration.MapODataServiceRoute("odata", "odata", Model);
             builder.UseWebApi(configuration);
         }
 

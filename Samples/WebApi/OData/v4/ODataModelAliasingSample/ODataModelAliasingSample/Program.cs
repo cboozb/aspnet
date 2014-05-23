@@ -59,7 +59,7 @@ namespace ODataModelAliasingSample
         private static void Configuration(IAppBuilder builder)
         {
             HttpConfiguration configuration = new HttpConfiguration();
-            configuration.Routes.MapODataServiceRoute("odata", "odata", GetModel());
+            configuration.MapODataServiceRoute("odata", "odata", GetModel());
 
             builder.UseWebApi(configuration);
         }
@@ -67,8 +67,6 @@ namespace ODataModelAliasingSample
         private static IEdmModel GetModel()
         {
             ODataModelBuilder builder = new ODataConventionModelBuilder();
-            builder.ModelAliasingEnabled = true;
-
             EntitySetConfiguration<CustomerDto> customers = builder.EntitySet<CustomerDto>("Customers");
             EntitySetConfiguration<OrderDto> orders = builder.EntitySet<OrderDto>("Orders");
             orders.EntityType.Name = "Order";

@@ -32,8 +32,7 @@ namespace ODataAttributeRoutingSample
         public static void Configuration(IAppBuilder builder)
         {
             HttpConfiguration configuration = new HttpConfiguration();
-            configuration.Routes.MapODataServiceRoute("odata", null, GetEdmModel())
-                .MapODataRouteAttributes(configuration); // Enable attribute routing.
+            configuration.MapODataServiceRoute("odata", null, GetEdmModel());
             builder.UseWebApi(configuration);
         }
 
