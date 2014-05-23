@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("SingletonClient")]
+[assembly: AssemblyTitle("ODataSingletonSample.Client")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("SingletonClient")]
+[assembly: AssemblyProduct("ODataSingletonSample.Client")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("ba48960e-726d-4b04-b55a-18f8dbb2087a")]
+[assembly: Guid("e5d6f3aa-7a63-4d07-8f84-bb32586184c9")]
 
 // Version information for an assembly consists of the following four values:
 //

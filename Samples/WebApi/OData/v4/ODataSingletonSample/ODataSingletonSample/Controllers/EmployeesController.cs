@@ -5,7 +5,7 @@ using System.Net;
 using System.Web.Http;
 using System.Web.OData;
 
-namespace WebStack.QA.Test.OData.Singleton
+namespace ODataSingletonSample
 {
     public class EmployeesController : ODataController
     {

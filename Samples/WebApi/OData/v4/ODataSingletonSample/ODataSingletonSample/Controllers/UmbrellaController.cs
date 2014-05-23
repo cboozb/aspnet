@@ -6,7 +6,7 @@ using System.Web.Http;
 using System.Web.OData;
 using System.Web.OData.Routing;
 
-namespace WebStack.QA.Test.OData.Singleton
+namespace ODataSingletonSample
 {
     /// <summary>
     /// Present a singleton named "Umbrella"
@@ -121,7 +121,7 @@ namespace WebStack.QA.Test.OData.Singleton
         }
 
         [HttpPost]
-        [ODataRoute("Umbrella/WebStack.QA.Test.OData.Singleton.ResetDataSource")]
+        [ODataRoute("Umbrella/ODataSingletonSample.ResetDataSource")]
         public IHttpActionResult ResetDataSourceOnCompany()
         {
             InitData();

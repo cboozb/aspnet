@@ -44,7 +44,8 @@ See the Apache Version 2.0 License for specific language governing permissions a
         {
             UseDataServiceCollection = this.UseDataServiceCollection,
             TargetLanguage = this.TargetLanguage,
-			EnableNamingAlias = this.EnableNamingAlias
+			EnableNamingAlias = this.EnableNamingAlias,
+			IgnoreUnexpectedElementsAndAttributes = this.IgnoreUnexpectedElementsAndAttributes
         };
     }
 	else
@@ -54,7 +55,8 @@ See the Apache Version 2.0 License for specific language governing permissions a
         {
             UseDataServiceCollection = this.UseDataServiceCollection,
             TargetLanguage = this.TargetLanguage,
-			EnableNamingAlias = this.EnableNamingAlias
+			EnableNamingAlias = this.EnableNamingAlias,
+			IgnoreUnexpectedElementsAndAttributes = this.IgnoreUnexpectedElementsAndAttributes
         };
     }
 
@@ -72,7 +74,12 @@ See the Apache Version 2.0 License for specific language governing permissions a
             throw new NotSupportedException(string.Format("Code gen for the target language '{0}' is not supported.", this.TargetLanguage.ToString()));
     }
 
-#><#=template.TransformText()#><#+ 
+#><#=template.TransformText()#><#
+	foreach (string warning in context.Warnings)
+    {
+		this.Warning(warning);
+    }
+#><#+ 
 public static class Customization
 {
 	/// <summary>
@@ -224,6 +231,15 @@ public bool EnableNamingAlias
 }
 
 /// <summary>
+/// true to ignore unknown elements or attributes in metadata, false otherwise.
+/// </summary>
+public bool IgnoreUnexpectedElementsAndAttributes
+{
+	get;
+	set;
+}
+
+/// <summary>
 /// Generate code targeting a specific .Net Framework language.
 /// </summary>
 public enum LanguageOption
@@ -296,6 +312,26 @@ public void ValidateAndSetEnableNamingAliasFromString(string stringValue)
 }
 
 /// <summary>
+/// Set the IgnoreUnexpectedElementsAndAttributes property with the given value.
+/// </summary>
+/// <param name="stringValue">The value to set.</param>
+public void ValidateAndSetIgnoreUnexpectedElementsAndAttributesFromString(string stringValue)
+{
+    bool boolValue;
+    if (!bool.TryParse(stringValue, out boolValue))
+    {
+        // ********************************************************************************************************
+        // To fix this error, if the current text transformation is run by the TextTemplatingFileGenerator
+        // custom tool inside Visual Studio, update the .odata.config file in the project with a valid parameter
+        // value then hit Ctrl-S to save the .tt file to refresh the code generation.
+        // ********************************************************************************************************
+        throw new ArgumentException(string.Format("The value \"{0}\" cannot be assigned to the IgnoreUnexpectedElementsAndAttributes parameter because it is not a valid boolean value.", stringValue));
+    }
+
+    this.IgnoreUnexpectedElementsAndAttributes = boolValue;
+}
+
+/// <summary>
 /// Reads the parameter values from the host and applies them.
 /// </summary>
 internal void ApplyParametersFromHost()
@@ -348,6 +384,10 @@ internal void ApplyParametersFromConfigFile(XElement config)
 			case "EnableNamingAlias":
 				this.ValidateAndSetEnableNamingAliasFromString(parameterValue);
 				break;
+
+			case "IgnoreUnexpectedElementsAndAttributes":
+				this.ValidateAndSetIgnoreUnexpectedElementsAndAttributesFromString(parameterValue);
+				break;
         }
     }
 }
@@ -384,7 +424,13 @@ private void ApplyParametersFromCommandLine()
 	string enableNamingAlias = this.Host.ResolveParameterValue("notempty", "notempty", "EnableNamingAlias");
     if (!string.IsNullOrEmpty(enableNamingAlias))
     {
-        this.ValidateAndSetUseDataServiceCollectionFromString(enableNamingAlias);
+        this.ValidateAndSetEnableNamingAliasFromString(enableNamingAlias);
+	}
+
+	string ignoreUnexpectedElementsAndAttributes = this.Host.ResolveParameterValue("notempty", "notempty", "IgnoreUnexpectedElementsAndAttributes");
+    if (!string.IsNullOrEmpty(ignoreUnexpectedElementsAndAttributes))
+    {
+        this.ValidateAndSetIgnoreUnexpectedElementsAndAttributesFromString(ignoreUnexpectedElementsAndAttributes);
 	}
 }
 
@@ -429,6 +475,11 @@ public class CodeGenerationContext
     /// The array of namespaces in the current edm model.
     /// </summary>
     private string[] namespacesInModel;
+
+	/// <summary>
+    /// The array of warnings occured when parsing edm model.
+    /// </summary>
+	private string[] warnings;
 
     /// <summary>
     /// true if the model contains any structural type with inheritance, false otherwise.
@@ -480,7 +531,7 @@ public class CodeGenerationContext
     {
         get { return this.edmx; }
     }
-
+	
     /// <summary>
     /// The EdmModel to generate code for.
     /// </summary>
@@ -493,10 +544,17 @@ public class CodeGenerationContext
                 Debug.Assert(this.edmx != null, "this.edmx != null");
 
                 IEnumerable<Microsoft.OData.Edm.Validation.EdmError> errors;
-                if (!EdmxReader.TryParse(this.edmx.CreateReader(ReaderOptions.None), out this.edmModel, out errors))
+                if (!EdmxReader.TryParse(this.edmx.CreateReader(ReaderOptions.None), this.IgnoreUnexpectedElementsAndAttributes, out this.edmModel, out errors))
                 {
                     Debug.Assert(errors != null, "errors != null");
                     throw new InvalidOperationException(errors.FirstOrDefault().ErrorMessage);
+                }
+				else if (this.IgnoreUnexpectedElementsAndAttributes)
+                {
+					if (errors != null && errors.Any())
+                    {
+                        this.warnings = errors.Select(e => e.ErrorMessage).ToArray();
+                    }
                 }
             }
 
@@ -519,6 +577,14 @@ public class CodeGenerationContext
 
             return this.namespacesInModel;
         }
+    }
+
+	/// <summary>
+    /// The array of warnings occured when parsing edm model.
+    /// </summary>
+	public string[] Warnings
+    {
+		get { return this.warnings ?? (this.warnings = new string[] {}); }
     }
 
     /// <summary>
@@ -633,6 +699,15 @@ public class CodeGenerationContext
     }
 
 	/// <summary>
+    /// true to ignore unknown elements or attributes in metadata, false otherwise.
+    /// </summary>
+    public bool IgnoreUnexpectedElementsAndAttributes
+    {
+        get;
+        set;
+    }
+
+	/// <summary>
     /// Maps the element type of an entity set to the entity set.
     /// </summary>
 	public Dictionary<IEdmEntityType, List<IEdmNavigationSource>> ElementTypeToNavigationSourceMap
@@ -692,14 +767,14 @@ public class CodeGenerationContext
 	/// <param name="schemaElementFixedName">The fixed name of this schemaElement.</param>
 	/// <param name="template">The current code generate template.</param>
     /// <returns>The namespace qualified name for the given <paramref name="schemaElement"/> with the namespace prefix applied if this.NamespacePrefix is specified.</returns>
-    public string GetPrefixedFullName(IEdmSchemaElement schemaElement, string schemaElementFixedName, ODataClientTemplate template)
+    public string GetPrefixedFullName(IEdmSchemaElement schemaElement, string schemaElementFixedName, ODataClientTemplate template, bool needGlobalPrefix = true)
     {
 		if (schemaElement == null)
         {
 			return null;
         }
 
-		return this.GetPrefixedNamespace(schemaElement.Namespace, template, true, true) + "." + schemaElementFixedName;
+		return this.GetPrefixedNamespace(schemaElement.Namespace, template, true, needGlobalPrefix) + "." + schemaElementFixedName;
     }
 
 	/// <summary>
@@ -758,16 +833,31 @@ public class CodeGenerationContext
     private static string GetEdmxStringFromMetadataPath(Uri metadataUri)
     {
         Debug.Assert(metadataUri != null, "metadataUri != null");
-        Stream metadataStream;
+        Stream metadataStream = null;
         if (metadataUri.Scheme == "file")
         {
             metadataStream = new FileStream(Uri.UnescapeDataString(metadataUri.AbsolutePath), FileMode.Open, FileAccess.Read);
         }
         else if (metadataUri.Scheme == "http" || metadataUri.Scheme == "https")
         {
-            HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(metadataUri);
-            WebResponse webResponse = webRequest.GetResponse();
-            metadataStream = webResponse.GetResponseStream();
+			try
+            {
+				HttpWebRequest webRequest = (HttpWebRequest)WebRequest.Create(metadataUri);
+				WebResponse webResponse = webRequest.GetResponse();
+				metadataStream = webResponse.GetResponseStream();
+            }
+			catch (WebException e)
+            {
+				HttpWebResponse webResponse = e.Response as HttpWebResponse;
+				if (webResponse != null && webResponse.StatusCode == HttpStatusCode.Unauthorized)
+                {
+					throw new WebException("Failed to access the metadata document. The OData service requires authentication for accessing it. Please download the metadata, store it into a local file, and set the value of “MetadataDocumentUri” in the .odata.config file to the file path. After that, run custom tool again to generate the OData Client code.");
+				}
+				else
+                {
+					throw e;
+                }
+            }
         }
         else
         {
@@ -1191,7 +1281,7 @@ public abstract class ODataClientTemplate : TemplateBase
 		// order, starting with the longest prefix.
 		IEnumerable<KeyValuePair<string, string>> namespaceToPrefixedNamespacePairs = this.context.NamespaceMap.OrderByDescending(p => p.Key.Length).ThenBy(p => p.Key);
         
-		string typeName = this.SystemTypeTypeName;
+		string typeName = this.SystemTypeTypeName + " ";
 		foreach(KeyValuePair<string, string> namespaceToPrefixedNamespacePair in namespaceToPrefixedNamespacePairs)
         {
             this.WriteResolveNamespace(typeName, namespaceToPrefixedNamespacePair.Key, namespaceToPrefixedNamespacePair.Value);
@@ -2088,7 +2178,7 @@ internal static class Utils
 	/// <param name="clientTemplate">ODataClientTemplate instance that call this method.</param>
 	/// <param name="context">CodeGenerationContext instance in the clientTemplate.</param>
 	/// <returns>The clr type name of the type reference.</returns>
-    internal static string GetClrTypeName(IEdmTypeReference edmTypeReference, bool useDataServiceCollection, ODataClientTemplate clientTemplate, CodeGenerationContext context, bool addNullableTemplate = true)
+    internal static string GetClrTypeName(IEdmTypeReference edmTypeReference, bool useDataServiceCollection, ODataClientTemplate clientTemplate, CodeGenerationContext context, bool addNullableTemplate = true, bool needGlobalPrefix = true)
     {
         string clrTypeName;
         IEdmType edmType = edmTypeReference.Definition;
@@ -2115,7 +2205,11 @@ internal static class Utils
 				if (edmEnumType != null)
                 {
 					clrTypeName = context.GetPrefixedFullName(edmEnumType,
-						context.EnableNamingAlias ? clientTemplate.GetFixedName(Customization.CustomizeNaming(edmEnumType.Name)) : clientTemplate.GetFixedName(edmEnumType.Name), clientTemplate);
+						context.EnableNamingAlias ? clientTemplate.GetFixedName(Customization.CustomizeNaming(edmEnumType.Name)) : clientTemplate.GetFixedName(edmEnumType.Name), clientTemplate, needGlobalPrefix);
+					if (edmTypeReference.IsNullable && addNullableTemplate)
+                    {
+						clrTypeName = string.Format(clientTemplate.SystemNullableStructureTemplate, clrTypeName);
+                    }
                 }
                 else 
 				{
@@ -2181,7 +2275,8 @@ internal static class Utils
 
                     if (edmTypeReference.Definition.TypeKind == EdmTypeKind.Enum)
                     {
-                        string enumType = GetClrTypeName(edmTypeReference, useDataServiceCollection, clientTemplate, context);
+						string fullenumTypeName = GetClrTypeName(edmTypeReference, useDataServiceCollection, clientTemplate, context);
+                        string enumTypeName = GetClrTypeName(edmTypeReference, useDataServiceCollection, clientTemplate, context, false, false);
                         int indexFirst = defaultValue.IndexOf('\'') + 1;
                         int indexLast = defaultValue.LastIndexOf('\'');
                         if (indexFirst > 0 && indexLast > indexFirst)
@@ -2191,11 +2286,11 @@ internal static class Utils
                          
 						if (clientTemplate is ODataClientCSharpTemplate)
 						{
-                            return "(" + enumType + ")" + clientTemplate.EnumTypeName + ".Parse(" + clientTemplate.SystemTypeTypeName + ".GetType(\"" + enumType + "\"), \"" + defaultValue  + "\")";
+                            return "(" + fullenumTypeName + ")" + clientTemplate.EnumTypeName + ".Parse(" + clientTemplate.SystemTypeTypeName + ".GetType(\"" + enumTypeName + "\"), \"" + defaultValue  + "\")";
 						}
 						else
 						{
-                            return clientTemplate.EnumTypeName + ".Parse(" + clientTemplate.SystemTypeTypeName + ".GetType(\"" + enumType + "\"), \"" + defaultValue  + "\")";
+                            return clientTemplate.EnumTypeName + ".Parse(" + clientTemplate.SystemTypeTypeName + ".GetType(\"" + enumTypeName + "\"), \"" + defaultValue  + "\")";
 						}       
                     }
 
@@ -2433,7 +2528,7 @@ public sealed class ODataClientCSharpTemplate : ODataClientTemplate
     }
 
 	internal override string GlobalPrefix { get {return "global::"; } }
-	internal override string SystemTypeTypeName { get { return "global::System.Type "; } }
+	internal override string SystemTypeTypeName { get { return "global::System.Type"; } }
 	internal override string AbstractModifier { get { return " abstract"; } }
 	internal override string NotifyPropertyChangedModifier { get { return "global::System.ComponentModel.INotifyPropertyChanged"; } }
 	internal override string ClassInheritMarker { get { return " : "; } }
@@ -2938,7 +3033,7 @@ namespace <#= fullNamespace #>
         if (writeOnPropertyChanged)
         {
 #>
-                this.OnPropertyChanged("<#= propertyName #>");
+                this.OnPropertyChanged("<#= originalPropertyName #>");
 <#+
         }
 #>
@@ -3248,7 +3343,7 @@ public sealed class ODataClientVBTemplate : ODataClientTemplate
     }
 
 	internal override string GlobalPrefix { get {return string.Empty; } }
-	internal override string SystemTypeTypeName { get { return "Global.System.Type "; } }
+	internal override string SystemTypeTypeName { get { return "Global.System.Type"; } }
 	internal override string AbstractModifier { get { return " MustInherit"; } }
 	internal override string NotifyPropertyChangedModifier { get { return "\r\n        Implements Global.System.ComponentModel.INotifyPropertyChanged"; } }
 	internal override string ClassInheritMarker { get { return "\r\n        Inherits "; } }
@@ -3757,7 +3852,7 @@ Namespace <#= fullNamespace #>
         if (writeOnPropertyChanged)
         {
 #>
-                Me.OnPropertyChanged("<#= propertyName #>")
+                Me.OnPropertyChanged("<#= originalPropertyName #>")
 <#+
         }
 #>

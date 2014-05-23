@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Web.OData.Builder;
 
-namespace WebStack.QA.Test.OData.Singleton
+namespace ODataSingletonSample
 {
     /// <summary>
     /// Present the EntityType "Employee"

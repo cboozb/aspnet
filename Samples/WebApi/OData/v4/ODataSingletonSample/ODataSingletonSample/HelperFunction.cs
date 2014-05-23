@@ -3,7 +3,7 @@ using System.Linq;
 using Microsoft.OData.Core.UriParser;
 using Microsoft.OData.Core.UriParser.Semantic;
 
-namespace WebStack.QA.Test.OData.Singleton
+namespace ODataSingletonSample
 {
     public static class HelperFunction
     {
@@ -14,7 +14,7 @@ namespace WebStack.QA.Test.OData.Singleton
                 throw new ArgumentNullException("uri");
             }
 
-            //Calculate root Uri
+            // Calculate root Uri
             var rootPath = uri.AbsoluteUri.Substring(0, uri.AbsoluteUri.LastIndexOf('/') + 1);
 
             var odataUriParser = new ODataUriParser(SingletonEdmModel.GetEdmModel(), new Uri(rootPath), uri);

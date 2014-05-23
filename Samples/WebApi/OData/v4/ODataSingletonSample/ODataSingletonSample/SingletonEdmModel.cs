@@ -1,7 +1,7 @@
 ﻿using System.Web.OData.Builder;
 using Microsoft.OData.Edm;
 
-namespace WebStack.QA.Test.OData.Singleton
+namespace ODataSingletonSample
 {
     internal class SingletonEdmModel
     {
