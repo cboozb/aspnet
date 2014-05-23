@@ -9,9 +9,9 @@ namespace ODataVersioningSample.Models
 
         public string Name { get; set; }
 
-        public DateTime? ReleaseDate { get; set; }
+        public DateTimeOffset? ReleaseDate { get; set; }
 
-        public DateTime? SupportedUntil { get; set; }
+        public DateTimeOffset? SupportedUntil { get; set; }
 
         // V2 property
         public virtual DbProductFamily Family { get; set; }

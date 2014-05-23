@@ -23,6 +23,8 @@ namespace ODataVersioningSample
 
             V1.WebApiConfig.Register(config);
             V2.WebApiConfig.Register(config);
+
+            config.EnsureInitialized();
         }
     }
 }

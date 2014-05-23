@@ -16,7 +16,7 @@ namespace ODataVersioningSample.V1
         public static void Register(HttpConfiguration config)
         {
             // Versioning by route prefix
-            config.Routes.MapODataServiceRoute(
+            config.MapODataServiceRoute(
                 routeName: "V1RouteVersioning",
                 routePrefix: "versionbyroute/v1",
                 model: GetModel());

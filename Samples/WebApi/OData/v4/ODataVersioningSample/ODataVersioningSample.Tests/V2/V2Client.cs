@@ -1,6 +1,7 @@
 ﻿using System;
-using System.Data.Services.Client;
 using System.Linq;
+using ODataVersioningSample.Tests.V2.Default;
+using ODataVersioningSample.Tests.V2.ODataVersioningSample.V2.ViewModels;
 
 namespace ODataVersioningSample.Tests.V2
 {
@@ -38,7 +39,8 @@ namespace ODataVersioningSample.Tests.V2
         {
             Console.WriteLine("Get Products Since 2008/1/1");
             Container c = Container.New();
-            var people = c.Products.Where(p => p.ReleaseDate > new DateTime(2008, 1, 1));
+            var startDate = new DateTime(2008, 1, 1);
+            var people = c.Products.Where(p => p.ReleaseDate > new DateTimeOffset(startDate));
             foreach (var p in people)
             {
                 Console.WriteLine("\t{0}: {1}", p.ID, p.Name);
@@ -94,7 +96,7 @@ namespace ODataVersioningSample.Tests.V2
             var product = c.Products.Where(p => p.ID == _lastIndex).Single();
             product.ReleaseDate = new DateTime(2012, 10, 26);
             c.UpdateObject(product);
-            c.SaveChanges(SaveChangesOptions.PatchOnUpdate);
+            c.SaveChanges();
             Console.WriteLine("\t{0}'s release date is changed to {1}", product.Name, product.ReleaseDate);
             GetProducts();
         }

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ODataVersioningSample.Tests.V1
+namespace ODataVersioningSample.Tests.V1.Default
 {
     public partial class Container
     {
@@ -43,9 +43,9 @@ namespace ODataVersioningSample.Tests.V1
         private static Container CreateContainerVersioningByHeader()
         {
             Container c = new Container(new Uri(BaseAddress + "/versionbyheader"));
-            c.SendingRequest += (sender, e) =>
+            c.SendingRequest2 += (sender, e) =>
             {
-                e.RequestHeaders.Add("v", "1");
+                e.RequestMessage.SetHeader("v", "1");
             };
             return c;
         }

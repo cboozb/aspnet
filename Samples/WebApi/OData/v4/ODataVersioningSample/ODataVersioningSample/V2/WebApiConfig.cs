@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Web.OData.Extensions;
+using AutoMapper;
 using Microsoft.OData.Edm;
 using ODataVersioningSample.Extensions;
 using ODataVersioningSample.Models;
@@ -6,7 +7,6 @@ using ODataVersioningSample.V2.ViewModels;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
 using System.Web.OData.Builder;
-using System.Web.OData.Extensions;
 
 namespace ODataVersioningSample.V2
 {
@@ -15,13 +15,13 @@ namespace ODataVersioningSample.V2
         public static void Register(HttpConfiguration config)
         {
             // Default routes
-            config.Routes.MapODataServiceRoute(
+            config.MapODataServiceRoute(
                 routeName: "DefaultODataRoute", 
                 routePrefix: null,
                 model: GetModel());
 
             // Versioning by route prefix
-            config.Routes.MapODataServiceRoute(
+            config.MapODataServiceRoute(
                 routeName: "V2RouteVersioning",
                 routePrefix: "versionbyroute/v2",
                 model: GetModel());

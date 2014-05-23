@@ -8,9 +8,9 @@ namespace ODataVersioningSample.V2.ViewModels
 
         public string Name { get; set; }
 
-        public DateTime? ReleaseDate { get; set; }
+        public DateTimeOffset? ReleaseDate { get; set; }
 
-        public DateTime? SupportedUntil { get; set; }
+        public DateTimeOffset? SupportedUntil { get; set; }
 
         public virtual ProductFamily Family { get; set; }
     }

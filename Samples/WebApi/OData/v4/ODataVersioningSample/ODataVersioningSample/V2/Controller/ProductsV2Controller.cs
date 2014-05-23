@@ -76,7 +76,7 @@ namespace ODataVersioningSample.V2.Controller
         }
 
         [AcceptVerbs("POST", "PUT")]
-        public IHttpActionResult CreateLink([FromODataUri] long key, string navigationProperty, [FromBody] Uri link)
+        public IHttpActionResult CreateRef([FromODataUri] long key, string navigationProperty, [FromBody] Uri link)
         {
             _repository.CreateLink(key, navigationProperty, link, Request);
             return StatusCode(HttpStatusCode.NoContent);
