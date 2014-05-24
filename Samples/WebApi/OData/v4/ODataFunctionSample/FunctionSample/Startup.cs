@@ -12,11 +12,7 @@ namespace FunctionSample
         public void Configuration(IAppBuilder builder)
         {
             var config = new HttpConfiguration();
-
-            config.Routes
-                .MapODataServiceRoute(routeName: "odata route", routePrefix: "odata", model: GetEdmMode())
-                .MapODataRouteAttributes(config);
-
+            config.MapODataServiceRoute(routeName: "odata route", routePrefix: "odata", model: GetEdmMode());
             builder.UseWebApi(config);
         }
 
