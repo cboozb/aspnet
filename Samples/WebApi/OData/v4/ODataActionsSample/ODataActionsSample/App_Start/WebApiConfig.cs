@@ -10,9 +10,7 @@ namespace ODataActionsSample
     {
         public static void Register(HttpConfiguration config)
         {
-            config.Routes
-                .MapODataServiceRoute("OData", "odata", GetEdmModel())
-                .MapODataRouteAttributes(config);
+            config.MapODataServiceRoute("OData", "odata", GetEdmModel());
         }
 
         // Builds the EDM model for the OData service, including the OData action definitions.

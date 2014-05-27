@@ -15,6 +15,9 @@ namespace DynamicEdmModelCreation
 {
     public class CustomODataPathRouteConstraint : ODataPathRouteConstraint
     {
+        // "%2F"
+        private static readonly string _escapedSlash = Uri.HexEscape('/');
+
         public Func<HttpRequestMessage, IEdmModel> EdmModelProvider { get; set; }
 
         public CustomODataPathRouteConstraint(
@@ -42,29 +45,50 @@ namespace DynamicEdmModelCreation
             if (values == null)
             {
                 throw new ArgumentNullException("values");
-            } 
-            
+            }
+
             if (routeDirection != HttpRouteDirection.UriResolution)
             {
                 return true;
             }
 
-            object odataPathRouteValue;
-            if (!values.TryGetValue(ODataRouteConstants.ODataPath, out odataPathRouteValue))
+            object oDataPathValue;
+            if (!values.TryGetValue(ODataRouteConstants.ODataPath, out oDataPathValue))
             {
                 return false;
             }
 
-            string odataPath = odataPathRouteValue as string ?? string.Empty;
+            string oDataPathString = oDataPathValue as string;
 
             ODataPath path;
             IEdmModel model;
             try
             {
-                request.Properties[Constants.CustomODataPath] = odataPath;
+                request.Properties[Constants.CustomODataPath] = oDataPathString;
+
                 model = EdmModelProvider(request);
-                odataPath = (string)request.Properties[Constants.CustomODataPath];
-                path = PathHandler.Parse(model, odataPath);
+                oDataPathString = (string)request.Properties[Constants.CustomODataPath];
+
+                string requestLeftPart = request.RequestUri.GetLeftPart(UriPartial.Path);
+                string serviceRoot = requestLeftPart;
+
+                if (!String.IsNullOrEmpty(oDataPathString))
+                {
+                    serviceRoot = RemoveODataPath(serviceRoot, oDataPathString);
+                }
+
+                string oDataPathAndQuery = requestLeftPart.Substring(serviceRoot.Length);
+                if (!String.IsNullOrEmpty(request.RequestUri.Query))
+                {
+                    oDataPathAndQuery += request.RequestUri.Query;
+                }
+
+                if (serviceRoot.EndsWith(_escapedSlash, StringComparison.OrdinalIgnoreCase))
+                {
+                    serviceRoot = serviceRoot.Substring(0, serviceRoot.Length - 3);
+                }
+
+                path = PathHandler.Parse(model, serviceRoot, oDataPathAndQuery);
             }
             catch (ODataException)
             {
@@ -95,6 +119,66 @@ namespace DynamicEdmModelCreation
             }
 
             return true;
+        }
+
+        private static string RemoveODataPath(string uriString, string oDataPathString)
+        {
+            // Potential index of oDataPathString within uriString.
+            int endIndex = uriString.Length - oDataPathString.Length - 1;
+            if (endIndex <= 0)
+            {
+                // Bizarre: oDataPathString is longer than uriString.  Likely the values collection passed to Match()
+                // is corrupt.
+                throw new InvalidOperationException(string.Format("Request Uri Is Too Short For ODataPath. the Uri is {0}, and the OData path is {1}.", uriString, oDataPathString));
+            }
+
+            string startString = uriString.Substring(0, endIndex + 1);  // Potential return value.
+            string endString = uriString.Substring(endIndex + 1);       // Potential oDataPathString match.
+            if (String.Equals(endString, oDataPathString, StringComparison.Ordinal))
+            {
+                // Simple case, no escaping in the ODataPathString portion of the Path.  In this case, don't do extra
+                // work to look for trailing '/' in startString.
+                return startString;
+            }
+
+            while (true)
+            {
+                // Escaped '/' is a derivative case but certainly possible.
+                int slashIndex = startString.LastIndexOf('/', endIndex - 1);
+                int escapedSlashIndex =
+                    startString.LastIndexOf(_escapedSlash, endIndex - 1, StringComparison.OrdinalIgnoreCase);
+                if (slashIndex > escapedSlashIndex)
+                {
+                    endIndex = slashIndex;
+                }
+                else if (escapedSlashIndex >= 0)
+                {
+                    // Include the escaped '/' (three characters) in the potential return value.
+                    endIndex = escapedSlashIndex + 2;
+                }
+                else
+                {
+                    // Failure, unable to find the expected '/' or escaped '/' separator.
+                    throw new InvalidOperationException(string.Format("The OData path is not found. The Uri is {0}, and the OData path is {1}.", uriString, oDataPathString));
+                }
+
+                startString = uriString.Substring(0, endIndex + 1);
+                endString = uriString.Substring(endIndex + 1);
+
+                // Compare unescaped strings to avoid both arbitrary escaping and use of lowercase 'a' through 'f' in
+                // %-escape sequences.
+                endString = Uri.UnescapeDataString(endString);
+                if (String.Equals(endString, oDataPathString, StringComparison.Ordinal))
+                {
+                    return startString;
+                }
+
+                if (endIndex == 0)
+                {
+                    // Failure, could not match oDataPathString after an initial '/' or escaped '/'.
+                    throw new InvalidOperationException(string.Format("The OData path is not found. The Uri is {0}, and the OData path is {1}.", uriString, oDataPathString));
+                }
+            }
         }
     }
 }
