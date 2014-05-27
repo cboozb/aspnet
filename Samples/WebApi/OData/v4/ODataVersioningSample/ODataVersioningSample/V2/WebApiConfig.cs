@@ -1,12 +1,12 @@
-﻿using System.Web.OData.Extensions;
+﻿using System.Web.Http;
+using System.Web.Http.Dispatcher;
+using System.Web.OData.Builder;
+using System.Web.OData.Extensions;
 using AutoMapper;
 using Microsoft.OData.Edm;
 using ODataVersioningSample.Extensions;
 using ODataVersioningSample.Models;
 using ODataVersioningSample.V2.ViewModels;
-using System.Web.Http;
-using System.Web.Http.Dispatcher;
-using System.Web.OData.Builder;
 
 namespace ODataVersioningSample.V2
 {
