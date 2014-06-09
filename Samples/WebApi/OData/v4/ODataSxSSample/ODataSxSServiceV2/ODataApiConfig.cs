@@ -1,4 +1,5 @@
-﻿using System.Data.Entity;
+﻿using System.Collections.Generic;
+using System.Data.Entity;
 using System.Web.Http;
 using System.Web.OData.Extensions;
 using System.Web.OData.Routing;
@@ -13,10 +14,24 @@ namespace ODataSxSServiceV2
         public static void Register(HttpConfiguration config)
         {
             Database.SetInitializer(new DatabaseInitialize());
-
             var model = ModelBuilder.GetEdmModel();
-            var conventions = ODataRoutingConventions.CreateDefaultWithAttributeRouting(config, model);
-            conventions.Add(new EntitySetVersioningRoutingConvention("V2"));
+
+            // Wrap most routing conventions to redirect requests for e.g. /Products/... to the ProductsV2Controller.
+            var defaultConventions = ODataRoutingConventions.CreateDefaultWithAttributeRouting(config, model);
+            var conventions = new List<IODataRoutingConvention>();
+            foreach (var convention in defaultConventions)
+            {
+                if (convention is MetadataRoutingConvention ||
+                    convention is AttributeRoutingConvention)
+                {
+                    // Don't need to special case these conventions.
+                    conventions.Add(convention);
+                }
+                else
+                {
+                    conventions.Add(new VersionedRoutingConvention(convention, "V2"));
+                }
+            }
 
             var odataRoute = config.MapODataServiceRoute(
                 routeName: "odataV2",
