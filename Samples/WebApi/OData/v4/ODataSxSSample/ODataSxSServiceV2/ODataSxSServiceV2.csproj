@@ -76,7 +76,7 @@
     <Compile Include="Controllers\OrdersV2Controller.cs" />
     <Compile Include="Controllers\ProductsV2Controller.cs" />
     <Compile Include="Extensions\EntitySetVersioningRoutingConvention.cs" />
-    <Compile Include="Models\DatabaseIntialize.cs" />
+    <Compile Include="Models\DatabaseInitialize.cs" />
     <Compile Include="Models\ModelBuilder.cs" />
     <Compile Include="Models\ODataSxSServiceContext.cs" />
     <Compile Include="Models\Order.cs" />
