@@ -1,18 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.IO;
 using System.Linq;
+using Microsoft.Azure.Jobs;
 using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Jobs;
-using Microsoft.WindowsAzure.StorageClient;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Queue;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace TableOperations
 {
-    class WordCount
+    class WordCount : TableEntity
     {
         public string Word { get; set; }
 
         public int Count { get; set; }
+    }
+
+    class LogEntry : TableEntity
+    {
+        public DateTime Date {get;set;}
     }
 
     class Program
@@ -20,7 +28,7 @@ namespace TableOperations
         /// <summary>
         /// Creates the frequency table for the words in the input string and then splits the phrase in words
         /// </summary>
-        public static void CountAndSplitInWords([QueueInput] string textInput, [Table] IDictionary<Tuple<string, string>, WordCount> words, [QueueOutput("words")] out IEnumerable<string> wordsQueue)
+        public static void CountAndSplitInWords([QueueTrigger("textInput")] string textInput, [Table("words")] CloudTable wordsTable, [Queue("words")] ICollection<string> wordsQueue)
         {
             // Normalize the capitalization
             textInput = textInput.ToLower();
@@ -36,27 +44,33 @@ namespace TableOperations
                 // The data in the storage table has 
                 //      PartitionKey = the first letter of the word
                 //      RowKey = the full word
-                string parititonKey = group.Key[0].ToString();
+                string partitonKey = group.Key[0].ToString();
                 string rowKey = group.Key;
-                Tuple<string, string> partitionRowKey = new Tuple<string, string>(parititonKey, rowKey);
-
-                // If the row already exists, increment the Count. 
-                // Otherwise, create a new row and set the Count to the current value
-                if (words.ContainsKey(partitionRowKey))
+             
+                WordCount count = new WordCount()
                 {
-                    words.Remove(partitionRowKey);
-                }
-                    words.Add(partitionRowKey, new WordCount() { Word = group.Key, Count = group.Count() });
+                    PartitionKey = partitonKey,
+                    RowKey = rowKey,
+
+                    Word = group.Key,
+                    Count = group.Count()
+                };
+
+                TableOperation operation = TableOperation.InsertOrReplace(count);
+                wordsTable.Execute(operation);
             }
 
             // Enqueue distinct words (no duplicates)
-            wordsQueue = wordCount.Select(g => g.Key);
+            foreach(string word in wordCount.Select(g => g.Key))
+            {
+                wordsQueue.Add(word);
+            }
         }
 
         /// <summary>
         /// Counts the frequency of characters in a word (triggered by messages created by "CountAndSplitInWords")
         /// </summary>
-        public static void CharFrequency([QueueInput("words")] string word)
+        public static void CharFrequency([QueueTrigger("words")] string word, TextWriter log)
         {
             // Create a dictionary of character frequencies
             //      Key = the character
@@ -65,18 +79,28 @@ namespace TableOperations
                 .GroupBy(c => c)
                 .ToDictionary(group => group.Key, group => group.Count());
 
-            Console.WriteLine("The frequency of letters in the word \"{0}\" is: ", word);
+            log.WriteLine("The frequency of letters in the word \"{0}\" is: ", word);
             foreach (var character in frequency)
             {
-                Console.WriteLine("{0}: {1}", character.Key, character.Value);
+                log.WriteLine("{0}: {1}", character.Key, character.Value);
             }
         }
 
         [NoAutomaticTrigger]
-        public static void ManualTrigger([Table("log")] IDictionary<Tuple<string, string>, object> data)
+        public static void ManualTrigger([Table("log")] CloudTable logTable)
         {
             DateTime dt = DateTime.Now;
-            data.Add(new Tuple<string, string>(dt.Year.ToString(), dt.Month.ToString()), dt);
+
+            LogEntry log = new LogEntry()
+            {
+                PartitionKey = dt.Year.ToString(),
+                RowKey = dt.Month.ToString(),
+                Date = dt
+            };
+
+            TableOperation operation =  TableOperation.InsertOrReplace(log);
+
+            logTable.Execute(operation);
         }
 
         static void Main()
@@ -91,11 +115,11 @@ namespace TableOperations
 
         private static void CreateDemoData()
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["AzureJobsData"].ConnectionString);
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["AzureJobsStorage"].ConnectionString);
 
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
             CloudQueue queue = queueClient.GetQueueReference("textinput");
-            queue.CreateIfNotExist();
+            queue.CreateIfNotExists();
 
             queue.AddMessage(new CloudQueueMessage("Hello hello world"));
         }

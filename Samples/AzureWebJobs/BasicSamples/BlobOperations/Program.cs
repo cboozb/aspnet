@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Configuration;
 using System.IO;
-using Microsoft.WindowsAzure;
-using Microsoft.WindowsAzure.Jobs;
-using Microsoft.WindowsAzure.StorageClient;
+using Microsoft.Azure.Jobs;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.Queue;
 using Newtonsoft.Json;
 
 namespace BlobOperations
@@ -20,7 +21,7 @@ namespace BlobOperations
         /// <summary>
         /// Reads a blob from the container named "input" and writes it to the container named "output". The blob name ("name") is preserved
         /// </summary>
-        public static void BlobToBlob([BlobInput("input/{name}")] TextReader input, [BlobOutput("output/{name}")] out string output)
+        public static void BlobToBlob([BlobTrigger("input/{name}")] TextReader input, [Blob("output/{name}")] out string output)
         {
             output = input.ReadToEnd();
         }
@@ -28,11 +29,11 @@ namespace BlobOperations
         /// <summary>
         /// This function is triggered when a new blob is created by "BlobToBlob"
         /// </summary>
-        public static void BlobTrigger([BlobInput("output/{name}")] Stream input)
+        public static void BlobTrigger([BlobTrigger("output/{name}")] Stream input, TextWriter log)
         {
             using (StreamReader reader = new StreamReader(input))
             {
-                Console.WriteLine("Blob content: {0}", reader.ReadToEnd());
+                log.WriteLine("Blob content: {0}", reader.ReadToEnd());
             }
         }
 
@@ -41,7 +42,7 @@ namespace BlobOperations
         /// The parameter "Name" will have the same value as the property "Name" of the person object
         /// The output blob will have the name of the "Name" property of the person object
         /// </summary>
-        public static void BlobNameFromQueueMessage([QueueInput] Person persons, string Name, [BlobOutput("persons/{Name}BlobNameFromQueueMessage")] out string output)
+        public static void BlobNameFromQueueMessage([QueueTrigger("persons")] Person persons, string Name, [Blob("persons/{Name}BlobNameFromQueueMessage")] out string output)
         {
             output = "Hello " + Name;
         }
@@ -49,16 +50,16 @@ namespace BlobOperations
         /// <summary>
         /// Same as "BlobNameFromQueueMessage" but using IBinder 
         /// </summary>
-        public static void BlobIBinder([QueueInput] Person persons, IBinder binder)
+        public static void BlobIBinder([QueueTrigger("persons")] Person persons, IBinder binder)
         {
-            TextWriter writer = binder.Bind<TextWriter>(new BlobOutputAttribute("persons/" + persons.Name + "BlobIBinder"));
+            TextWriter writer = binder.Bind<TextWriter>(new BlobAttribute("persons/" + persons.Name + "BlobIBinder"));
             writer.Write("Hello " + persons.Name);
         }
 
         /// <summary>
         /// Not writing anything into the output stream will not lead to blob creation
         /// </summary>
-        public static void BlobCancelWrite([QueueInput] Person persons, [BlobOutput("output/ShouldNotBeCreated.txt")] TextWriter output)
+        public static void BlobCancelWrite([QueueTrigger("persons")] Person persons, [Blob("output/ShouldNotBeCreated.txt")] TextWriter output)
         {
             // Do not write anything to "output" and the blob will not be created
         }
@@ -73,17 +74,17 @@ namespace BlobOperations
 
         private static void CreateDemoData()
         {
-            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["AzureJobsData"].ConnectionString);
+            CloudStorageAccount storageAccount = CloudStorageAccount.Parse(ConfigurationManager.ConnectionStrings["AzureJobsStorage"].ConnectionString);
             CloudBlobClient blobClient = storageAccount.CreateCloudBlobClient();
             CloudBlobContainer container = blobClient.GetContainerReference("input");
-            container.CreateIfNotExist();
+            container.CreateIfNotExists();
 
-            CloudBlob blob = container.GetBlobReference("BlobOperations");
+            CloudBlockBlob blob = container.GetBlockBlobReference("BlobOperations");
             blob.UploadText("Hello world!");
 
             CloudQueueClient queueClient = storageAccount.CreateCloudQueueClient();
             CloudQueue queue = queueClient.GetQueueReference("persons");
-            queue.CreateIfNotExist();
+            queue.CreateIfNotExists();
 
             Person person = new Person()
             {

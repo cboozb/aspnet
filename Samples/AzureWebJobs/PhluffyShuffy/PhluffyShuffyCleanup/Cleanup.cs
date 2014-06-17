@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Configuration;
-using System.Linq;
-using System.Text;
-using Microsoft.WindowsAzure.Jobs;
+using System.IO;
+using Microsoft.Azure.Jobs;
+using Microsoft.WindowsAzure.Storage;
 using PhluffyShuffyWebData;
 
 namespace PhluffyShuffyCleanup
@@ -26,19 +25,19 @@ namespace PhluffyShuffyCleanup
         }
 
         // This job will only triggered on demand
-        [Description("Cleaup function")]
-        public static void CleanupFunction(IBinder binder)
+        [NoAutomaticTrigger()]
+        public static void CleanupFunction(CloudStorageAccount storageAccount, TextWriter log)
         {
-            Cleanup cleanupClass = new Cleanup(new AzureImageStorage(binder.AccountConnectionString));
-            cleanupClass.DoCleanup();
+            Cleanup cleanupClass = new Cleanup(new AzureImageStorage(storageAccount));
+            cleanupClass.DoCleanup(log);
         }
 
-        public void DoCleanup()
+        public void DoCleanup(TextWriter log)
         {
             IEnumerable<string> oldShuffles = this.storage.GetShufflesOlderThan(DateTime.UtcNow.AddDays(-RetentionPolicyDays));
             foreach(string shuffle in oldShuffles)
             {
-                Console.WriteLine("Deleting old container {0}", shuffle);
+                log.WriteLine("Deleting old container {0}", shuffle);
                 this.storage.Delete(shuffle);
             }
         }

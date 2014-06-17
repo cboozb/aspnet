@@ -2,14 +2,9 @@
 using System.Collections.Generic;
 using System.Configuration;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Threading;
-using System.Windows;
-using Microsoft.WindowsAzure.Jobs;
-using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.Azure.Jobs;
 using PhluffyShuffyWebData;
 
 namespace PhluffyShuffyImageProcessor
@@ -21,7 +16,7 @@ namespace PhluffyShuffyImageProcessor
         private readonly IImageStorage storage;
 
         public ImageProcessingJobs()
-            : this(new AzureImageStorage(ConfigurationManager.ConnectionStrings["AzureJobsData"].ConnectionString))
+            : this(new AzureImageStorage(ConfigurationManager.ConnectionStrings["AzureJobsStorage"].ConnectionString))
         {
         }
 
@@ -39,17 +34,18 @@ namespace PhluffyShuffyImageProcessor
         /// <summary>
         /// Waits for message from the queue and creates shuffles
         /// </summary>
-        /// <param name="shufflerequests">The message received from queue</param>
+        /// <param name="shufflerequest">The message received from queue</param>
         public static void CreateShuffle(
-            [QueueInput] ShuffleRequestMessage shufflerequests,
+            [QueueTrigger("shufflerequests")] ShuffleRequestMessage shufflerequest,
             IBinder binder)
         {
-            string shuffleId = shufflerequests.ShuffleId;
+            string shuffleId = shufflerequest.ShuffleId;
 
             ImageProcessingJobs processor = new ImageProcessingJobs();
             string shuffle = processor.CreateShuffle(shuffleId);
 
-            Stream shuffleBlob = binder.Bind<Stream>(new BlobOutputAttribute("shuffle" + shuffleId + @"/shuffle.jpg"));
+            BlobAttribute attribute = new BlobAttribute("shuffle" + shuffleId + @"/shuffle.jpg", FileAccess.Write);
+            Stream shuffleBlob = binder.Bind<Stream>(attribute);
 
             using (Stream localShuffle = File.OpenRead(shuffle))
             {

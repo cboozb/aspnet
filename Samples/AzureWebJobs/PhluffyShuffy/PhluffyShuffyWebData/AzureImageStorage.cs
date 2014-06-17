@@ -33,8 +33,13 @@ namespace PhluffyShuffyWebData
         private readonly CloudQueueClient queueClient;
 
         public AzureImageStorage(string connectionString)
+            : this(CloudStorageAccount.Parse(connectionString))
         {
-            this.storageAccount = CloudStorageAccount.Parse(connectionString);
+        }
+
+        public AzureImageStorage(CloudStorageAccount storageAccount)
+        {
+            this.storageAccount = storageAccount;
             this.blobClient = this.storageAccount.CreateCloudBlobClient();
             this.queueClient = this.storageAccount.CreateCloudQueueClient();
         }
@@ -71,6 +76,7 @@ namespace PhluffyShuffyWebData
 
             // Create the queue message and post it
             CloudQueue shuffleQueue = this.GetShuffleQueue();
+            shuffleQueue.CreateIfNotExists();
 
             ShuffleRequestMessage newShuffleRequest = new ShuffleRequestMessage()
             {
