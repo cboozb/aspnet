@@ -16,7 +16,8 @@ namespace ProductODataService.Models
             entityTypeConfigurationOfEmployee.Collection.Function("GetCount").Returns<int>();
 
             // Overload
-            entityTypeConfigurationOfEmployee.Collection.Function("GetCount").Returns<int>().Parameter<string>("Name");
+            entityTypeConfigurationOfEmployee.Collection.Function("GetCount").Returns<int>()
+                .Parameter<string>("Name");
 
             builder.Namespace = typeof(Product).Namespace;
             return builder.GetEdmModel();

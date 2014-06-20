@@ -10,7 +10,8 @@ namespace ProductODataService
     {
         public static void Register(HttpConfiguration config)
         {
-            config.MapODataServiceRoute("odata", "odata", ProductsServiceEdmModel.GetEdmModel(), new PathAndSlashEscapeODataPathHandler(), ODataRoutingConventions.CreateDefault());
+            config.MapODataServiceRoute(routeName:"odata", routePrefix:"odata", model: ProductsServiceEdmModel.GetEdmModel(), 
+                pathHandler: new PathAndSlashEscapeODataPathHandler(), routingConventions: ODataRoutingConventions.CreateDefault());
         }
     }
 }

@@ -9,7 +9,8 @@ namespace ProductODataService.Controllers
     public class ProductsController : ODataController
     {
         private static List<Product> _products = null;
-        private static void InitProducts()
+
+        static ProductsController()
         {
             _products = Enumerable.Range(1, 5).Select(i =>
             new Product
@@ -19,14 +20,6 @@ namespace ProductODataService.Controllers
 
             }).ToList();
         }
-
-        static ProductsController()
-        {
-            InitProducts();
-        }
-
-
-        public IList<Product> Customers { get { return _products; } }
 
         [EnableQuery(PageSize = 10, MaxExpansionDepth = 5)]
         public IHttpActionResult Get()
@@ -43,9 +36,9 @@ namespace ProductODataService.Controllers
 
         // ~/Employees/Namespace.GetCount(Name='Name1')
         [HttpGet]
-        public int GetCount(string name)
+        public int GetCount(string subString)
         {
-            return _products.Count(e => e.Name.Contains(name));
+            return _products.Count(e => e.Name.Contains(subString));
         }
     }
 }
