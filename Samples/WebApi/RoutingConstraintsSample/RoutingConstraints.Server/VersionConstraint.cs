@@ -33,13 +33,11 @@ namespace RoutingConstraints.Server
             if (routeDirection == HttpRouteDirection.UriResolution)
             {
                 int version = GetVersionHeader(request) ?? DefaultVersion;
-                if (version == AllowedVersion)
-                {
-                    return true;
-                }
+
+                return (version == AllowedVersion);
             }
 
-            return false;
+            return true;
         }
 
         private int? GetVersionHeader(HttpRequestMessage request)
