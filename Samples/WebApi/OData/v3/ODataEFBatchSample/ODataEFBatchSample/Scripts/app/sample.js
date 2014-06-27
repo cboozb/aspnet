@@ -1,4 +1,4 @@
-﻿var sample = function (console) {
+﻿var sample = function (testOut) {
 
     // Helper function to create and send a batch request that inserts a customer, a related order and a related order
     // line using the $Content-ID syntax.
@@ -46,7 +46,7 @@
         // contains the inserted entity).
         contentIdRequest: function () {
 
-            console.write('<h1>Sending a batch request to insert a customer a related order and a related order line '
+            testOut.write('<h1>Sending a batch request to insert a customer a related order and a related order line '
                 + 'using $Content-ID</h1>');
 
             return sendBatchRequest().then(function (data) {
@@ -54,12 +54,12 @@
                 responses = getResponses(data);
 
                 // Check that we got back three responses.
-                console.write('<h3>Number of responses: ' + responses.length + '</h3>');
+                testOut.write('<h3>Number of responses: ' + responses.length + '</h3>');
 
                 // Check each individual response.
                 responses.forEach(function (value, index) {
-                    console.write('<h3>Status code for response ' + index + ': ' + value.statusCode + '</h3>');
-                    console.writeLine('<span>' + JSON.stringify(value.data, null, '    ') + '</span>');
+                    testOut.write('<h3>Status code for response ' + index + ': ' + value.statusCode + '</h3>');
+                    testOut.writeLine('<span>' + JSON.stringify(value.data, null, '    ') + '</span>');
                 });
             });
         },
@@ -76,7 +76,7 @@
             // later in the promises chain.
             var entityKey;
 
-            console.write('<h1>Sending a batch request to delete the customer entity we just inserted, the related ' +
+            testOut.write('<h1>Sending a batch request to delete the customer entity we just inserted, the related ' +
                 'order and order line will be deleted at the same time</h1>');
 
             // Send a batch request that inserts a customer, a related order and a related order line.
@@ -109,21 +109,21 @@
 
                 // Send the batch request to the server and return a promise that will be fullfiled or rejected when the
                 // call to the server finishes.
-                console.write('<h3>Sending the $batch request to delete the existing customer</h3>');
+                testOut.write('<h3>Sending the $batch request to delete the existing customer</h3>');
                 return ODataEFBatchSample.postBatch(batchRequest);
 
             }).then(function (data) {
                 // Extract the responses from the changeset and pick the first one.
                 var result = getResponses(data)[0];
                 // Ensure that we deleted the customer correctly.
-                console.writeLine('The status code of the response for the request to delete the customer is: ' + result.statusCode);
+                testOut.writeLine('The status code of the response for the request to delete the customer is: ' + result.statusCode);
             }).then(function () {
                 // Try to get the orders related to the customer we just deleted.
-                console.write('<h3>Querying for orders with CustomerId = ' + entityKey + '</h3>');
+                testOut.write('<h3>Querying for orders with CustomerId = ' + entityKey + '</h3>');
                 return ODataEFBatchSample.getOrderLines(entityKey);
             }).then(function (data) {
                 // Ensure that all related orders have been deleted.
-                console.writeLine('Orders returned: ' + data.results.length);
+                testOut.writeLine('Orders returned: ' + data.results.length);
             });
         }
     };
