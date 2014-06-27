@@ -8,7 +8,7 @@ namespace ODataEFBatchSample.Controllers
         {
             ViewBag.Title = "Home Page";
 
-            return Redirect("/Tests/SpecRunner.html");
+            return Redirect("/Index.html");
         }
     }
 }
