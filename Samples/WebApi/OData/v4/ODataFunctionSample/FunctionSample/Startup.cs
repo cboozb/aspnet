@@ -34,7 +34,7 @@ namespace FunctionSample
             // Returns the top 10 product, a collection
             productType.Collection
                 .Function("Top10")
-                .ReturnsCollection<Product>();
+                .ReturnsCollectionFromEntitySet<Product>("Products");
 
             // Function bound to a single entity
             // Returns the instance's price rank among all products

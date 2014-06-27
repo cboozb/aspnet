@@ -1,35 +1,29 @@
-﻿using Microsoft.Data.OData;
-using ODataService.Models;
-using System;
+﻿using System;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.OData;
-using System.Web.Http.OData.Routing;
+using System.Web.Http.OData.Query;
+using Microsoft.Data.OData;
+using ODataService.Models;
 
 namespace ODataService.Controllers
 {
     /// <summary>
     /// This controller is responsible for the ProductFamilies entity set.
-    /// 
-    /// <remarks>
-    /// In this example we leverage the EntitySetController<TEntity,TKey> class that
-    /// provides basic plumbing for implementing an OData EntitySet.
-    /// 
-    /// This class overrides all the method needed to provide full support for 
-    /// the OData operations currently supported by Web API.
-    /// </remarks>
     /// </summary>
-    public class ProductFamiliesController : EntitySetController<ProductFamily, int>
+    public class ProductFamiliesController : ODataController
     {
-        ProductsContext _db = new ProductsContext();
+        private ProductsContext _db = new ProductsContext();
 
         /// <summary>
         /// Support for querying ProductFamilies
         /// </summary>
-        public override IQueryable<ProductFamily> Get()
+        [EnableQuery(AllowedQueryOptions = AllowedQueryOptions.Supported | AllowedQueryOptions.Format)]
+        public IQueryable<ProductFamily> Get()
         {
             // if you need to secure this data, one approach would be
             // to apply a where clause before returning. This way any $filter etc, 
@@ -40,88 +34,128 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for getting a ProductFamily by key
         /// </summary>
-        protected override ProductFamily GetEntityByKey(int key)
+        /// <param name="key"></param>
+        [EnableQuery]
+        public SingleResult<ProductFamily> Get(int key)
         {
-           return _db.ProductFamilies.SingleOrDefault(f => f.ID == key);
+            return SingleResult.Create(_db.ProductFamilies.Where(f => f.ID == key));
         }
 
         /// <summary>
         /// Support for creating a ProductFamily
         /// </summary>
-        /// <param name="entity"></param>
-        /// <returns></returns>
-        protected override ProductFamily CreateEntity(ProductFamily entity)
+        /// <param name="productFamily"></param>
+        [AcceptVerbs("POST")]
+        public async Task<IHttpActionResult> Post(ProductFamily productFamily)
         {
-            _db.ProductFamilies.Add(entity);
-            _db.SaveChanges();
-            return entity;
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _db.ProductFamilies.Add(productFamily);
+            await _db.SaveChangesAsync();
+
+            return Created(productFamily);
+        }
+
+        /// <summary>
+        /// Support for replacing a ProductFamily
+        /// </summary>
+        public async Task<IHttpActionResult> Put([FromODataUri] int key, ProductFamily family)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            if (key != family.ID)
+            {
+                return BadRequest();
+            }
+
+            _db.Entry(family).State = EntityState.Modified;
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_db.ProductFamilies.Any(p => p.ID == key))
+                {
+                    return NotFound();
+                }
+                throw;
+            }
+
+            return Updated(family);
+        }
+
+        /// <summary>
+        /// Support for patching a ProductFamily
+        /// </summary>
+        /// <param name="key"></param>
+        /// <param name="productFamily"></param>
+        [AcceptVerbs("PATCH")]
+        public async Task<IHttpActionResult> Patch(int key, Delta<ProductFamily> productFamily)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var update = await _db.ProductFamilies.FindAsync(key);
+            if (update == null)
+            {
+                return NotFound();
+            }
+
+            productFamily.Patch(update);
+            try
+            {
+                await _db.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_db.ProductFamilies.Any(p => p.ID == key))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            return Updated(update);
         }
 
         /// <summary>
         /// Support for deleting a ProductFamily
         /// </summary>
         /// <param name="key"></param>
-        public override void Delete([FromODataUri]int key)
+        public async Task<IHttpActionResult> Delete([FromODataUri] int key)
         {
-            ProductFamily toDelete = _db.ProductFamilies.FirstOrDefault(f => f.ID == key);
-            if (toDelete == null)
+            var productFamily = await _db.ProductFamilies.Where(p => p.ID == key).Include(p => p.Products).FirstOrDefaultAsync();
+            if (productFamily == null)
             {
-                throw ODataErrors.EntityNotFound(Request);
+                return NotFound();
             }
-            foreach (var product in toDelete.Products.ToList())
+
+            foreach (var product in productFamily.Products)
             {
                 product.Family = null;
             }
 
-            _db.ProductFamilies.Remove(toDelete);
-            _db.SaveChanges();
-        }
+            _db.ProductFamilies.Remove(productFamily);
+            await _db.SaveChangesAsync();
 
-        /// <summary>
-        /// Support for patching a ProductFamily
-        /// </summary>
-        protected override ProductFamily PatchEntity(int key, Delta<ProductFamily> patch)
-        {
-            ProductFamily toUpdate = _db.ProductFamilies.FirstOrDefault(f => f.ID == key);
-            if (toUpdate == null)
-            {
-                throw ODataErrors.EntityNotFound(Request);
-            }
-            patch.Patch(toUpdate);
-            _db.SaveChanges();
-            return toUpdate;
-        }
-
-        /// <summary>
-        /// Support for replacing a ProductFamily
-        /// </summary>
-        protected override ProductFamily UpdateEntity(int key, ProductFamily update)
-        {
-            if (key != update.ID)
-            {
-                throw new HttpResponseException(Request.CreateODataErrorResponse(HttpStatusCode.BadRequest, 
-                new ODataError()
-                {
-                    Message = "The supplied key and the ProductFamily being patched do not match."
-                }));
-            }
-
-            if (!_db.ProductFamilies.Any(p => p.ID == key))
-            {
-                throw ODataErrors.EntityNotFound(Request);
-            }
-            update.ID = key; // ignore the key in the entity use the key in the URL.
-
-            _db.ProductFamilies.Attach(update);
-            _db.Entry(update).State = EntityState.Modified;
-            _db.SaveChanges();
-            return update;
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         /// <summary>
         /// Support for /ProductFamilies(1)/Products
         /// </summary>
-        [Queryable]
+        [EnableQuery]
         public IQueryable<Product> GetProducts([FromODataUri] int key)
         {
             return _db.ProductFamilies.Where(pf => pf.ID == key).SelectMany(pf => pf.Products);
@@ -130,101 +164,84 @@ namespace ODataService.Controllers
         /// <summary>
         /// Support for POST /ProductFamiles(1)/Products
         /// </summary>
-        public HttpResponseMessage PostProducts([FromODataUri] int key, Product product)
+        [HttpPost]
+        public async Task<IHttpActionResult> PostProducts([FromODataUri] int key, Product product)
         {
-            var family = _db.ProductFamilies.Find(key);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var family = await _db.ProductFamilies.FindAsync(key);
             if (family == null)
             {
-                throw Request.EntityNotFound();
+                return NotFound();
             }
 
             family.Products.Add(product);
-            _db.SaveChanges();
 
-            var response = Request.CreateResponse(
-                HttpStatusCode.Created,
-                product);
-            response.Headers.Location = new Uri(Url.ODataLink(
-                new EntitySetPathSegment("Products"),
-                new KeyValuePathSegment(product.ID.ToString())));
-            return response;
+            await _db.SaveChangesAsync();
+
+            return Created(product);
+        }
+
+        /// <summary>
+        /// Support ProductFamily.Products.Add(Product)
+        /// </summary>
+        [AcceptVerbs("POST", "PUT")]
+        public async Task<IHttpActionResult> CreateLinkToProducts([FromODataUri] int key, [FromBody] Uri uri)
+        {
+            var family = await _db.ProductFamilies.FindAsync(key);
+            if (family == null)
+            {
+                return Content(HttpStatusCode.NotFound, ODataErrors.EntityNotFound("ProductFamilies"));
+            }
+
+            var productId = Request.GetKeyValue<int>(uri);
+            var product = await _db.Products.SingleOrDefaultAsync(p => p.ID == productId);
+            if (product == null)
+            {
+                return Content(HttpStatusCode.NotFound, ODataErrors.EntityNotFound("Products"));
+            }
+            product.Family = family;
+
+            await _db.SaveChangesAsync();
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         /// <summary>
         /// Support for /ProductFamilies(1)/Supplier
         /// </summary>
-        public Supplier GetSupplier([FromODataUri] int key)
+        [EnableQuery]
+        public SingleResult<Supplier> GetSupplier([FromODataUri] int key)
         {
-            return _db.ProductFamilies.Where(pf => pf.ID == key).Select(pf => pf.Supplier).SingleOrDefault();
+            return SingleResult.Create(_db.ProductFamilies.Where(pf => pf.ID == key).Select(pf => pf.Supplier));
         }
 
         /// <summary>
-        /// Support ProductFamily.Products.Add(Product) and ProductFamily.Supplier = Supplier
+        /// Support ProductFamily.Supplier = Supplier
         /// </summary>
-        public override void CreateLink([FromODataUri] int key, string navigationProperty, [FromBody] Uri link)
+        [AcceptVerbs("POST", "PUT")]
+        public async Task<IHttpActionResult> CreateLinkToSupplier([FromODataUri] int key, [FromBody] Uri uri)
         {
-            ProductFamily family = _db.ProductFamilies.SingleOrDefault(p => p.ID == key);
+            var family = await _db.ProductFamilies.FindAsync(key);
             if (family == null)
             {
-                throw ODataErrors.EntityNotFound(Request);
+                return Content(HttpStatusCode.NotFound, ODataErrors.EntityNotFound("ProductFamilies"));
             }
-            switch (navigationProperty)
+
+            var supplierId = Request.GetKeyValue<int>(uri);
+            var supplier = await _db.Suppliers.SingleOrDefaultAsync(p => p.ID == supplierId);
+            if (supplier == null)
             {
-                case "Products":
-                    int productId = Request.GetKeyValue<int>(link);
-                    Product product = _db.Products.SingleOrDefault(p => p.ID == productId);
-                    if (product == null)
-                    {
-                        throw ODataErrors.EntityNotFound(Request);
-                    }
-                    product.Family = family;
-                    break;
-
-                case "Supplier":
-                    int supplierId = Request.GetKeyValue<int>(link);
-                    Supplier supplier = _db.Suppliers.SingleOrDefault(s => s.ID == supplierId);
-                    if (supplier == null)
-                    {
-                        throw ODataErrors.EntityNotFound(Request);
-                    }
-                    family.Supplier = supplier;
-                    break;
-
-                default:
-                    base.CreateLink(key, navigationProperty, link);
-                    break;
+                return Content(HttpStatusCode.NotFound, ODataErrors.EntityNotFound("Suppliers"));
             }
-            _db.SaveChanges();
-        }
+            family.Supplier = supplier;
 
-        /// <summary>
-        /// Support for ProductFamily.Supplier = null
-        /// which uses this Url shape:
-        ///     DELETE ~/ProductFamilies(id)/$links/Supplier
-        ///     headers
-        ///     
-        ///     [link]
-        /// </summary>
-        public override void DeleteLink([FromODataUri] int key, string navigationProperty, [FromBody] Uri link)
-        {
-            ProductFamily family = _db.ProductFamilies.SingleOrDefault(p => p.ID == key);
-            if (family == null)
-            {
-                throw ODataErrors.EntityNotFound(Request);
-            }
+            await _db.SaveChangesAsync();
 
-            switch (navigationProperty)
-            {
-                case "Supplier":
-                    family.Supplier = null;
-                    break;
-
-                default:
-                    base.DeleteLink(key, navigationProperty, link);
-                    break;
-
-            }
-            _db.SaveChanges();
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -233,32 +250,32 @@ namespace ODataService.Controllers
         /// which uses this URL shape:
         ///     DELETE ~/ProductFamilies(id)/$links/Products(relatedId)
         /// </summary>
-        public override void DeleteLink([FromODataUri] int key, string relatedKey, string navigationProperty)
+        public async Task<IHttpActionResult> DeleteLink([FromODataUri] int key, [FromODataUri] string relatedKey, string navigationProperty)
         {
-            ProductFamily family = _db.ProductFamilies.SingleOrDefault(p => p.ID == key);
+            var family = await _db.ProductFamilies.FindAsync(key);
             if (family == null)
             {
-                throw ODataErrors.EntityNotFound(Request);
+                return Content(HttpStatusCode.NotFound, ODataErrors.EntityNotFound("ProductFamilies"));
             }
-
             switch (navigationProperty)
             {
                 case "Products":
-                    int productId = Convert.ToInt32(relatedKey);
-                    Product product = _db.Products.SingleOrDefault(p => p.ID == productId);
+                    var productId = Convert.ToInt32(relatedKey);
+                    var product = await _db.Products.SingleOrDefaultAsync(p => p.ID == productId);
+
                     if (product == null)
                     {
-                        throw ODataErrors.EntityNotFound(Request);
+                        return Content(HttpStatusCode.NotFound, ODataErrors.EntityNotFound("Products"));
                     }
                     product.Family = null;
                     break;
-
-
                 default:
-                    base.DeleteLink(key, relatedKey, navigationProperty);
-                    break;
+                    return Content(HttpStatusCode.NotImplemented, ODataErrors.DeletingLinkNotSupported(navigationProperty));
+
             }
-            _db.SaveChanges();
+            await _db.SaveChangesAsync();
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         /// <summary>
@@ -266,23 +283,18 @@ namespace ODataService.Controllers
         /// </summary>
         /// <param name="key">Bound key</param>
         /// <param name="parameters"></param>
-        /// <returns></returns>
         [HttpPost]
-        public int CreateProduct([FromODataUri] int key, ODataActionParameters parameters)
+        public async Task<IHttpActionResult> CreateProduct([FromODataUri] int key, ODataActionParameters parameters)
         {
             if (!ModelState.IsValid)
             {
-                throw new HttpResponseException(Request.CreateODataErrorResponse(HttpStatusCode.BadRequest,
-                    new ODataError()
-                    {
-                        Message = ODataHelper.GetModelStateErrorInformation(ModelState)
-                    }));
+                return BadRequest(ModelState);
             }
-        
-            ProductFamily productFamily = _db.ProductFamilies.SingleOrDefault(p => p.ID == key);
-            string productName = parameters["Name"].ToString();
 
-            Product product = new Product
+            var productFamily = await _db.ProductFamilies.FindAsync(key);
+            var productName = parameters["Name"].ToString();
+
+            var product = new Product
             {
                 Name = productName,
                 Family = productFamily,
@@ -290,22 +302,19 @@ namespace ODataService.Controllers
                 SupportedUntil = DateTime.Now.AddYears(10)
             };
             _db.Products.Add(product);
-            _db.SaveChanges();
 
-            return product.ID;
-        }
+            await _db.SaveChangesAsync();
 
-        /// <summary>
-        /// Required override to help the base class build self/edit/id links.
-        /// </summary>
-        protected override int GetKey(ProductFamily entity)
-        {
-            return entity.ID;
+            return Ok(product.ID);
         }
 
         protected override void Dispose(bool disposing)
         {
-            _db.Dispose();
+            if (disposing && _db != null)
+            {
+                _db.Dispose();
+                _db = null;
+            }
             base.Dispose(disposing);
         }
     }

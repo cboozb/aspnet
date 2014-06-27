@@ -19,17 +19,17 @@ namespace ODataService.Controllers
     /// </summary>
     public class SuppliersController : ODataController
     {
-        ProductsContext db = new ProductsContext();
+        ProductsContext _db = new ProductsContext();
 
         public IQueryable<Supplier> Get()
         {
-            return db.Suppliers;
+            return _db.Suppliers;
         }
 
         [EnableQuery]
         public SingleResult<Supplier> Get([FromODataUri] int key)
         {
-            return SingleResult.Create(db.Suppliers.Where(s => s.Id == key));
+            return SingleResult.Create(_db.Suppliers.Where(s => s.Id == key));
         }
 
         [AcceptVerbs("POST")]
@@ -37,16 +37,17 @@ namespace ODataService.Controllers
         {
             supplier.ProductFamilies = null;
 
-            Supplier addedSupplier = db.Suppliers.Add(supplier);
-            await db.SaveChangesAsync();
+            Supplier addedSupplier = _db.Suppliers.Add(supplier);
+            await _db.SaveChangesAsync();
             return StatusCode(HttpStatusCode.NoContent);
         }
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing)
+            if (disposing && _db != null)
             {
-                db.Dispose();
+                _db.Dispose();
+                _db = null;
             }
             base.Dispose(disposing);
         }

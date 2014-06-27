@@ -5,6 +5,7 @@ using System.Text;
 using System.Web.Http;
 using System.Web.Http.ModelBinding;
 using System.Web.Http.OData;
+using System.Web.Http.OData.Extensions;
 using System.Web.Http.OData.Routing;
 using System.Web.Http.Routing;
 using Microsoft.Data.OData.Query;
@@ -44,7 +45,7 @@ namespace ODataService
                 throw new InvalidOperationException("The link is not a valid odata link.");
             }
 
-            return newRequest.GetODataPath();
+            return newRequest.ODataProperties().Path;
         }
 
         /// <summary>

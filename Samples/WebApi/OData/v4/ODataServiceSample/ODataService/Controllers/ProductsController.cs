@@ -21,7 +21,7 @@ namespace ODataService.Controllers
     public class ProductsController : ODataController
     {
         // this example uses EntityFramework CodeFirst
-        ProductsContext db = new ProductsContext();
+        ProductsContext _db = new ProductsContext();
 
         /// <summary>
         /// Adds support for getting products, for example:
@@ -39,7 +39,7 @@ namespace ODataService.Controllers
         public IQueryable<Product> Get()
         {
             // If you have any security filters you should apply them before returning then from this method.
-            return db.Products;
+            return _db.Products;
         }
 
         /// <summary>
@@ -52,7 +52,23 @@ namespace ODataService.Controllers
         [EnableQuery]
         public SingleResult<Product> Get([FromODataUri] int key)
         {
-            return SingleResult.Create(db.Products.Where(p => p.Id == key));
+            return SingleResult.Create(_db.Products.Where(p => p.Id == key));
+        }
+
+        /// <summary>
+        /// Support for creating products
+        /// </summary>
+        public async Task<IHttpActionResult> Post(Product product)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            _db.Products.Add(product);
+            await _db.SaveChangesAsync();
+
+            return Created(product);
         }
 
         /// <summary>
@@ -70,14 +86,14 @@ namespace ODataService.Controllers
                 return BadRequest();
             }
 
-            db.Entry(update).State = EntityState.Modified;
+            _db.Entry(update).State = EntityState.Modified;
             try
             {
-                await db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!db.Products.Any(p => p.Id == key))
+                if (!_db.Products.Any(p => p.Id == key))
                 {
                     return NotFound();
                 }
@@ -91,22 +107,6 @@ namespace ODataService.Controllers
         }
 
         /// <summary>
-        /// Support for creating products
-        /// </summary>
-        public async Task<IHttpActionResult> Post(Product product)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            db.Products.Add(product);
-            await db.SaveChangesAsync();
-
-            return Created(product);
-        }
-
-        /// <summary>
         /// Support for partial updates of products
         /// </summary>
         public async Task<IHttpActionResult> Patch([FromODataUri] int key, Delta<Product> product)
@@ -116,7 +116,7 @@ namespace ODataService.Controllers
                 return BadRequest(ModelState);
             }
 
-            var entity = await db.Products.FindAsync(key);
+            var entity = await _db.Products.FindAsync(key);
             if (entity == null)
             {
                 return NotFound();
@@ -126,11 +126,11 @@ namespace ODataService.Controllers
 
             try
             {
-                await db.SaveChangesAsync();
+                await _db.SaveChangesAsync();
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!db.Products.Any(p => p.Id == key))
+                if (!_db.Products.Any(p => p.Id == key))
                 {
                     return NotFound();
                 }
@@ -148,44 +148,29 @@ namespace ODataService.Controllers
         /// </summary>
         public async Task<IHttpActionResult> Delete([FromODataUri] int key)
         {
-            var product = await db.Products.FindAsync(key);
+            var product = await _db.Products.FindAsync(key);
             if (product == null)
             {
                 return NotFound();
             }
 
-            db.Products.Remove(product);
-            await db.SaveChangesAsync();
+            _db.Products.Remove(product);
+            await _db.SaveChangesAsync();
 
             return StatusCode(HttpStatusCode.NoContent);
         }
 
         /// <summary>
-        /// Support for removing links between resources
+        /// Adds support for getting a ProductFamily from a Product, for example:
+        /// 
+        /// GET /Products(11)/Family
         /// </summary>
-        /// <param name="key">The key of the entity with the navigation property</param>
-        /// <param name="navigationProperty">The navigation property on the entity to be modified</param>
-        /// <param name="link">The url to the other entity that should no longer be linked to the entity via the navigation property</param>
-        public async Task<IHttpActionResult> DeleteRef([FromODataUri] int key, string navigationProperty, [FromBody] Uri link)
+        /// <param name="key">The id of the Product</param>
+        /// <returns>The related ProductFamily</returns>
+        public async Task<IHttpActionResult> GetFamily([FromODataUri] int key)
         {
-            var product = db.Products.SingleOrDefault(p => p.Id == key);
-            if (product == null)
-            {
-                return Content(HttpStatusCode.NotFound, ODataErrors.EntityNotFound());
-            }
-
-            switch (navigationProperty)
-            {
-                case "Family":
-                    product.Family = null;
-                    break;
-
-                default:
-                    return Content(HttpStatusCode.NotImplemented, ODataErrors.DeletingLinkNotSupported(navigationProperty));
-            }
-            await db.SaveChangesAsync();
-
-            return StatusCode(HttpStatusCode.NoContent);
+            var family = await _db.Products.Where(p => p.Id == key).Select(p => p.Family).SingleOrDefaultAsync();
+            return Ok(family);
         }
 
         /// <summary>
@@ -203,10 +188,10 @@ namespace ODataService.Controllers
         [AcceptVerbs("POST", "PUT")]
         public async Task<IHttpActionResult> CreateRef([FromODataUri] int key, string navigationProperty, [FromBody] Uri link)
         {
-            var product = await db.Products.SingleOrDefaultAsync(p => p.Id == key);
+            var product = await _db.Products.FindAsync(key);
             if (product == null)
             {
-                return Content(HttpStatusCode.NotFound, ODataErrors.EntityNotFound());
+                return NotFound();
             }
             switch (navigationProperty)
             {
@@ -214,33 +199,52 @@ namespace ODataService.Controllers
                     // The utility method uses routing (ODataRoutes.GetById should match) to get the value of {id} parameter 
                     // which is the id of the ProductFamily.
                     var relatedKey = Request.GetKeyValue<int>(link);
-                    var family = await db.ProductFamilies.SingleOrDefaultAsync(f => f.Id == relatedKey);
+                    var family = await _db.ProductFamilies.SingleOrDefaultAsync(f => f.Id == relatedKey);
                     product.Family = family;
                     break;
 
                 default:
                     return Content(HttpStatusCode.NotImplemented, ODataErrors.CreatingLinkNotSupported(navigationProperty));
             }
-            await db.SaveChangesAsync();
+            await _db.SaveChangesAsync();
             return StatusCode(HttpStatusCode.NoContent);
         }
 
         /// <summary>
-        /// Adds support for getting a ProductFamily from a Product, for example:
-        /// 
-        /// GET /Products(11)/Family
+        /// Support for removing links between resources
         /// </summary>
-        /// <param name="key">The id of the Product</param>
-        /// <returns>The related ProductFamily</returns>
-        public async Task<IHttpActionResult> GetFamily([FromODataUri] int key)
+        /// <param name="key">The key of the entity with the navigation property</param>
+        /// <param name="navigationProperty">The navigation property on the entity to be modified</param>
+        /// <param name="link">The url to the other entity that should no longer be linked to the entity via the navigation property</param>
+        public async Task<IHttpActionResult> DeleteRef([FromODataUri] int key, string navigationProperty, [FromBody] Uri link)
         {
-            var family = await db.Products.Where(p => p.Id == key).Select(p => p.Family).SingleOrDefaultAsync();
-            return Ok(family);
+            var product = await _db.Products.FindAsync(key);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            switch (navigationProperty)
+            {
+                case "Family":
+                    product.Family = null;
+                    break;
+
+                default:
+                    return Content(HttpStatusCode.NotImplemented, ODataErrors.DeletingLinkNotSupported(navigationProperty));
+            }
+            await _db.SaveChangesAsync();
+
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         protected override void Dispose(bool disposing)
         {
-            db.Dispose();
+            if (disposing && _db != null)
+            {
+                _db.Dispose();
+                _db = null;
+            }
             base.Dispose(disposing);
         }
     }

@@ -1,10 +1,9 @@
 ﻿using System.Linq;
 using System.Net;
-using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Web.Http.OData;
 using ODataService.Models;
-using ODataService.Extensions;
 
 namespace ODataService.Controllers
 {
@@ -27,31 +26,29 @@ namespace ODataService.Controllers
             return _db.Suppliers;
         }
 
-        public HttpResponseMessage Get([FromODataUri] int key)
+        [EnableQuery]
+        public SingleResult<Supplier> Get([FromODataUri] int key)
         {
-            Supplier supplier = _db.Suppliers.SingleOrDefault(s => s.ID == key);
-            if (supplier == null)
-            {
-                return Request.CreateResponse(HttpStatusCode.NotFound);
-            }
-            else
-            {
-                return Request.CreateResponse(HttpStatusCode.OK, supplier);
-            }
+            return SingleResult.Create(_db.Suppliers.Where(s => s.ID == key));
         }
 
-        public HttpResponseMessage Post(Supplier supplier)
+        [AcceptVerbs("POST")]
+        public async Task<IHttpActionResult> Post(Supplier supplier)
         {
             supplier.ProductFamilies = null;
 
             Supplier addedSupplier = _db.Suppliers.Add(supplier);
-            _db.SaveChanges();
-            return Request.CreateResponse(HttpStatusCode.Created, addedSupplier);
+            await _db.SaveChangesAsync();
+            return StatusCode(HttpStatusCode.NoContent);
         }
 
         protected override void Dispose(bool disposing)
         {
-            _db.Dispose();
+            if (disposing && _db != null)
+            {
+                _db.Dispose();
+                _db = null;
+            }
             base.Dispose(disposing);
         }
     }

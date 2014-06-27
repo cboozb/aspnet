@@ -1,35 +1,35 @@
-﻿namespace ODataService
+﻿using Microsoft.OData.Core;
+
+namespace ODataService
 {
     /// <summary>
-    /// A set of useful OData related errors.
+    /// A set of useful correctly formatted OData errors.
     /// </summary>
     public static class ODataErrors
     {
-        public static object EntityNotFound()
+        public static ODataError EntityNotFound(string entityName)
         {
-            return new
+            return new ODataError()
             {
-                Message = "The entity was not found.",
-                ErrorCode = "Entity Not Found."
+                Message = string.Format("Cannot find {0}", entityName), 
+                ErrorCode = "Entity Not Found"
             };
         }
 
-        public static object DeletingLinkNotSupported(string navigation)
+        public static ODataError DeletingLinkNotSupported(string navigation)
         {
-            return new
+            return new ODataError()
             {
-                Message = string.Format("Deleting a '{0}' link is not supported.", navigation),
-                MessageLanguage = "en-US",
+                Message = string.Format("Deleting a '{0}' link is not supported.", navigation), 
                 ErrorCode = "Deleting link failed."
             };
         }
 
-        public static object CreatingLinkNotSupported(string navigation)
+        public static ODataError CreatingLinkNotSupported(string navigation)
         {
-            return new
+            return new ODataError()
             {
-                Message = string.Format("Creating a '{0}' link is not supported.", navigation),
-                MessageLanguage = "en-US",
+                Message = string.Format("Creating a '{0}' link is not supported.", navigation), 
                 ErrorCode = "Creating link failed."
             };
         }

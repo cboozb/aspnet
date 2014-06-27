@@ -1,10 +1,12 @@
-﻿using ODataService.Extensions;
-using System;
+﻿using System;
 using System.Web.Http;
+using System.Web.Http.OData;
+using System.Web.Http.OData.Extensions;
 using System.Web.Http.OData.Query;
 using System.Web.Http.OData.Routing;
 using System.Web.Http.OData.Routing.Conventions;
 using System.Web.Http.SelfHost;
+using ODataService.Extensions;
 
 namespace ODataService.SelfHost
 {
@@ -31,16 +33,12 @@ namespace ODataService.SelfHost
 
                 // Enables OData support by adding an OData route and enabling querying support for OData.
                 // Action selector and odata media type formatters will be registered in per-controller configuration only
-                config.Routes.MapODataRoute(
+                config.Routes.MapODataServiceRoute(
                     routeName: "OData",
                     routePrefix: null,
                     model: ModelBuilder.GetEdmModel(),
                     pathHandler: new DefaultODataPathHandler(),
                     routingConventions: conventions);
-
-                // Enable queryable support and allow $format query
-                config.EnableQuerySupport(new QueryableAttribute { 
-                    AllowedQueryOptions = AllowedQueryOptions.Supported | AllowedQueryOptions.Format });
 
                 // To disable tracing in your application, please comment out or remove the following line of code
                 // For more information, refer to: http://www.asp.net/web-api
