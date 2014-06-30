@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Net.Http;
+using System.Threading.Tasks;
 using System.Web.Http;
 using System.Xml.Linq;
 using Microsoft.Owin.Hosting;
@@ -26,7 +27,7 @@ namespace UploadXDocumentSample
                 Console.WriteLine("Listening on " + _baseAddress);
 
                 // Run HttpClient issuing requests
-                RunClient();
+                RunClient().Wait();
 
                 Console.WriteLine("Hit ENTER to exit...");
                 Console.ReadLine();
@@ -61,7 +62,7 @@ namespace UploadXDocumentSample
             appBuilder.UseWebApi(config);
         }
 
-        static async void RunClient()
+        static async Task RunClient()
         {
             // Create an HttpClient instance
             HttpClient client = new HttpClient();
