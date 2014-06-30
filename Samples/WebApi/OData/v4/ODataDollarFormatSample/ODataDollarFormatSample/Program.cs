@@ -33,8 +33,8 @@ namespace ODataDollarFormatSample
             HttpResponseMessage response;
 
             // Sending a request for customers with $format using a MIME type.
-            // The response will be ATOM instead of JSON with minimal metadata (which is the default format).
-            request = new HttpRequestMessage(HttpMethod.Get, serviceUrl + "/odata/Customers?$format=application%2Fatom%2Bxml");
+            // The response will be JSON with minimal metadata (which is also the default format, that is, it is the same as without $format).
+            request = new HttpRequestMessage(HttpMethod.Get, serviceUrl + "/odata/Customers?$format=application%2Fjson");
             Console.WriteLine("Sending a request for customers with $format using a MIME type");
             Console.WriteLine("Request URI:");
             Console.WriteLine();
@@ -59,8 +59,8 @@ namespace ODataDollarFormatSample
             Console.WriteLine(response.Content.ReadAsStringAsync().Result);
 
             // Sending the same request as the first one but using an alias for the format instead of the MIME type.
-            // (We use atom instead of application%2Fatom%2Bxml).
-            request = new HttpRequestMessage(HttpMethod.Get, serviceUrl + "/odata/Customers?$format=atom");
+            // We use json instead of application%2Fjson.
+            request = new HttpRequestMessage(HttpMethod.Get, serviceUrl + "/odata/Customers?$format=json");
             Console.WriteLine("Sending a request for customers with $format using an alias for the format");
             Console.WriteLine("Request URI:");
             Console.WriteLine();
@@ -73,9 +73,9 @@ namespace ODataDollarFormatSample
 
             // Sending a request for customers with $format and Accept header.
             // The service will use the value from the $format query option instead of the value of the Accept header.
-            // The response will be in JSON.
+            // The response will be in JSON with minimal metadata.
             request = new HttpRequestMessage(HttpMethod.Get, serviceUrl + "/odata/Customers?$format=application%2Fjson");
-            request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/atom+xml"));
+            request.Headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json;odata.metadata=full"));
             Console.WriteLine("Sending a request for customers with $format to override the Accept header");
             Console.WriteLine("Request URI:");
             Console.WriteLine();
