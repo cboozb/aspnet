@@ -3,8 +3,12 @@ using System.Net.Http;
 using System.Net.Http.Formatting;
 using System.Net.Http.Headers;
 using System.Web.Http;
+using System.Web.Http.Dispatcher;
+using System.Web.OData;
 using System.Web.OData.Builder;
 using System.Web.OData.Extensions;
+using System.Web.OData.Routing;
+using System.Web.OData.Routing.Conventions;
 using Microsoft.OData.Edm;
 using Microsoft.Owin.Hosting;
 using Newtonsoft.Json.Linq;
@@ -31,7 +35,17 @@ namespace ODataEtagSample
         private static void Configuration(IAppBuilder builder)
         {
             HttpConfiguration configuration = new HttpConfiguration();
-            configuration.MapODataServiceRoute("odata", "odata", GetModel());
+            IEdmModel model = GetModel();
+            configuration.
+                MapODataServiceRoute(
+                    routeName: "odata",
+                    routePrefix: "odata",
+                    model: model,
+                    pathHandler: new DefaultODataPathHandler(),
+                    routingConventions: ODataRoutingConventions.CreateDefaultWithAttributeRouting(configuration, model),
+                    defaultHandler: HttpClientFactory.CreatePipeline(
+                        innerHandler: new HttpControllerDispatcher(configuration),
+                        handlers: new[] { new ETagMessageHandler() }));
             builder.UseWebApi(configuration);
         }
 
@@ -48,13 +62,14 @@ namespace ODataEtagSample
             HttpRequestMessage request;
             HttpResponseMessage response;
 
-            // Retrieving an entity for the first time. Observe that the returned payload contains the annotation
-            // @odata.etag indicating the ETag associated with that customer.
+            // Retrieving an entity for the first time. Observe that the ETag is in the response headers and 
+            // the returned payload contains the annotation @odata.etag indicating the ETag associated with that customer.
             Console.WriteLine("Retrieving a single customer at {0}/odata/Customers(1)", serverUrl);
             Console.WriteLine();
             request = new HttpRequestMessage(HttpMethod.Get, serverUrl + "/odata/Customers(1)");
             response = client.SendAsync(request).Result;
             response.EnsureSuccessStatusCode();
+            Console.WriteLine(response.ToString());
             dynamic customer = JObject.Parse(response.Content.ReadAsStringAsync().Result);
             Console.WriteLine(customer);
             Console.WriteLine();
