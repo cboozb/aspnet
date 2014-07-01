@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json.Linq;
 
 namespace Client
@@ -13,7 +14,7 @@ namespace Client
     {
         static readonly Uri _addres = new Uri("http://localhost:19446/api/files");
 
-        static async void RunClient()
+        static async Task RunClientAsync()
         {
             HttpClient client = new HttpClient();
 
@@ -41,7 +42,7 @@ namespace Client
 
         static void Main(string[] args)
         {
-            RunClient();
+            RunClientAsync().Wait();
 
             Console.WriteLine("Hit ENTER to exit...");
             Console.ReadLine();
