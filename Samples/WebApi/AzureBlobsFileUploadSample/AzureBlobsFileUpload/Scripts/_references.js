@@ -1,6 +1,6 @@
-﻿/// <reference path="modernizr-2.7.1.js" />
-/// <reference path="jquery-2.0.3.js" />
-/// <reference path="jquery-ui-1.10.3.js" />
+﻿/// <reference path="jquery-2.1.0.js" />
+/// <reference path="jquery-ui-1.10.4.js" />
+/// <reference path="modernizr-2.7.1.js" />
 ਍⼀⼀⼀ 㰀爀攀昀攀爀攀渀挀攀 瀀愀琀栀㴀∀樀焀甀攀爀礀ⴀ甀椀ⴀ㄀⸀㠀⸀㈀　⸀樀猀∀ ⼀㸀ഀഀ
 /// <reference path="jquery.validate.js" />
 ਍⼀⼀⼀ 㰀爀攀昀攀爀攀渀挀攀 瀀愀琀栀㴀∀樀焀甀攀爀礀⸀瘀愀氀椀搀愀琀攀⸀甀渀漀戀琀爀甀猀椀瘀攀⸀樀猀∀ ⼀㸀ഀഀ
