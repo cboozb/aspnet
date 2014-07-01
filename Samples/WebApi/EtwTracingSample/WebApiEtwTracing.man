@@ -1,7 +1,7 @@
 <instrumentationManifest xmlns="http://schemas.microsoft.com/win/2004/08/events">
  <instrumentation xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:win="http://manifests.microsoft.com/win/2004/08/windows/events">
   <events xmlns="http://schemas.microsoft.com/win/2004/08/events">
-<provider name="WebApi" guid="{fc7bbb67-1b01-557b-5e0e-c1c4e40b6a24}" resourceFileName="e:\dd\aspnet\Samples\Net45\CS\WebApi\EtwTracingSample\bin\Debug\WebApiEtwTracing.dll" messageFileName="e:\dd\aspnet\Samples\Net45\CS\WebApi\EtwTracingSample\bin\Debug\WebApiEtwTracing.dll" symbol="WebApi">
+<provider name="WebApi" guid="{fc7bbb67-1b01-557b-5e0e-c1c4e40b6a24}" resourceFileName="D:\aspnet\Samples\WebApi\EtwTracingSample\bin\Debug\WebApiEtwTracing.dll" messageFileName="D:\aspnet\Samples\WebApi\EtwTracingSample\bin\Debug\WebApiEtwTracing.dll" symbol="WebApi">
  <tasks>
   <task name="Request" value="1"/>
   <task name="Response" value="2"/>
