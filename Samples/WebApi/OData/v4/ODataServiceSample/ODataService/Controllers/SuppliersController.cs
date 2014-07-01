@@ -39,7 +39,8 @@ namespace ODataService.Controllers
 
             Supplier addedSupplier = _db.Suppliers.Add(supplier);
             await _db.SaveChangesAsync();
-            return StatusCode(HttpStatusCode.NoContent);
+
+            return Created(addedSupplier);
         }
 
         protected override void Dispose(bool disposing)
