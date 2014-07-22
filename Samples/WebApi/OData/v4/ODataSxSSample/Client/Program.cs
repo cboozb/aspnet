@@ -53,6 +53,18 @@ namespace Client
                 Console.WriteLine(
                     "\nMetadata from the V1 service returned: " + await response.Content.ReadAsStringAsync());
 
+                // Access the V1 service with the V1 version query string; select the first 2 orders.
+                response = await client.GetAsync("/odata/Orders/?v=1&$top=2");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine("\nShortened order list from the V1 service returned: " +
+                await response.Content.ReadAsStringAsync());
+
+                // Access the V1 service with the V1 version query string; select the products and inline count.
+                response = await client.GetAsync("/odata/Products/?v=1&$inlinecount=allpages");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine("\nCounted product list from the V1 service returned: " +
+                await response.Content.ReadAsStringAsync());
+
                 // Access the V2 service with the V2 version query string.
                 // The orders service in V2 uses the OData Attribute Routing when selecting actions.
                 response = await client.GetAsync("/odata/Orders(1)/?v=2");
@@ -72,6 +84,18 @@ namespace Client
                 response.EnsureSuccessStatusCode();
                 Console.WriteLine(
                     "\nMetadata from the V2 service returned: " + await response.Content.ReadAsStringAsync());
+
+                // Access the V2 service with the V2 version query string; select the first 2 orders.
+                response = await client.GetAsync("/odata/Orders/?v=2&$top=2");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine("\nShortened order list from the V2 service returned: " +
+                await response.Content.ReadAsStringAsync());
+
+                // Access the V2 service with the V2 version query string; select the products and inline count.
+                response = await client.GetAsync("/odata/Products/?v=2&$count=true");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine("\nCounted product list from the V2 service returned: " +
+                await response.Content.ReadAsStringAsync());
             }
             catch (Exception e)
             {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Http;
 using System.Web.Http.OData;
+using System.Web.Http.OData.Query;
 using ODataSxSService.Models;
 
 namespace ODataSxSService.Controllers
@@ -13,7 +14,7 @@ namespace ODataSxSService.Controllers
         private ODataSxSServiceContext db = new ODataSxSServiceContext();
 
         // GET odata/Orders
-        [EnableQuery]
+        [EnableQuery(AllowedQueryOptions = AllowedQueryOptions.Top)]
         public IQueryable<Order> GetOrders()
         {
             return db.Orders;
