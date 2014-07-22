@@ -22,42 +22,65 @@ namespace Client
 
         static async Task RunAsync()
         {
-            var client = new HttpClient() { BaseAddress = new Uri("http://localhost:12374/") };
+            var client = new HttpClient()
+            {
+                BaseAddress = new Uri("http://localhost:12374/")
+            };
 
-            // Access the V1 service without any version query string
-            var response = await client.GetAsync("/odata/Orders/");
-            response.EnsureSuccessStatusCode();
-            Console.WriteLine("\nOrder list from the V1 service returned: " + await response.Content.ReadAsStringAsync());
+            try
+            {
+                // Access the V1 service without any version query string.
+                var response = await client.GetAsync("/odata/Orders/");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine(
+                    "\nOrder list from the V1 service returned: " + await response.Content.ReadAsStringAsync());
 
-            // Access the V1 service with the V1 version query string
-            response = await client.GetAsync("/odata/Products(1)/?v=1");
-            response.EnsureSuccessStatusCode();
-            Console.WriteLine("\nSingle product from the V1 service returned: " + await response.Content.ReadAsStringAsync());
+                // Access the V1 service with the V1 version query string.
+                response = await client.GetAsync("/odata/Products(1)/?v=1");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine(
+                    "\nSingle product from the V1 service returned: " + await response.Content.ReadAsStringAsync());
 
-            // Access the V1 metadata without any version query string
-            response = await client.GetAsync("/odata/$metadata");
-            response.EnsureSuccessStatusCode();
-            Console.WriteLine("\nMetadata from the V1 service returned: " + await response.Content.ReadAsStringAsync());
+                // Access the V1 metadata without any version query string.
+                response = await client.GetAsync("/odata/$metadata");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine(
+                    "\nMetadata from the V1 service returned: " + await response.Content.ReadAsStringAsync());
 
-            // Access the V1 metadata with the V1 version query string
-            response = await client.GetAsync("/odata/$metadata?v=1");
-            response.EnsureSuccessStatusCode();
-            Console.WriteLine("\nMetadata from the V1 service returned: " + await response.Content.ReadAsStringAsync());
+                // Access the V1 metadata with the V1 version query string.
+                response = await client.GetAsync("/odata/$metadata?v=1");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine(
+                    "\nMetadata from the V1 service returned: " + await response.Content.ReadAsStringAsync());
 
-            // Access the V2 service with the V2 version query string. The orders service in V2 uses the OData Attribute Routing when selecting actions. 
-            response = await client.GetAsync("/odata/Orders(1)/?v=2");
-            response.EnsureSuccessStatusCode();
-            Console.WriteLine("\nSingle order from the V2 service returned: " + await response.Content.ReadAsStringAsync());
+                // Access the V2 service with the V2 version query string.
+                // The orders service in V2 uses the OData Attribute Routing when selecting actions.
+                response = await client.GetAsync("/odata/Orders(1)/?v=2");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine(
+                    "\nSingle order from the V2 service returned: " + await response.Content.ReadAsStringAsync());
 
-            // Access the V2 service with the V2 version query string. The products service in V2 rely on the traditional convention when selecting actions. 
-            response = await client.GetAsync("/odata/Products(1)/?v=2");
-            response.EnsureSuccessStatusCode();
-            Console.WriteLine("\nSingle product from the V2 service returned: " + await response.Content.ReadAsStringAsync());
+                // Access the V2 service with the V2 version query string.
+                // The products service in V2 rely on the traditional convention when selecting actions. 
+                response = await client.GetAsync("/odata/Products(1)/?v=2");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine(
+                    "\nSingle product from the V2 service returned: " + await response.Content.ReadAsStringAsync());
 
-            // Access the V2 metadata with the V2 version version query string
-            response = await client.GetAsync("/odata/$metadata?v=2");
-            response.EnsureSuccessStatusCode();
-            Console.WriteLine("\nMetadata from the V2 service returned: " + await response.Content.ReadAsStringAsync());
+                // Access the V2 metadata with the V2 version query string.
+                response = await client.GetAsync("/odata/$metadata?v=2");
+                response.EnsureSuccessStatusCode();
+                Console.WriteLine(
+                    "\nMetadata from the V2 service returned: " + await response.Content.ReadAsStringAsync());
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+            }
+            finally
+            {
+                client.Dispose();
+            }
         }
     }
 }
