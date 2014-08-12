@@ -46,6 +46,7 @@ namespace BasicAuthentication.Filters
             {
                 // Authentication was attempted but failed. Set ErrorResult to indicate an error.
                 context.ErrorResult = new AuthenticationFailureResult("Invalid credentials", request);
+                return;
             }
 
             string userName = userNameAndPasword.Item1;
