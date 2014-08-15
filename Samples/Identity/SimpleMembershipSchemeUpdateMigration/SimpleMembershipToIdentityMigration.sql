@@ -22,11 +22,18 @@ IF OBJECT_ID('dbo.AspNetUsers', 'U') IS NOT NULL
 GO
 
 CREATE TABLE [dbo].[AspNetUsers] (
-    [Id]									  NVARCHAR (128) NOT NULL,
-    [UserName]								  NVARCHAR (MAX) NULL,
-    [PasswordHash]							  NVARCHAR (MAX) NULL,
-    [SecurityStamp]							  NVARCHAR (MAX) NULL,
-    [Discriminator]							  NVARCHAR (128) NOT NULL,
+    [AccessFailedCount]    INT            NOT NULL,
+    [Email]                NVARCHAR (MAX) NULL,
+    [EmailConfirmed]       BIT            DEFAULT ((0)) NULL,
+    [Id]                   NVARCHAR (128) NOT NULL,
+    [LockoutEnabled]       BIT            DEFAULT ((0)) NULL,
+    [LockoutEndDateUtc]           DATETIME2 (7)  NULL,
+    [PasswordHash]         NVARCHAR (MAX) NULL,
+    [PhoneNumber]          NVARCHAR (MAX) NULL,
+    [PhoneNumberConfirmed] BIT            DEFAULT ((0)) NULL,
+    [SecurityStamp]        NVARCHAR (MAX) NULL,
+    [TwoFactorEnabled]     BIT            DEFAULT ((0)) NULL,
+    [UserName]             NVARCHAR (MAX) NULL,
 	[CreateDate]                              DATETIME       NULL,
     [ConfirmationToken]                       NVARCHAR (128) NULL,
     [IsConfirmed]                             BIT            DEFAULT ((0)) NULL,
@@ -73,22 +80,22 @@ CREATE TABLE [dbo].[AspNetUserClaims] (
     [Id]         INT            IDENTITY (1, 1) NOT NULL,
     [ClaimType]  NVARCHAR (MAX) NULL,
     [ClaimValue] NVARCHAR (MAX) NULL,
-    [User_Id]    NVARCHAR (128) NOT NULL,
+    [UserId]    NVARCHAR (128) NOT NULL,
     CONSTRAINT [PK_dbo.AspNetUserClaims] PRIMARY KEY CLUSTERED ([Id] ASC),
-    CONSTRAINT [FK_dbo.AspNetUserClaims_dbo.AspNetUsers_User_Id] FOREIGN KEY ([User_Id]) REFERENCES [dbo].[AspNetUsers] ([Id]) ON DELETE CASCADE
+    CONSTRAINT [FK_dbo.AspNetUserClaims_dbo.AspNetUsers_User_Id] FOREIGN KEY ([UserId]) REFERENCES [dbo].[AspNetUsers] ([Id]) ON DELETE CASCADE
 );
 GO
 CREATE NONCLUSTERED INDEX [IX_User_Id]
-    ON [dbo].[AspNetUserClaims]([User_Id] ASC);
+    ON [dbo].[AspNetUserClaims]([UserId] ASC);
 GO
 
-INSERT INTO AspNetUsers(Id, UserName, PasswordHash, SecurityStamp, Discriminator,
+INSERT INTO AspNetUsers(Id, UserName, PasswordHash, SecurityStamp,
 CreateDate, ConfirmationToken, IsConfirmed, LastPasswordFailureDate, PasswordFailuresSinceLastSuccess,
-PasswordChangedDate, PasswordVerificationToken, PasswordVerificationTokenExpirationDate)
+PasswordChangedDate, PasswordVerificationToken, PasswordVerificationTokenExpirationDate,AccessFailedCount,LockoutEndDateUtc)
 SELECT UserProfile.UserId, UserProfile.UserName, webpages_Membership.Password, 
-webpages_Membership.PasswordSalt, 'User', CreateDate, 
+webpages_Membership.PasswordSalt,  CreateDate, 
 ConfirmationToken, IsConfirmed, LastPasswordFailureDate, PasswordFailuresSinceLastSuccess,
-PasswordChangedDate, PasswordVerificationToken, PasswordVerificationTokenExpirationDate
+PasswordChangedDate, PasswordVerificationToken, PasswordVerificationTokenExpirationDate,0,'1/1/1977'
 FROM UserProfile
 LEFT OUTER JOIN webpages_Membership ON UserProfile.UserId = webpages_Membership.UserId
 GO
