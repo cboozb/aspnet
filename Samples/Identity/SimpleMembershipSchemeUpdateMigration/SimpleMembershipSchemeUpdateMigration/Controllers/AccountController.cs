@@ -11,6 +11,7 @@ using WebMatrix.WebData;
 using SimpleMembershipSchemeUpdateMigration.Models;
 using Microsoft.AspNet.Identity;
 using Microsoft.AspNet.Identity.EntityFramework;
+using Microsoft.AspNet.Identity.Owin;
 
 namespace SimpleMembershipSchemeUpdateMigration.Controllers
 {
@@ -18,17 +19,46 @@ namespace SimpleMembershipSchemeUpdateMigration.Controllers
     public class AccountController : Controller
     {
         public AccountController()
-            : this(new UserManager<User>(new UserStore<User>(new ApplicationDbContext())))
         {
-
         }
 
-        public AccountController(UserManager<User> userManager)
+        public AccountController(ApplicationUserManager userManager, ApplicationSignInManager signInManager)
         {
             UserManager = userManager;
+            SignInManager = signInManager;
         }
 
-        public UserManager<User> UserManager { get; private set; }
+        private ApplicationUserManager _userManager;
+        public ApplicationUserManager UserManager
+        {
+            get
+            {
+                return _userManager ?? HttpContext.GetOwinContext().GetUserManager<ApplicationUserManager>();
+            }
+            private set
+            {
+                _userManager = value;
+            }
+        }
+
+        private ApplicationSignInManager _signInManager;
+
+        public ApplicationSignInManager SignInManager
+        {
+            get
+            {
+                return _signInManager ?? HttpContext.GetOwinContext().Get<ApplicationSignInManager>();
+            }
+            private set { _signInManager = value; }
+        }
+
+        private Microsoft.Owin.Security.IAuthenticationManager AuthenticationManager
+        {
+            get
+            {
+                return HttpContext.GetOwinContext().Authentication;
+            }
+        }
 
         //
         // GET: /Account/Login
@@ -50,10 +80,10 @@ namespace SimpleMembershipSchemeUpdateMigration.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = UserManager.Find(model.UserName, model.Password);
-                if (user != null)
+                var result = SignInManager.PasswordSignIn(model.UserName, model.Password, model.RememberMe, shouldLockout: false);
+
+                if (result == SignInStatus.Success)
                 {
-                    SignIn(user, model.RememberMe);
                     return RedirectToLocal(returnUrl);
                 }
                 else
@@ -73,9 +103,9 @@ namespace SimpleMembershipSchemeUpdateMigration.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult LogOff()
         {
-            SignOut();
-
+            AuthenticationManager.SignOut();
             return RedirectToAction("Index", "Home");
+
         }
 
         //
@@ -97,11 +127,11 @@ namespace SimpleMembershipSchemeUpdateMigration.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = new User() { UserName = model.UserName };
+                var user = new User() { UserName = model.UserName, Email=model.UserName };
                 var result = UserManager.Create(user, model.Password);
                 if (result.Succeeded)
                 {
-                    SignIn(user, isPersistent: false);
+                    SignInManager.SignIn(user, isPersistent: false, rememberBrowser:false);
                     return RedirectToAction("Index", "Home");
                 }
                 else
@@ -171,6 +201,12 @@ namespace SimpleMembershipSchemeUpdateMigration.Controllers
                     IdentityResult result = UserManager.ChangePassword(user.Id, model.OldPassword, model.NewPassword);
                     if (result.Succeeded)
                     {
+                        user = UserManager.FindById(User.Identity.GetUserId());
+                        if (user != null)
+                        {
+                            SignInManager.SignIn(user, isPersistent: false,rememberBrowser:false);
+                        }
+
                         return RedirectToAction("Manage", new { Message = ManageMessageId.ChangePasswordSuccess });
                     }
                     else
@@ -234,7 +270,7 @@ namespace SimpleMembershipSchemeUpdateMigration.Controllers
             var user = UserManager.Find(login);
             if (user != null)
             {
-                SignIn(user, isPersistent: false);
+                SignInManager.SignIn(user, false, false);
                 return RedirectToLocal(returnUrl);
             }
             else if (User.Identity.IsAuthenticated)
@@ -282,7 +318,7 @@ namespace SimpleMembershipSchemeUpdateMigration.Controllers
                     result = UserManager.AddLogin(user.Id, new UserLoginInfo(provider, providerUserId));
                     if (result.Succeeded)
                     {
-                        SignIn(user, isPersistent: false);
+                        SignInManager.SignIn(user, false, false);
                         return RedirectToLocal(returnUrl);
                     }
                 }
@@ -405,15 +441,6 @@ namespace SimpleMembershipSchemeUpdateMigration.Controllers
 
 
         #region Identity Helpers
-        private void SignIn(User user, bool isPersistent)
-        {
-            FormsAuthentication.SetAuthCookie(user.UserName, isPersistent);
-        }
-
-        private void SignOut()
-        {
-            FormsAuthentication.SignOut();
-        }
 
         private void AddErrors(IdentityResult result)
         {
