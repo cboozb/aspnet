@@ -49,8 +49,7 @@ namespace BranchingPipelines
 
         private bool IsIE(IOwinContext context)
         {
-            // No longer accurate on IE11
-            return context.Request.Headers.Get("User-Agent").Contains("MSIE");
+            return context.Request.Headers.Get("User-Agent").Contains("Trident");
         }
     }
 }
