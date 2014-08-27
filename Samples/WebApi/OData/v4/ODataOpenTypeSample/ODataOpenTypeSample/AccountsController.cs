@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Web.Http;
 using System.Web.OData;
 using System.Web.OData.Routing;
 
 namespace ODataOpenTypeSample
 {
-
     public class AccountsController : ODataController
     {
         public AccountsController()
@@ -41,7 +38,9 @@ namespace ODataOpenTypeSample
             };
 
             Account account = Accounts.Single(a => a.Id == 1);
-            account.Address.DynamicProperties["Country"] = "US";
+            account.Address.DynamicProperties.Add("Country", "US");
+            account.DynamicProperties.Add("Gender", Gender.Male);
+            account.DynamicProperties.Add("Emails", new List<string>() { "a@a.com", "b@b.com" });
         }
 
         [EnableQuery(PageSize = 10, MaxExpansionDepth = 5)]
@@ -51,9 +50,11 @@ namespace ODataOpenTypeSample
         }
 
         [HttpGet]
+        [EnableQuery]
         public IHttpActionResult Get(int key)
         {
-            return Ok(Accounts.SingleOrDefault(e => e.Id == key));
+            IQueryable<Account> accounts = Accounts.Where(e => e.Id == key).AsQueryable();
+            return Ok(SingleResult.Create<Account>(accounts));
         }
 
         [HttpGet]
@@ -63,18 +64,33 @@ namespace ODataOpenTypeSample
             return Ok(Accounts.SingleOrDefault(e => e.Id == key).Address);
         }
 
-
         [HttpPut]
         public IHttpActionResult Put(int key, Account account)
         {
             if (key != account.Id)
             {
-                return BadRequest("The ID of customer is not matched with the key");
+                return BadRequest("The ID of account is not matched with the key");
             }
 
             Account originalAccount = Accounts.Where(a => a.Id == account.Id).Single();
             Accounts.Remove(originalAccount);
             Accounts.Add(account);
+            return Ok(account);
+        }
+
+        [EnableQuery]
+        public IHttpActionResult Patch(int key, Delta<Account> patch)
+        {
+            IEnumerable<Account> appliedAccounts = Accounts.Where(a => a.Id == key);
+
+            if (appliedAccounts.Count() == 0)
+            {
+                return BadRequest(string.Format("The entry with Id {0} doesn't exist", key));
+            }
+
+            Account account = appliedAccounts.Single();
+            patch.Patch(account);
+
             return Ok(account);
         }
 
@@ -85,21 +101,6 @@ namespace ODataOpenTypeSample
             Accounts.Add(account);
 
             return Created(account);
-        }
-
-        [HttpDelete]
-        public IHttpActionResult Delete(int key)
-        {
-            IEnumerable<Account> appliedAccounts = Accounts.Where(c => c.Id == key);
-
-            if (appliedAccounts.Count() == 0)
-            {
-                return BadRequest(string.Format("The entry with ID {0} doesn't exist", key));
-            }
-
-            Account account = appliedAccounts.Single();
-            Accounts.Remove(account);
-            return this.StatusCode(HttpStatusCode.NoContent);
         }
     }
 }
