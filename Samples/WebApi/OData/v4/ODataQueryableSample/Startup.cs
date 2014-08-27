@@ -23,6 +23,7 @@ namespace ODataQueryableSample
             modelBuilder.EntitySet<Customer>("Customers");
             modelBuilder.EntitySet<Order>("Orders");
             modelBuilder.EntitySet<Customer>("Response");
+            modelBuilder.EntitySet<Employee>("Employees");
             return modelBuilder.GetEdmModel();
         }
     }

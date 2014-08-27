@@ -17,10 +17,11 @@ namespace ODataQueryableSample
                 {
                     Console.WriteLine("Listening on " + _baseAddress);
 
-                    // Run clients against each of the three sample controllers
+                    // Run clients against each of controllers
                     RunCustomerClient();
                     RunOrderClient();
                     RunResponseClient();
+                    RunEmployeeClient();
                 }
             }
             catch (Exception e)
@@ -243,6 +244,45 @@ namespace ODataQueryableSample
             response.EnsureSuccessStatusCode();
             Console.WriteLine("\nHTTP response headers:\n{0}", response.Headers);
             Console.WriteLine("\nDelete order from customer: " + response.Content.ReadAsStringAsync().Result);
+        }
+
+        /// <summary>
+        /// $levels request against EmployeesController
+        /// </summary>
+        static void RunEmployeeClient() 
+        {
+            HttpClient client = new HttpClient();
+            client.BaseAddress = _baseAddress;
+
+            // Without any query
+            HttpResponseMessage response = client.GetAsync("/odata/Employees/").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\nWithout any query, returned:\n" + response.Content.ReadAsStringAsync().Result);
+
+            // Expand Manager to 3 levels of recursion
+            response = client.GetAsync("/odata/Employees?$expand=Manager($levels=3)").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\n$expand=Manager($levels=3), returned:\n" + response.Content.ReadAsStringAsync().Result);
+
+            // Expand with $select
+            response = client.GetAsync("/odata/Employees?$expand=Manager($levels=3; $select=Name,ID)").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\n$expand=Manager($levels=3; $select=Name,ID), returned:\n" + response.Content.ReadAsStringAsync().Result);
+
+            // Expand multiple navigation properties 
+            response = client.GetAsync("/odata/Employees?$expand=Manager($levels=3), Friend($levels=5)").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\n$expand=Manager($levels=3), Friend($levels=5), returned:\n" + response.Content.ReadAsStringAsync().Result);
+
+            // Expand derived type navigation property
+            response = client.GetAsync("/odata/Employees?$expand=ODataQueryableSample.Models.Manager/DirectReports($levels=max)").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\n$expand=ODataQueryableSample.Models.Manager/DirectReports($levels=max), returned:\n" + response.Content.ReadAsStringAsync().Result);
+
+            // Expand with nested $expand
+            response = client.GetAsync("/odata/Employees/ODataQueryableSample.Models.Manager?$expand=DirectReports($levels=3;$expand=Manager($levels=2))").Result;
+            response.EnsureSuccessStatusCode();
+            Console.WriteLine("\n$expand=DirectReports($levels=3;$expand=Manager($levels=2)), returned:\n" + response.Content.ReadAsStringAsync().Result);
         }
     }
 }
