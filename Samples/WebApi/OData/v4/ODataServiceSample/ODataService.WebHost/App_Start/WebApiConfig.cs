@@ -15,12 +15,9 @@ namespace ODataService.WebHost
             // Enables OData support by adding an OData route and enabling querying support for OData.
             // Action selector and odata media type formatters will be registered in per-controller configuration only
             config.MapODataServiceRoute(
-                routeName: "OData",
-                routePrefix: null,
-                model: ModelBuilder.GetEdmModel());
-
-            // Web API routes
-            config.MapHttpAttributeRoutes();
+              routeName: "OData",
+              routePrefix: null,
+              model: ModelBuilder.GetEdmModel());
 
             config.Routes.MapHttpRoute(
                 name: "DefaultApi",
