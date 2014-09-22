@@ -1,9 +1,9 @@
 ﻿This is a sample project that outlines creating custom password policy using ASP.NET. Complete explaination available in the following blog post http://blogs.msdn.com/b/webdev/archive/2014/01/06/implementing-custom-password-policy-using-asp-net-identity.aspx
 
 Password policies implemented 
-i. Change the default password length requirement from 6 characters to 10 characters.
+i. Change the default password length requirement is 10 characters.
 
-ii. The password should have at least one number and one special character.
+ii. The password should contain one special character, one number, one uppercase and one lowercase character.
 
 iii. The user cannot reuse any of the last 5 previous passwords.
 

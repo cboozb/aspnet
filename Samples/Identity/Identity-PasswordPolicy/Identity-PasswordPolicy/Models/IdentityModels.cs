@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
+using Microsoft.Owin;
 
 namespace Identity_PasswordPolicy.Models
 {
@@ -59,6 +60,11 @@ namespace Identity_PasswordPolicy.Models
             : base("DefaultConnection")
         {
         }
+
+        public static ApplicationDbContext Create()
+        {
+            return new ApplicationDbContext();
+        }
     }
 
     public class ApplicationUserManager : UserManager<ApplicationUser>
@@ -70,22 +76,35 @@ namespace Identity_PasswordPolicy.Models
         {
         }
 
-        public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options)
+        public static ApplicationUserManager Create(IdentityFactoryOptions<ApplicationUserManager> options,
+           IOwinContext context)
         {
-            var manager = new ApplicationUserManager(new ApplicationUserStore(new ApplicationDbContext()));
-            // Configure the application user manager
+            var manager = new ApplicationUserManager(new ApplicationUserStore(context.Get<ApplicationDbContext>()));
+            // Configure validation logic for usernames
             manager.UserValidator = new UserValidator<ApplicationUser>(manager)
             {
                 AllowOnlyAlphanumericUserNames = false,
                 RequireUniqueEmail = true
             };
-            manager.PasswordValidator = new CustomPasswordValidator(10);
+            // Configure validation logic for passwords
+            manager.PasswordValidator = new PasswordValidator
+            {
+                RequiredLength = 10,
+                RequireNonLetterOrDigit = true,
+                RequireDigit = true,
+                RequireLowercase = true,
+                RequireUppercase = true,
+            };
+            // Configure user lockout defaults
+            manager.UserLockoutEnabledByDefault = true;
+            manager.DefaultAccountLockoutTimeSpan = TimeSpan.FromMinutes(5);
+            manager.MaxFailedAccessAttemptsBeforeLockout = 5;
 
             var dataProtectionProvider = options.DataProtectionProvider;
             if (dataProtectionProvider != null)
             {
-                manager.PasswordResetTokens = new DataProtectorTokenProvider(dataProtectionProvider.Create("PasswordReset"));
-                manager.UserConfirmationTokens = new DataProtectorTokenProvider(dataProtectionProvider.Create("ConfirmUser"));
+                manager.UserTokenProvider =
+                    new DataProtectorTokenProvider<ApplicationUser>(dataProtectionProvider.Create("ASP.NET Identity"));
             }
             return manager;
         }
