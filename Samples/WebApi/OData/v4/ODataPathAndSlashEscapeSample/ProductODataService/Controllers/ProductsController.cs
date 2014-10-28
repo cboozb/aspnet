@@ -36,9 +36,9 @@ namespace ProductODataService.Controllers
 
         // ~/Employees/Namespace.GetCount(Name='Name1')
         [HttpGet]
-        public int GetCount(string subString)
+        public int GetCount(string Name)
         {
-            return _products.Count(e => e.Name.Contains(subString));
+            return _products.Count(e => e.Name.Contains(Name));
         }
     }
 }

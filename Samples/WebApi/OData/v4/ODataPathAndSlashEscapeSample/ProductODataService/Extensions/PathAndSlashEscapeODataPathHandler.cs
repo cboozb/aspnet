@@ -12,7 +12,7 @@ namespace ProductODataService.Extensions
 {
     public class PathAndSlashEscapeODataPathHandler : DefaultODataPathHandler
     {
-        private const string EscapedQuote = "%27";
+        private const string EscapedQuote = "'";
 
         public override ODataPath Parse(IEdmModel model, string serviceRoot, string odataPath)
         {
