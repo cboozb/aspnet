@@ -15,6 +15,7 @@ namespace MongoSample.Models
     {
         // These three classes are supposed to be thread-safe, see 
         // http://www.mongodb.org/display/DOCS/CSharp+Driver+Tutorial#CSharpDriverTutorial-Threadsafety
+        MongoClient _client;
         MongoServer _server;
         MongoDatabase _database;
         MongoCollection<Contact> _contacts;
@@ -31,8 +32,9 @@ namespace MongoSample.Models
                 connection = "mongodb://localhost:27017";
             }
 
-            _server = MongoServer.Create(connection);
-            _database = _server.GetDatabase("Contacts", SafeMode.True);
+            _client = new MongoClient(connection);
+            _server = _client.GetServer();
+            _database = _server.GetDatabase("Contacts", WriteConcern.Unacknowledged);
             _contacts = _database.GetCollection<Contact>("contacts");
 
             // Reset database and add some default entries
@@ -71,7 +73,7 @@ namespace MongoSample.Models
         public bool RemoveContact(string id)
         {
             IMongoQuery query = Query.EQ("_id", id);
-            SafeModeResult result = _contacts.Remove(query);
+            WriteConcernResult result = _contacts.Remove(query);
             return result.DocumentsAffected == 1;
         }
 
@@ -84,7 +86,7 @@ namespace MongoSample.Models
                 .Set("LastModified", DateTime.UtcNow)
                 .Set("Name", item.Name)
                 .Set("Phone", item.Phone);
-            SafeModeResult result = _contacts.Update(query, update);
+            WriteConcernResult result = _contacts.Update(query, update);
             return result.UpdatedExisting;
         }
     }
