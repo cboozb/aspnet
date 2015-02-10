@@ -7,16 +7,17 @@ using System.Security.Cryptography.X509Certificates;
 namespace HostedClientCertificateSample
 {
     /// <summary>
-    /// This sample shows how to secure a web API server with mutual Certificates in the web hosted scenario. It also shows how to authenticate and authorize based 
-    /// on client's certificate. This project contains the client part. 
+    /// This sample shows how to secure a web API server with mutual Certificates in the web hosted scenario. It also shows how to authenticate and authorize based
+    /// on client's certificate. This project contains the client part.
     ///
     /// There are some Client related SETUP steps required to run this app successfully. For the server related steps, please see those instructions in Global.asax.cs.
-    /// 
-    /// Step 1: Generate your client test cert using the following makecert cmd. 
+    ///
+    /// Step 1: Generate your client test cert using the following makecert command.
     ///      makecert -pe -n "CN=Your Name" -ss my -sr CurrentUser -a sha1 -sky signature -r
-    /// 
-    /// Step 2: Export the client test certificate from the CurrentUser/Personal certificate store, and then import newly exported certificate into the Local Machine store under 
-    /// "Trusted Root Certification Authority" so that the server will trust this client certificate. After you complete the testing, please uninstall the certificate from the  
+    ///   If makecert is not in your path, try locations such as 'C:\Program Files (x86)\Windows Kits\8.1\bin\x64'
+    ///
+    /// Step 2: Export the client test certificate from the CurrentUser/Personal certificate store, and then import newly exported certificate into the Local Machine store under
+    /// "Trusted Root Certification Authority" so that the server will trust this client certificate. After you complete the testing, please uninstall the certificate from the
     /// "Trusted Root Certification Authority" store.
     ///
     /// Step 3: Update the ServerCertHash with hash of your server certificate and the ClientCertHash with hash of your client certificate.
@@ -27,10 +28,10 @@ namespace HostedClientCertificateSample
     {
         static readonly Uri _baseAddress = new Uri("https://contoso.com/HostedClientCertificateSample/");
 
-        // Update here with hash of your client and server certificates 
-        public const string ServerCertHash = "F8A657C399C919DC96F0C272D35CE5D51880CEF6";
-        public const string ClientCertHash = "496B1B29D45375D49270966A45811E9F0AC870E2";
-        
+        // Update here with hash of your client and server certificates
+        public const string ServerCertHash = "3DD9A794612C78E25B1FD25ECC4E486C18E690D2";
+        public const string ClientCertHash = "97526DCB0CC8D557436DBA57EE1116CFB81E80E1";
+
         static void Main(string[] args)
         {
             // RunClient
